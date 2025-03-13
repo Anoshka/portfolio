@@ -1,0 +1,71 @@
+.project-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+
+  padding: 2rem 0;
+}
+
+.project-list__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  text-decoration: none;
+  color: var(--text-color);
+  padding: 3rem 0;
+  position: relative;
+  transition: transform 0.3s ease-in-out;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background-color: black;
+    transform: translateX(-50%);
+  }
+}
+
+.project-list__image {
+  width: 25rem; // Adjusted for better alignment
+  height: 14rem;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  transition: filter 0.3s ease-in-out;
+  align-self: flex-start;
+  margin: 0 2rem;
+
+  filter: grayscale(100%);
+
+  .project-list__item:hover & {
+    filter: grayscale(0%);
+  }
+}
+
+.project-list__content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  flex: 1;
+}
+
+.project-list__title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.project-list__description {
+  font-size: 1rem;
+  opacity: 0.8;
+  line-height: 1.6rem;
+  max-width: 40rem; // Prevents text from stretching too wide
+  white-space: pre-line; // Keeps the bullet points properly formatted
+}

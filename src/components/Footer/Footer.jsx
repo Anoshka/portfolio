@@ -11,7 +11,7 @@ function Footer() {
       <div className="footer__container">
         <div className="footer__links">
           <a
-            href="https://www.linkedin.com/in/your-profile"
+            href="https://github.com/Anoshka"
             target="_blank"
             rel="noopener noreferrer"
             className="footer__link"
@@ -19,7 +19,7 @@ function Footer() {
             <img src={githubIcon} alt="LinkedIn" />
           </a>
           <a
-            href="https://www.linkedin.com/in/your-profile"
+            href="https://www.linkedin.com/in/anoshkajhaveri/"
             target="_blank"
             rel="noopener noreferrer"
             className="footer__link"
@@ -27,7 +27,10 @@ function Footer() {
             <img src={linkedinIcon} alt="LinkedIn" />
           </a>
 
-          <a href="mailto:your.email@example.com" className="footer__link">
+          <a
+            href="mailto:your.anoshkaujhaveri@gmail.com"
+            className="footer__link"
+          >
             <img src={emailIcon} alt="Email" />
           </a>
         </div>

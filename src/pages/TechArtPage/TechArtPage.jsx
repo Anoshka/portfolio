@@ -5,8 +5,6 @@ import "./TechArtPage.scss";
 const TechArtPage = () => {
   return (
     <div className="work">
-      <h2 className="work__title"></h2>
-
       <TechArtGrid />
       <div className="work__video-container">
         <iframe

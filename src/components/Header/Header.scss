@@ -38,6 +38,7 @@
   &__nav {
     font-size: 1rem;
     @include flex-container($justify: space-around, $align: center);
+    filter: brightness(1) 0.8;
 
     @include tablet {
       width: 30rem;

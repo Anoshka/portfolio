@@ -1,0 +1,40 @@
+@use "../../styles/partials/mixins" as *;
+@use "../../styles/partials/variables" as *;
+
+.about {
+  &__type {
+    padding-top: 2rem;
+  }
+  &__description {
+    padding: 4rem 2rem;
+    font-size: 1.2rem;
+    line-height: 1.5rem;
+    opacity: 0.9;
+    filter: brightness(2);
+
+    position: relative;
+    @include tablet {
+      padding: 5rem;
+      text-align: justify;
+    }
+    @include desktop {
+      padding: 10rem;
+    }
+
+    &::after {
+      content: "|"; // The cursor character
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: var(--text-color); // Matches text color
+      display: inline-block;
+      margin-left: 5px;
+      animation: blink 0.8s infinite;
+    }
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}

@@ -1,0 +1,124 @@
+@use "./variables" as *;
+
+@mixin tablet {
+  @media (min-width: $breakpoint-tablet) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: $breakpoint-desktop) {
+    @content;
+  }
+}
+
+@mixin flex-container($direction: row, $justify: flex-start, $align: stretch) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify;
+  align-items: $align;
+}
+
+@mixin reset-field {
+  padding: 0;
+  border: none;
+  font: inherit;
+  color: inherit;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+@mixin cta-button {
+  height: 2.25rem;
+  width: 100%;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  text-align: center;
+  text-decoration: none;
+  align-content: center;
+  color: $White;
+  background-color: $Instock-Indigo;
+  border-radius: 1.25rem;
+
+  @include tablet {
+    width: fit-content;
+    padding: 0 1rem;
+    height: 2.375rem;
+    font-size: 0.875rem;
+    line-height: 1.375rem;
+  }
+
+  &:hover {
+    background-color: $Graphite;
+  }
+}
+
+@mixin form-field {
+  padding: 0 1rem;
+  height: 2.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  color: $Instock-Black;
+  background-color: white;
+  border-radius: 1.25rem;
+  border: 0.0625rem solid $Cloud;
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+
+  @include tablet {
+    width: 11.5625rem;
+    height: 2.375rem;
+    font-size: 0.875rem;
+    line-height: 1.375rem;
+  }
+
+  &:active,
+  &:focus {
+    border: 0.0625rem solid $Instock-Indigo;
+    outline: none;
+  }
+
+  &::placeholder {
+    color: $Slate;
+  }
+}
+
+@mixin page-container {
+  width: 100%;
+  height: fit-content;
+  position: relative;
+  bottom: 3.25rem;
+  background-color: white;
+  border-radius: 0.1875rem;
+  box-shadow: 0rem 0.125rem 0.3125rem 0rem #13182c1a;
+
+  @include tablet {
+    width: 87.5vw;
+    max-width: 1020px;
+    bottom: 5.5rem;
+    margin: 0 auto;
+  }
+
+  @include desktop {
+    width: 1020px;
+  }
+}
+
+@mixin stock-tag {
+  padding: 0 0.5rem;
+  width: fit-content;
+  height: 1.5rem;
+  text-align: center;
+  text-decoration: none;
+  align-content: center;
+  font-size: $m-h4-text-size;
+  line-height: $m-h4-line-height;
+  font-weight: $font-weight-semi-bold600;
+  border-radius: 1.25rem;
+
+  @include tablet {
+    height: 1.625rem;
+    font-size: $h4-text-size;
+    line-height: $h4-line-height;
+  }
+}

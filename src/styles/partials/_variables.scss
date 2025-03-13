@@ -1,0 +1,92 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap");
+
+// Breakpoints
+$breakpoint-tablet: 48rem;
+$breakpoint-desktop: 80rem;
+
+// Light Theme
+$light-bg: #ffffff;
+$light-text: #13182c;
+$light-accent: #13182c;
+
+// Dark Theme
+$dark-bg: #181722;
+$dark-text: #f8f9fa;
+$dark-accent: #899bc0;
+
+// Pink Theme
+$pink-bg: #812149;
+$pink-text: #ec9ec6;
+$pink-accent: #f472b6;
+
+// Blue Theme
+$blue-bg: #1e3a8a;
+$blue-text: #6889d1;
+$blue-accent: #2563eb;
+
+// Green Theme
+$green-bg: #064e3b;
+$green-text: #50b996;
+$green-accent: #10b981;
+
+// Yellow Theme
+$yellow-bg: #c08328;
+$yellow-text: #e0ce83;
+$yellow-accent: #facc15;
+
+//font weight
+$primary-font: "Press Start 2P", Arial, Helvetica, sans-serif;
+$primary-font-fontface: "Play";
+$font-weight-semi-bold600: 600;
+$font-weight-regular400: 400;
+
+//secondary font
+$secondary-font: "Play", Arial, Helvetica, sans-serif;
+$secondary-font-fontface: "Play";
+$font-weight-semi-bold600: 600;
+$font-weight-regular400: 400;
+
+//Tablet and Desktop
+$h1-text-size: 2rem;
+$h1-line-height: 2.5rem;
+
+$h2-text-size: 1.5rem;
+$h2-line-height: 2rem;
+
+$h3-text-size: 0.875rem;
+$h3-line-height: 1.375rem;
+
+$h4-text-size: 0.75rem;
+$h4-line-height: 1.125rem;
+
+$p1-text-size: 1rem;
+$p1-line-height: 1.75rem;
+
+$p2-text-size: 0.875rem;
+$p2-line-height: 1.375rem;
+
+$p3-text-size: 0.75rem;
+$p3-line-height: 1.125rem;
+
+//Mobile
+$m-h1-text-size: 1.75rem;
+$m-h1-line-height: 2.25rem;
+
+$m-h2-text-size: 1.25rem;
+$m-h2-line-height: 1.75rem;
+
+$m-h3-text-size: 0.8125rem;
+$m-h3-line-height: 1.25rem;
+
+$m-h4-text-size: 0.6875rem;
+$m-h4-line-height: 1rem;
+
+$m-p1-text-size: 0.9375rem;
+$m-p1-line-height: 1.625rem;
+
+$m-p2-text-size: 0.8125rem;
+$m-p2-line-height: 1.25rem;
+
+$m-p3-text-size: 0.6875rem;
+$m-p3-line-height: 1rem;

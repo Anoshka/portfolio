@@ -29,7 +29,9 @@ jobs:
         run: npm ci
 
       - name: Build project
-        run: npm run build
+        run: |
+          npm run build
+          cp netlify.toml dist/
 
       # Deploy to Netlify
       - name: Deploy to Netlify

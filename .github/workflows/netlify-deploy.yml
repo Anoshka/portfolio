@@ -245,10 +245,45 @@ jobs:
           echo "Component location check:"
           ls -l src/components/Footer/
 
-      # Update test running command
+      # Create test setup files
+      - name: Create test setup files
+        run: |
+          # Create setupTests.js with CommonJS syntax
+          echo 'require("@testing-library/jest-dom");' > src/setupTests.js
+
+          # Create .babelrc for proper transpilation
+          echo '{
+            "presets": [
+              ["@babel/preset-env", { "targets": { "node": "current" } }],
+              ["@babel/preset-react", { "runtime": "automatic" }]
+            ]
+          }' > .babelrc
+
+      # Update Jest config
+      - name: Update Jest config
+        run: |
+          echo 'export default {
+            testEnvironment: "jsdom",
+            moduleNameMapper: {
+              "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+              "\\.(jpg|jpeg|png|gif|webp|svg)$": "<rootDir>/__mocks__/fileMock.js"
+            },
+            transform: {
+              "^.+\\.(js|jsx|mjs)$": "babel-jest"
+            },
+            setupFilesAfterEnv: ["<rootDir>/src/setupTests.js"],
+            testMatch: ["**/generated_tests/output/**/*.test.jsx"],
+            moduleDirectories: ["node_modules", "src"],
+            extensionsToTreatAsEsm: [".jsx"],
+            transformIgnorePatterns: [
+              "/node_modules/(?!(@testing-library|react-router-dom)/)"
+            ]
+          }' > jest.config.mjs
+
+      # Run tests
       - name: Run tests
         run: |
-          node --expose-gc --max-old-space-size=4096 node_modules/jest/bin/jest.js \
+          node --experimental-vm-modules node_modules/jest/bin/jest.js \
             --config=jest.config.mjs \
             --runInBand \
             --detectOpenHandles \

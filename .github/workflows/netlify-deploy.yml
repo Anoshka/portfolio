@@ -153,10 +153,18 @@ jobs:
           for file in src/services/generated_tests/output/*.test.jsx; do
             if [ -f "$file" ]; then
               component_name=$(basename "$file" .test.jsx)
+              
+              # Determine if it's a page or component
+              if [[ "$component_name" == *"Page" ]]; then
+                import_path="../../pages/${component_name}/${component_name}"
+              else
+                import_path="../../components/${component_name}/${component_name}"
+              fi
+
               echo "import React from 'react';
           import { render } from '@testing-library/react';
           import { TestWrapper, mockCanvas } from '../testUtils';
-          import ${component_name} from '../../components/${component_name}';
+          import ${component_name} from '${import_path}';
 
           if ('${component_name}' === 'Animation') {
             mockCanvas();

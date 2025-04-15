@@ -16,4 +16,7 @@ export default {
     '^.+\\.module\\.(css|sass|scss)$',
   ],
   extensionsToTreatAsEsm: ['.jsx', '.ts', '.tsx'],
+  moduleDirectories: ['node_modules', 'src'],
+  roots: ['<rootDir>/src'],
+  modulePaths: ['<rootDir>/src'],
 };

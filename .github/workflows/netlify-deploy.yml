@@ -17,8 +17,24 @@ env:
   NODE_VERSION: '20'
   NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
   NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
 jobs:
+  # Test OpenAI API Key
+  test-openai:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test OpenAI API Key
+        run: |
+          if [ -z "${{ secrets.OPENAI_API_KEY }}" ]; then
+            echo "❌ OPENAI_API_KEY is not set"
+            exit 1
+          else
+            echo "✅ OPENAI_API_KEY is set"
+            # Print first 4 characters to verify it starts with "sk-"
+            echo "Key starts with: ${OPENAI_API_KEY:0:4}"
+          fi
+
   # 1. Prettier Formatting
   format:
     runs-on: ubuntu-latest
@@ -63,11 +79,29 @@ jobs:
 
       - name: Generate and Run Tests
         run: |
-          # Generate tests based on current code
-          node scripts/generate-tests.js
+          # Create output directory
+          mkdir -p src/services/generated_tests/output
 
-          # Run tests
+          # Run test generation
+          node -e "
+            const { TestRunner } = require('./src/services/generated_tests');
+            const runner = new TestRunner(process.env.OPENAI_API_KEY);
+            
+            // Generate component tests
+            runner.runComponentTests('src/components/Animation/Animation.jsx');
+            runner.runComponentTests('src/components/Card/Card.jsx');
+            
+            // Generate route tests
+            runner.runRouteTests([
+              { path: '/', component: 'LandingPage' },
+              { path: '/projects', component: 'ProjectsPage' }
+            ]);
+          "
+
+          # Run generated tests
           npm test
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
       - name: Store Test Results
         run: |

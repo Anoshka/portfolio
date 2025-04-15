@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import TestGenerator from './testGenerator.js';
-import glob from 'glob';
+import { glob } from 'glob';
 
 class TestRunner {
   constructor(apiKey) {

@@ -28,7 +28,7 @@ class TestRunner {
     fs.writeFileSync(testPath, testCode);
 
     // Run test
-    // need to add jest.runCLI() here if you want to run tests immediately
+    // need to add jest.runCLI() to run tests immediately
   }
 
   async runRouteTests(routes) {

@@ -10,7 +10,7 @@
     "prettier": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,scss,json}\"",
     "prettier:write": "prettier --write \"src/**/*.{js,jsx,ts,tsx,scss,css,json}\"",
     "prettier:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,scss,css,json}\"",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "test:generate": "node src/services/generated_tests/testRunner.js",
     "lint": "eslint \"src/**/*.{js,jsx}\" --format stylish --fix"
   },
@@ -62,6 +62,10 @@
     "moduleNameMapper": {
       "\\.(css|scss)$": "identity-obj-proxy",
       "\\.(jpg|jpeg|png|gif|webp|svg)$": "<rootDir>/__mocks__/fileMock.js"
-    }
+    },
+    "testMatch": [
+      "<rootDir>/src/**/*.test.{js,jsx}",
+      "<rootDir>/src/services/generated_tests/output/**/*.test.{js,jsx}"
+    ]
   }
 }

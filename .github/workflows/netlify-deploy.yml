@@ -1,5 +1,12 @@
 name: Netlify CI/CD Pipeline
 
+# Add permissions at the top level
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  statuses: write
+
 on:
   push:
     branches: ['main']

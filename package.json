@@ -7,8 +7,11 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "prettier": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,scss,json}\"",
     "prettier:write": "prettier --write \"src/**/*.{js,jsx,ts,tsx,scss,css,json}\"",
     "prettier:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,scss,css,json}\"",
+    "test": "jest",
+    "test:generate": "node scripts/generate-tests.js",
     "lint": "eslint \"src/**/*.{js,jsx}\" --format stylish --fix"
   },
   "dependencies": {
@@ -26,6 +29,8 @@
   },
   "devDependencies": {
     "@eslint/create-config": "^1.8.1",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@types/react-modal": "^3.16.3",
@@ -34,7 +39,15 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "globals": "^15.9.0",
+    "jest": "^29.7.0",
+    "openai": "^4.94.0",
     "prettier": "^3.5.3",
     "vite": "^5.4.1"
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5"
   }
 }

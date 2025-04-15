@@ -9,9 +9,9 @@ permissions:
 
 on:
   push:
-    branches: ['main']
+    branches: ['main', 'staging']
   pull_request:
-    branches: ['main']
+    branches: ['main', 'staging']
 
 env:
   NODE_VERSION: '20'
@@ -19,55 +19,65 @@ env:
   NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 
 jobs:
-  # 1. Lint Check and Review
-  lint-check:
+  # 1. Prettier Formatting
+  format:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Fetch all history for all branches
+          ref: ${{ github.head_ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run ESLint Check
-        id: lint
-        run: |
-          OUTPUT=$(npm run lint 2>&1) || true
-          ESCAPED_OUTPUT=$(echo "$OUTPUT" | sed ':a;N;$!ba;s/\n/\\n/g' | sed 's/"/\\"/g')
-          echo "LINT_ISSUES=$ESCAPED_OUTPUT" >> $GITHUB_ENV
+      - name: Run Prettier
+        run: npx prettier --write "src/**/*.{js,jsx,ts,tsx,css,scss,json}"
 
-      - name: Create Pull Request with Lint Fixes
-        if: env.LINT_ISSUES != ''
-        uses: peter-evans/create-pull-request@v5
+      - name: Commit Prettier changes
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          title: 'style: ESLint Auto-fixes'
-          body: |
-            ESLint has suggested the following changes:
-            ```
-            ${{ env.LINT_ISSUES }}
-            ```
+          commit_message: 'style: format code with prettier'
+          branch: ${{ github.head_ref }}
 
-            - Review the changes and approve/reject them
-            - Approving this PR will apply the fixes and continue deployment
-            - Closing this PR will continue deployment without the fixes
-          branch: lint-fixes-${{ github.sha }}
-          base: main # Explicitly set the base branch
-          delete-branch: true
-          labels: |
-            linting
-            automated pr
+  # 2. Testing
+  test:
+    needs: format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-  # 2. Build and Deploy
-  deploy:
-    needs: lint-check
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate and Run Tests
+        run: |
+          # Generate tests based on current code
+          node scripts/generate-tests.js
+
+          # Run tests
+          npm test
+
+      - name: Store Test Results
+        run: |
+          echo "Test Results:" >> $GITHUB_STEP_SUMMARY
+          cat test-results.txt >> $GITHUB_STEP_SUMMARY
+
+  # 3. Deploy to Staging
+  deploy-staging:
+    needs: test
+    if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -84,29 +94,60 @@ jobs:
       - name: Build site
         run: npm run build
 
-      # Deploy to Netlify
-      - name: Deploy to Netlify
+      - name: Deploy to Staging
         uses: nwtgck/actions-netlify@v2
         with:
           publish-dir: './dist'
-          production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: 'Deploy from GitHub Actions'
+          deploy-message: 'Deploy to staging'
           enable-pull-request-comment: true
           enable-commit-comment: true
+          production: false
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 
-  # 3. Post Deploy Notification
+  # 4. Deploy to Production
+  deploy-production:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        run: npm run build
+
+      - name: Deploy to Production
+        uses: nwtgck/actions-netlify@v2
+        with:
+          publish-dir: './dist'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: 'Deploy to production'
+          enable-commit-comment: true
+          production: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+  # 5. Post Deploy Notification
   notify:
-    needs: deploy
+    needs: deploy-production
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Deployment Status
         run: |
-          if [ "${{ needs.deploy.result }}" = "success" ]; then
+          if [ "${{ needs.deploy-production.result }}" = "success" ]; then
             echo "🎉 Deployment successful!"
           else
             echo "❌ Deployment failed"
@@ -119,7 +160,7 @@ jobs:
         with:
           script: |
             const message = `
-            ## Deployment Status: ${{ needs.deploy.result }}
+            ## Deployment Status: ${{ needs.deploy-production.result }}
 
             ${process.env.DEPLOY_URL ? `🔗 Preview URL: ${process.env.DEPLOY_URL}` : ''}
 

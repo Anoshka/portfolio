@@ -10,27 +10,27 @@
           # Create single Babel config file with proper JSON formatting
           echo '{"presets":[["@babel/preset-env",{"targets":{"node":"current"}}],["@babel/preset-react",{"runtime":"automatic"}]]}' > .babelrc.json
 
+      - name: Debug config files
+        run: |
+          echo "Content of .babelrc.json:"
+          cat .babelrc.json
+          echo "File type of .babelrc.json:"
+          file .babelrc.json
+          echo "Hex dump of .babelrc.json:"
+          xxd .babelrc.json
+
       - name: Create Jest config
         run: |
-          cat << 'EOF' > jest.config.mjs
-          export default {
-            testEnvironment: "jsdom",
-            moduleNameMapper: {
-              "\\.(css|less|scss|sass)$": "identity-obj-proxy",
-              "\\.(jpg|jpeg|png|gif|webp|svg)$": "<rootDir>/__mocks__/fileMock.js"
-            },
-            transform: {
-              "^.+\\.(js|jsx|mjs)$": "babel-jest"
-            },
-            setupFilesAfterEnv: ["<rootDir>/src/setupTests.js"],
-            testMatch: ["**/generated_tests/output/**/*.test.jsx"],
-            moduleDirectories: ["node_modules", "src"],
-            extensionsToTreatAsEsm: [".jsx"],
-            transformIgnorePatterns: [
-              "/node_modules/(?!(@testing-library|react-router-dom)/)"
-            ]
-          }
-          EOF
+          echo 'export default {testEnvironment:"jsdom",moduleNameMapper:{"\\.(css|less|scss|sass)$":"identity-obj-proxy","\\.(jpg|jpeg|png|gif|webp|svg)$":"<rootDir>/__mocks__/fileMock.js"},transform:{"^.+\\.(js|jsx|mjs)$":"babel-jest"},setupFilesAfterEnv:["<rootDir>/src/setupTests.js"],testMatch:["**/generated_tests/output/**/*.test.jsx"],moduleDirectories:["node_modules","src"],extensionsToTreatAsEsm:[".jsx"],transformIgnorePatterns:["/node_modules/(?!(@testing-library|react-router-dom)/)"]}' > jest.config.mjs
+
+      - name: Debug Jest config
+        run: |
+          echo "Content of jest.config.mjs:"
+          cat jest.config.mjs
+          echo "File type of jest.config.mjs:"
+          file jest.config.mjs
+          echo "Hex dump of jest.config.mjs:"
+          xxd jest.config.mjs
 
       - name: Run tests
         run: |

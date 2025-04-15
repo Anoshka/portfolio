@@ -1,4 +1,3 @@
-import { NavLink } from 'react-router-dom';
 import './Footer.scss';
 import linkedinIcon from '../../assets/icons/linkedin_clean.png';
 import emailIcon from '../../assets/icons/email_clean.png';

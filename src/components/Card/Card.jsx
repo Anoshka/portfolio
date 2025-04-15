@@ -1,4 +1,5 @@
 import './Card.scss';
+import PropTypes from 'prop-types';
 
 const Card = ({ title, image, link }) => {
   return (
@@ -13,6 +14,12 @@ const Card = ({ title, image, link }) => {
       </div>
     </a>
   );
+};
+
+Card.propTypes = {
+  title: PropTypes.string.isRequired,
+  image: PropTypes.string.isRequired,
+  link: PropTypes.string.isRequired,
 };
 
 export default Card;

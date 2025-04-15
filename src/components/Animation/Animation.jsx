@@ -76,9 +76,13 @@ const Animation = () => {
       camera.updateProjectionMatrix();
     });
 
+    const currentMount = mountRef.current;
+
     return () => {
-      mountRef.current.removeChild(renderer.domElement);
-      window.removeEventListener('resize', () => {});
+      if (currentMount) {
+        mountRef.current.removeChild(renderer.domElement);
+        window.removeEventListener('resize', () => {});
+      }
     };
   }, []);
 

@@ -92,8 +92,24 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm ci
-          npm install --save-dev jest jest-environment-jsdom @testing-library/react @testing-library/jest-dom @babel/core @babel/preset-env @babel/preset-react babel-jest identity-obj-proxy react-router-dom canvas
+          # Remove existing node_modules and package-lock.json to ensure clean install
+          rm -rf node_modules package-lock.json
+
+          # Install production dependencies first
+          npm install
+
+          # Install dev dependencies separately
+          npm install --save-dev \
+            jest \
+            jest-environment-jsdom \
+            @testing-library/react \
+            @testing-library/jest-dom \
+            @babel/core \
+            @babel/preset-env \
+            @babel/preset-react \
+            babel-jest \
+            identity-obj-proxy \
+            canvas
 
       - uses: actions/download-artifact@v4
         with:
@@ -104,7 +120,7 @@ jobs:
         run: |
           mkdir -p src/services/generated_tests
           echo 'import React from "react";
-          import { BrowserRouter, MemoryRouter } from "react-router-dom";
+          import { MemoryRouter } from "react-router-dom";
 
           export const TestWrapper = ({ children }) => {
             return (

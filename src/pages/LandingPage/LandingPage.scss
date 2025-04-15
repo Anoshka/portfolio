@@ -1,5 +1,5 @@
-@use "../../styles/partials/mixins" as *;
-@use "../../styles/partials/variables" as *;
+@use '../../styles/partials/mixins' as *;
+@use '../../styles/partials/variables' as *;
 
 .about {
   &__type {
@@ -22,7 +22,7 @@
     }
 
     &::after {
-      content: "|"; // The cursor character
+      content: '|'; // The cursor character
       font-weight: bold;
       font-size: 1.2rem;
       color: var(--text-color); // Matches text color

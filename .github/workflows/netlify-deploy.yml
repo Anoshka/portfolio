@@ -1,49 +1,189 @@
-name: Netlify CI/CD Pipeline
+name: Netlify Deploy
+
+# Add permissions at the top level
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  statuses: write
 
 on:
   push:
-    branches: ["main"]
+    branches: ['main', 'staging']
   pull_request:
-    branches: ["main"]
+    branches: ['main', 'staging']
 
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: '20'
   NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
   NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
 jobs:
-  # 1. Build and Deploy
-  deploy:
+  # 1. Format Code
+  format:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Prettier
+        run: npx prettier --write "src/**/*.{js,jsx,ts,tsx,css,scss,json}"
+
+      - name: Commit Prettier changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'style: format code with prettier'
+          branch: ${{ github.head_ref }}
+
+  # 2. Generate Tests
+  generate-tests:
+    needs: format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install --save-dev jest jest-environment-jsdom @testing-library/react @testing-library/jest-dom openai glob
+
+      - name: Verify OpenAI API Key
+        run: |
+          if [ -z "${{ secrets.OPENAI_API_KEY }}" ]; then
+            echo "❌ OPENAI_API_KEY is not set"
+            exit 1
+          else
+            echo "✅ OPENAI_API_KEY is set"
+          fi
+
+      - name: Generate Tests
+        run: |
+          mkdir -p src/services/generated_tests/output
+          node src/services/generated_tests/testRunner.js
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+  # 3. Run Tests
+  test:
+    needs: generate-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install --save-dev jest jest-environment-jsdom @testing-library/react @testing-library/jest-dom identity-obj-proxy @babel/core @babel/preset-env @babel/preset-react babel-jest
+
+      - name: Create test setup files
+        run: |
+          mkdir -p __mocks__
+          mkdir -p src/services/generated_tests/output
+          echo "module.exports = 'test-file-stub';" > __mocks__/fileMock.js
+          echo "require('@testing-library/jest-dom');" > src/setupTests.js
+
+          # Create a sample test
+          echo "
+          describe('Initial test', () => {
+            test('should pass', () => {
+              expect(true).toBe(true);
+            });
+          });
+          " > src/services/generated_tests/output/initial.test.js
+
+      - name: Run tests
+        run: npm test
+
+  # 4. Deploy
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build project
-        run: |
-          npm run build
-          cp netlify.toml dist/
+      - name: Build site
+        run: npm run build
 
-      # Deploy to Netlify
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v2
         with:
-          publish-dir: "./dist"
+          publish-dir: './dist'
           production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Deploy from GitHub Actions"
+          deploy-message: 'Deploy from GitHub Actions'
           enable-pull-request-comment: true
           enable-commit-comment: true
-          overwrites-pull-request-comment: true
+          production: ${{ github.ref == 'refs/heads/main' }}
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+  # 5. Post Deploy Notification
+  notify:
+    needs: deploy
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deployment Status
+        run: |
+          if [ "${{ needs.deploy.result }}" = "success" ]; then
+            echo "🎉 Deployment successful!"
+          else
+            echo "❌ Deployment failed"
+            exit 1
+          fi
+
+      - name: Create Deployment Comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const message = `
+            ## Deployment Status: ${{ needs.deploy.result }}
+
+            ${process.env.DEPLOY_URL ? `🔗 Preview URL: ${process.env.DEPLOY_URL}` : ''}
+
+            ### Build Details
+            - Branch: ${context.payload.pull_request.head.ref}
+            - Commit: ${context.sha}
+            - Triggered by: ${context.actor}
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });

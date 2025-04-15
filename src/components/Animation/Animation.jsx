@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from "react";
-import * as THREE from "three";
-import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { useEffect, useRef } from 'react';
+import * as THREE from 'three';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 const Animation = () => {
   const mountRef = useRef(null);
@@ -32,7 +32,7 @@ const Animation = () => {
     const loader = new FBXLoader();
     let model;
 
-    loader.load("../../assets/animation/ChickenDance.fbx", (fbx) => {
+    loader.load('../../assets/animation/ChickenDance.fbx', (fbx) => {
       model = fbx;
       model.scale.set(0.02, 0.02, 0.02);
       model.position.set(0, -1, 0);
@@ -70,15 +70,19 @@ const Animation = () => {
 
     animate();
 
-    window.addEventListener("resize", () => {
+    window.addEventListener('resize', () => {
       renderer.setSize(window.innerWidth, window.innerHeight);
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
     });
 
+    const currentMount = mountRef.current;
+
     return () => {
-      mountRef.current.removeChild(renderer.domElement);
-      window.removeEventListener("resize", () => {});
+      if (currentMount) {
+        mountRef.current.removeChild(renderer.domElement);
+        window.removeEventListener('resize', () => {});
+      }
     };
   }, []);
 

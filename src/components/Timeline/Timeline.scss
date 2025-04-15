@@ -11,7 +11,7 @@
 }
 
 .timeline::before {
-  content: "";
+  content: '';
   position: absolute;
   width: 5px;
   background-color: var(--accent-color);

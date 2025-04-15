@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import TestGenerator from './testGenerator';
+import TestGenerator from './testGenerator.js';
 
 class TestRunner {
   constructor(apiKey) {

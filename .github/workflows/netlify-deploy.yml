@@ -64,6 +64,18 @@ jobs:
           npm ci
           npm install --save-dev openai glob
 
+      - name: Setup test environment
+        run: |
+          # Create mocks directory
+          mkdir -p __mocks__
+
+          # Create file mock
+          echo "module.exports = 'test-file-stub';" > __mocks__/fileMock.js
+
+          # Create setup tests file
+          mkdir -p src
+          echo "import '@testing-library/jest-dom';" > src/setupTests.js
+
       - name: Generate Tests
         run: |
           mkdir -p src/services/generated_tests/output
@@ -154,23 +166,42 @@ jobs:
             if [ -f "$file" ]; then
               component_name=$(basename "$file" .test.jsx)
               
-              # Determine if it's a page or component
+              # Determine if it's a page or component and check for index.jsx
               if [[ "$component_name" == *"Page" ]]; then
-                import_path="../../pages/${component_name}/${component_name}"
+                base_path="../../pages/${component_name}"
               else
-                import_path="../../components/${component_name}/${component_name}"
+                base_path="../../components/${component_name}"
+              fi
+
+              # Try to find the actual component file
+              if [ -f "src/pages/${component_name}/index.jsx" ]; then
+                import_path="${base_path}"
+              elif [ -f "src/pages/${component_name}/${component_name}.jsx" ]; then
+                import_path="${base_path}/${component_name}"
+              elif [ -f "src/components/${component_name}/index.jsx" ]; then
+                import_path="${base_path}"
+              else
+                import_path="${base_path}/${component_name}"
               fi
 
               echo "import React from 'react';
-          import { render } from '@testing-library/react';
+          import { render, screen } from '@testing-library/react';
+          import '@testing-library/jest-dom';
           import { TestWrapper, mockCanvas } from '../testUtils';
           import ${component_name} from '${import_path}';
 
-          if ('${component_name}' === 'Animation') {
-            mockCanvas();
-          }
+          jest.mock('react-router-dom', () => ({
+            ...jest.requireActual('react-router-dom'),
+            useNavigate: () => jest.fn(),
+          }));
 
           describe('${component_name}', () => {
+            beforeEach(() => {
+              if ('${component_name}' === 'Animation') {
+                mockCanvas();
+              }
+            });
+
             const defaultProps = {
               ...(('${component_name}' === 'Card') && {
                 title: 'Test Card',
@@ -271,7 +302,12 @@ jobs:
           cat src/services/generated_tests/output/Card.test.jsx
 
       - name: Run tests
-        run: npm test
+        run: |
+          node --experimental-vm-modules node_modules/jest/bin/jest.js \
+            --config jest.config.mjs \
+            --verbose \
+            --detectOpenHandles \
+            --forceExit
 
   # 4. Deploy to Staging
   deploy-staging:

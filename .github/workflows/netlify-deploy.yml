@@ -170,12 +170,12 @@ jobs:
               if [[ "$component_name" == *"Page" ]]; then
                 import_path="../../pages/${component_name}/${component_name}"
               else
-                import_path="../../components/${component_name}/Card"
+                import_path="../../components/${component_name}/${component_name}"
               fi
 
               # Debug output
               echo "Processing test for ${component_name}"
-              echo "Looking for component at: src/${import_path}.jsx"
+              echo "Import path: ${import_path}"
 
               echo "import React from 'react';
           import { render, screen } from '@testing-library/react';
@@ -183,13 +183,15 @@ jobs:
           import { TestWrapper, mockCanvas } from '../testUtils';
           import ${component_name} from '${import_path}';
 
+          // Mock react-router-dom before tests
           jest.mock('react-router-dom', () => ({
             ...jest.requireActual('react-router-dom'),
             useNavigate: () => jest.fn(),
           }));
 
           describe('${component_name}', () => {
-            beforeEach(() => {
+            // Setup before tests
+            beforeAll(() => {
               if ('${component_name}' === 'Animation') {
                 mockCanvas();
               }
@@ -207,7 +209,7 @@ jobs:
               })
             };
 
-            test('renders without crashing', () => {
+            it('renders without crashing', () => {
               render(
                 <TestWrapper>
                   <${component_name} {...defaultProps} />
@@ -218,23 +220,24 @@ jobs:
             fi
           done
 
-      # Add a step to verify the test files and component locations
-      - name: Verify file structure
+      # Add verification step
+      - name: List generated test files
         run: |
-          echo "Test files:"
-          ls -R src/services/generated_tests/output/
-          echo "Component files:"
-          ls -R src/components/
-          echo "Page files:"
-          ls -R src/pages/
+          echo "Generated test files:"
+          cat src/services/generated_tests/output/Footer.test.jsx
+          echo "Component location check:"
+          ls -l src/components/Footer/
 
+      # Update test running command
       - name: Run tests
         run: |
           node --experimental-vm-modules node_modules/jest/bin/jest.js \
             --config jest.config.mjs \
             --verbose \
+            --runInBand \
             --detectOpenHandles \
-            --forceExit
+            --forceExit \
+            --testTimeout=10000
 
   # 4. Deploy to Staging
   deploy-staging:

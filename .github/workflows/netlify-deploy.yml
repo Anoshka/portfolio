@@ -96,7 +96,13 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          npm install --save-dev jest jest-environment-jsdom @testing-library/react @testing-library/jest-dom
+          npm install --save-dev jest jest-environment-jsdom @testing-library/react @testing-library/jest-dom identity-obj-proxy
+
+      - name: Create test setup files
+        run: |
+          mkdir -p __mocks__
+          echo "module.exports = 'test-file-stub';" > __mocks__/fileMock.js
+          echo "import '@testing-library/jest-dom';" > src/setupTests.js
 
       - name: Run tests
         run: npm test

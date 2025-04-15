@@ -50,6 +50,8 @@ jobs:
   generate-tests:
     needs: format
     runs-on: ubuntu-latest
+    outputs:
+      test_files_generated: ${{ steps.check_tests.outputs.files_exist }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -64,128 +66,53 @@ jobs:
           npm ci
           npm install --save-dev openai glob
 
-      - name: Setup test environment
+      - name: Create test output directory
+        run: mkdir -p src/services/generated_tests/output
+
+      - name: Generate Tests
         run: |
-          # Create test utils
-          mkdir -p src/services/generated_tests
-          echo 'import React from "react";
-          import { MemoryRouter } from "react-router-dom";
-          export const TestWrapper = ({ children }) => (
-            <MemoryRouter>{children}</MemoryRouter>
-          );
-          export const mockCanvas = () => {
-            const mockContext = {
-              getContext: jest.fn(() => ({
-                drawImage: jest.fn(),
-                scale: jest.fn(),
-                clearRect: jest.fn()
-              }))
-            };
-            global.HTMLCanvasElement.prototype = mockContext;
-          };' > src/services/generated_tests/testUtils.jsx
+          node src/services/generated_tests/testRunner.js
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
-          # Create Jest setup file
-          echo 'import "@testing-library/jest-dom";' > src/setupTests.js
-
-      - name: Fix test files
+      - name: Check if tests were generated
+        id: check_tests
         run: |
-          for file in src/services/generated_tests/output/*.test.jsx; do
-            if [ -f "$file" ]; then
-              component_name=$(basename "$file" .test.jsx)
-              
-              # Determine the correct import path
-              if [[ "$component_name" == *"Page" ]]; then
-                dir_path="pages"
-              else
-                dir_path="components"
-              fi
+          if [ -n "$(ls -A src/services/generated_tests/output/)" ]; then
+            echo "files_exist=true" >> $GITHUB_OUTPUT
+            echo "Tests were generated successfully"
+          else
+            echo "files_exist=false" >> $GITHUB_OUTPUT
+            echo "No test files were generated"
+            exit 1
+          fi
 
-              echo "import React from 'react';
-          import { render } from '@testing-library/react';
-          import '@testing-library/jest-dom';
-          import { TestWrapper } from '../testUtils';
-
-          // Mock the component to avoid actual imports
-          jest.mock('../../${dir_path}/${component_name}/${component_name}', () => {
-            return function Mock${component_name}() {
-              return <div>Mock ${component_name}</div>;
-            };
-          });
-
-          describe('${component_name}', () => {
-            it('can be mocked', () => {
-              expect(true).toBe(true);
-            });
-          });" > "$file"
-            fi
-          done
-
-      # Create a minimal Jest config
-      - name: Create Jest config
-        run: |
-          echo 'export default {
-            testEnvironment: "jsdom",
-            setupFilesAfterEnv: ["<rootDir>/src/setupTests.js"],
-            moduleNameMapper: {
-              "\\.(css|less|scss|sass)$": "identity-obj-proxy",
-              "\\.(jpg|jpeg|png|gif|webp|svg)$": "<rootDir>/__mocks__/fileMock.js"
-            },
-            transform: {
-              "^.+\\.(js|jsx)$": "babel-jest"
-            },
-            testMatch: ["**/generated_tests/output/**/*.test.jsx"],
-            moduleDirectories: ["node_modules", "src"],
-            verbose: true
-          };' > jest.config.mjs
-
-      # Create Babel config
-      - name: Create Babel config
-        run: |
-          echo '{
-            "presets": [
-              "@babel/preset-env",
-              ["@babel/preset-react", {"runtime": "automatic"}]
-            ]
-          }' > .babelrc
-
-      - name: Run tests individually
-        run: |
-          for test_file in src/services/generated_tests/output/*.test.jsx; do
-            echo "Running test: $test_file"
-            node --experimental-vm-modules node_modules/jest/bin/jest.js \
-              --config jest.config.mjs \
-              --verbose \
-              --runInBand \
-              "$test_file" || true
-          done
-
-      # Save the generated tests as an artifact
       - name: Upload Generated Tests
+        if: steps.check_tests.outputs.files_exist == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: generated-tests
           path: src/services/generated_tests/output
           retention-days: 1
+          if-no-files-found: error
 
   # 3. Run Tests
   test:
     needs: generate-tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install dependencies
         run: |
-          # Remove existing node_modules and package-lock.json to ensure clean install
-          rm -rf node_modules package-lock.json
-
-          # Install dependencies with legacy peer deps
-          npm install --legacy-peer-deps
-          npm install --save-dev --legacy-peer-deps \
+          npm ci
+          npm install --save-dev \
             jest@29.7.0 \
             jest-environment-jsdom@29.7.0 \
             @testing-library/react@14.1.2 \
@@ -194,13 +121,27 @@ jobs:
             @babel/preset-env@7.23.8 \
             @babel/preset-react@7.23.3 \
             babel-jest@29.7.0 \
-            identity-obj-proxy@3.0.0 \
-            canvas@2.11.2
+            identity-obj-proxy@3.0.0
 
-      - uses: actions/download-artifact@v4
+      - name: Create test directories
+        run: |
+          mkdir -p src/services/generated_tests/output
+          mkdir -p __mocks__
+
+      - name: Download Generated Tests
+        uses: actions/download-artifact@v4
         with:
           name: generated-tests
           path: src/services/generated_tests/output
+
+      - name: Verify downloaded tests
+        run: |
+          echo "Contents of test directory:"
+          ls -la src/services/generated_tests/output/
+          if [ -z "$(ls -A src/services/generated_tests/output/)" ]; then
+            echo "Error: No test files were downloaded"
+            exit 1
+          fi
 
       - name: Create test utilities
         run: |

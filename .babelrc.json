@@ -7,30 +7,25 @@
           # Create setupTests.js with CommonJS syntax
           echo 'require("@testing-library/jest-dom");' > src/setupTests.js
 
-          # Create single Babel config file
-          echo '{
-            "presets": [
-              ["@babel/preset-env", { "targets": { "node": "current" } }],
-              ["@babel/preset-react", { "runtime": "automatic" }]
-            ]
-          }' > .babelrc.json
+          # Create single Babel config file with proper JSON formatting
+          echo '{"presets":[["@babel/preset-env",{"targets":{"node":"current"}}],["@babel/preset-react",{"runtime":"automatic"}]]}' > .babelrc.json
 
       - name: Update Jest config
         run: |
           echo 'export default {
-            testEnvironment: "jsdom",
-            moduleNameMapper: {
+            "testEnvironment": "jsdom",
+            "moduleNameMapper": {
               "\\.(css|less|scss|sass)$": "identity-obj-proxy",
               "\\.(jpg|jpeg|png|gif|webp|svg)$": "<rootDir>/__mocks__/fileMock.js"
             },
-            transform: {
+            "transform": {
               "^.+\\.(js|jsx|mjs)$": "babel-jest"
             },
-            setupFilesAfterEnv: ["<rootDir>/src/setupTests.js"],
-            testMatch: ["**/generated_tests/output/**/*.test.jsx"],
-            moduleDirectories: ["node_modules", "src"],
-            extensionsToTreatAsEsm: [".jsx"],
-            transformIgnorePatterns: [
+            "setupFilesAfterEnv": ["<rootDir>/src/setupTests.js"],
+            "testMatch": ["**/generated_tests/output/**/*.test.jsx"],
+            "moduleDirectories": ["node_modules", "src"],
+            "extensionsToTreatAsEsm": [".jsx"],
+            "transformIgnorePatterns": [
               "/node_modules/(?!(@testing-library|react-router-dom)/)"
             ]
           }' > jest.config.mjs

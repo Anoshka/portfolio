@@ -1,14 +1,13 @@
-import React from "react";
-import "./TechArtGrid.scss";
-import img from "../../assets/images/placeholder.png";
+import './TechArtGrid.scss';
+import img from '../../assets/images/placeholder.png';
 
 // Project data (update with actual images & links)
 const projects = [
   {
-    title: "Auto Rigger",
-    software: "Python | Maya",
+    title: 'Auto Rigger',
+    software: 'Python | Maya',
     image: img,
-    link: "#",
+    link: '#',
     description: `
       A powerful automation tool designed to streamline the character rigging process. 
       This tool significantly reduces the manual effort required, providing a fast, 
@@ -21,10 +20,10 @@ const projects = [
     `,
   },
   {
-    title: "Rigging Toolkit",
-    software: "Python | Maya",
+    title: 'Rigging Toolkit',
+    software: 'Python | Maya',
     image: img,
-    link: "#",
+    link: '#',
     description: `
       A collection of custom scripts and tools that enhance the rigging process 
       for animators and technical artists. 
@@ -36,10 +35,10 @@ const projects = [
     `,
   },
   {
-    title: "Fireman Sam",
-    software: "Python | Maya",
+    title: 'Fireman Sam',
+    software: 'Python | Maya',
     image: img,
-    link: "#",
+    link: '#',
     description: `
       Worked on the technical rigging and pipeline automation for the Fireman Sam 
       animated series. Ensured high-quality character movement and compatibility across 
@@ -51,10 +50,10 @@ const projects = [
     `,
   },
   {
-    title: "Lego and Friends",
-    software: "Python | Maya",
+    title: 'Lego and Friends',
+    software: 'Python | Maya',
     image: img,
-    link: "#",
+    link: '#',
     description: `
       A specialized rigging and animation project for the Lego and Friends franchise. 
       Developed modular rigs that improved the animation pipeline and streamlined character 
@@ -66,10 +65,10 @@ const projects = [
     `,
   },
   {
-    title: "Asset Management Tools",
-    software: "Python | Maya",
+    title: 'Asset Management Tools',
+    software: 'Python | Maya',
     image: img,
-    link: "#",
+    link: '#',
     description: `
       Developed a robust asset management system that integrates seamlessly with 
       existing production pipelines.
@@ -80,10 +79,10 @@ const projects = [
     `,
   },
   {
-    title: "Train Crash",
-    software: "Python | Maya",
+    title: 'Train Crash',
+    software: 'Python | Maya',
     image: img,
-    link: "#",
+    link: '#',
     description: `
       Technical direction and tool development for the simulation and rigging of 
       a complex train crash sequence.
@@ -94,10 +93,10 @@ const projects = [
     `,
   },
   {
-    title: "Crown Automations",
-    software: "Python | Maya",
+    title: 'Crown Automations',
+    software: 'Python | Maya',
     image: img,
-    link: "#",
+    link: '#',
     description: `
       An automation system that generates procedural crown designs and animations 
       based on user-defined parameters.

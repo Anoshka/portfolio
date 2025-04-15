@@ -1,4 +1,4 @@
-@use "./styles/partials/variables" as *;
+@use './styles/partials/variables' as *;
 
 :root {
   --bg-color: #{$light-bg};
@@ -6,31 +6,31 @@
   --accent-color: #{$light-accent};
 }
 
-[data-theme="dark"] {
+[data-theme='dark'] {
   --bg-color: #{$dark-bg};
   --text-color: #{$dark-text};
   --accent-color: #{$dark-accent};
 }
 
-[data-theme="pink"] {
+[data-theme='pink'] {
   --bg-color: #{$pink-bg};
   --text-color: #{$pink-text};
   --accent-color: #{$pink-accent};
 }
 
-[data-theme="blue"] {
+[data-theme='blue'] {
   --bg-color: #{$blue-bg};
   --text-color: #{$blue-text};
   --accent-color: #{$blue-accent};
 }
 
-[data-theme="green"] {
+[data-theme='green'] {
   --bg-color: #{$green-bg};
   --text-color: #{$green-text};
   --accent-color: #{$green-accent};
 }
 
-[data-theme="yellow"] {
+[data-theme='yellow'] {
   --bg-color: #{$yellow-bg};
   --text-color: #{$yellow-text};
   --accent-color: #{$yellow-accent};

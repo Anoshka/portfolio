@@ -1,4 +1,4 @@
-name: Netlify CI/CD Pipeline
+name: Netlify Deploy
 
 # Add permissions at the top level
 permissions:
@@ -70,22 +70,19 @@ jobs:
     needs: lint-check
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build project
-        run: |
-          npm run build
-          cp netlify.toml dist/
+      - name: Build site
+        run: npm run build
 
       # Deploy to Netlify
       - name: Deploy to Netlify
@@ -97,8 +94,6 @@ jobs:
           deploy-message: 'Deploy from GitHub Actions'
           enable-pull-request-comment: true
           enable-commit-comment: true
-          overwrites-pull-request-comment: true
-          alias: deploy-preview-${{ github.event.number }}
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}

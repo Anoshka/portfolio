@@ -31,8 +31,12 @@ jobs:
       - name: Run ESLint Check
         id: lint
         run: |
-          npm run lint > lint-results.txt || true
-          echo "LINT_ISSUES=$(cat lint-results.txt)" >> $GITHUB_ENV
+          # Run ESLint and store output
+          OUTPUT=$(npm run lint 2>&1) || true
+          # Escape newlines and special characters for GitHub Actions
+          ESCAPED_OUTPUT=$(echo "$OUTPUT" | sed ':a;N;$!ba;s/\n/\\n/g' | sed 's/"/\\"/g')
+          # Set output to environment variable
+          echo "LINT_ISSUES=$ESCAPED_OUTPUT" >> $GITHUB_ENV
 
       - name: Create Pull Request with Lint Fixes
         if: env.LINT_ISSUES != ''
@@ -72,7 +76,9 @@ jobs:
         run: npm ci
 
       - name: Build project
-        run: npm run build
+        run: |
+          npm run build
+          cp netlify.toml dist/
 
       # Deploy to Netlify
       - name: Deploy to Netlify
@@ -85,6 +91,45 @@ jobs:
           enable-pull-request-comment: true
           enable-commit-comment: true
           overwrites-pull-request-comment: true
+          alias: deploy-preview-${{ github.event.number }}
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+  # 3. Post Deploy Notification
+  notify:
+    needs: deploy
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deployment Status
+        run: |
+          if [ "${{ needs.deploy.result }}" = "success" ]; then
+            echo "🎉 Deployment successful!"
+          else
+            echo "❌ Deployment failed"
+            exit 1
+          fi
+
+      - name: Create Deployment Comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const message = `
+            ## Deployment Status: ${{ needs.deploy.result }}
+
+            ${process.env.DEPLOY_URL ? `🔗 Preview URL: ${process.env.DEPLOY_URL}` : ''}
+
+            ### Build Details
+            - Branch: ${context.payload.pull_request.head.ref}
+            - Commit: ${context.sha}
+            - Triggered by: ${context.actor}
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });

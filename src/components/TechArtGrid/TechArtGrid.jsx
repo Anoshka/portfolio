@@ -1,4 +1,3 @@
-import React from 'react';
 import './TechArtGrid.scss';
 import img from '../../assets/images/placeholder.png';
 

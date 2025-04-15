@@ -1,4 +1,3 @@
-import React from 'react';
 import WebDevGrid from '../../components/WebDevGrid/WebDevGrid.jsx';
 // import Animation from "../../components/Animation/Animation.jsx";
 import './WebDevPage.scss';

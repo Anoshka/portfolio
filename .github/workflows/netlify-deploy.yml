@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Fetch all history for all branches
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -31,11 +33,8 @@ jobs:
       - name: Run ESLint Check
         id: lint
         run: |
-          # Run ESLint and store output
           OUTPUT=$(npm run lint 2>&1) || true
-          # Escape newlines and special characters for GitHub Actions
           ESCAPED_OUTPUT=$(echo "$OUTPUT" | sed ':a;N;$!ba;s/\n/\\n/g' | sed 's/"/\\"/g')
-          # Set output to environment variable
           echo "LINT_ISSUES=$ESCAPED_OUTPUT" >> $GITHUB_ENV
 
       - name: Create Pull Request with Lint Fixes
@@ -53,6 +52,7 @@ jobs:
             - Approving this PR will apply the fixes and continue deployment
             - Closing this PR will continue deployment without the fixes
           branch: lint-fixes-${{ github.sha }}
+          base: main # Explicitly set the base branch
           delete-branch: true
           labels: |
             linting

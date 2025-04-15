@@ -1,4 +1,3 @@
-import React from 'react';
 import './WebDevGrid.scss';
 import img1 from '../../assets/images/placeholder_01.png';
 import img from '../../assets/images/placeholder.png';

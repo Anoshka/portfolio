@@ -1,4 +1,3 @@
-import React from 'react';
 import TechArtGrid from '../../components/TechArtGrid/TechArtGrid.jsx';
 import './TechArtPage.scss';
 

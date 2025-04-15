@@ -2,18 +2,18 @@ name: Netlify CI/CD Pipeline
 
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
   pull_request:
-    branches: ["main"]
+    branches: ['main']
 
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: '20'
   NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
   NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 
 jobs:
-  # 1. Build and Deploy
-  deploy:
+  # 1. Lint Check and Review
+  lint-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -23,24 +23,65 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint Check
+        id: lint
+        run: |
+          npm run lint > lint-results.txt || true
+          echo "LINT_ISSUES=$(cat lint-results.txt)" >> $GITHUB_ENV
+
+      - name: Create Pull Request with Lint Fixes
+        if: env.LINT_ISSUES != ''
+        uses: peter-evans/create-pull-request@v5
+        with:
+          title: 'style: ESLint Auto-fixes'
+          body: |
+            ESLint has suggested the following changes:
+            ```
+            ${{ env.LINT_ISSUES }}
+            ```
+
+            - Review the changes and approve/reject them
+            - Approving this PR will apply the fixes and continue deployment
+            - Closing this PR will continue deployment without the fixes
+          branch: lint-fixes-${{ github.sha }}
+          delete-branch: true
+          labels: |
+            linting
+            automated pr
+
+  # 2. Build and Deploy
+  deploy:
+    needs: lint-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
       - name: Build project
-        run: |
-          npm run build
-          cp netlify.toml dist/
+        run: npm run build
 
       # Deploy to Netlify
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v2
         with:
-          publish-dir: "./dist"
+          publish-dir: './dist'
           production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Deploy from GitHub Actions"
+          deploy-message: 'Deploy from GitHub Actions'
           enable-pull-request-comment: true
           enable-commit-comment: true
           overwrites-pull-request-comment: true

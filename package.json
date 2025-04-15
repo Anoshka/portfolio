@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "prettier:write": "prettier --write \"src/**/*.{js,jsx,ts,tsx,scss,css,json}\"",
     "prettier:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,scss,css,json}\"",
-    "lint": "eslint \"src/**/*.{js,jsx}\" --fix"
+    "lint": "eslint \"src/**/*.{js,jsx}\" --format stylish --fix"
   },
   "dependencies": {
     "axios": "^1.7.7",

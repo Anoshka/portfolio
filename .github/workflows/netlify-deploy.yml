@@ -84,22 +84,18 @@ jobs:
     needs: generate-tests
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install dependencies
         run: |
           npm ci
-          npm install --save-dev jest jest-environment-jsdom @testing-library/react @testing-library/jest-dom identity-obj-proxy @babel/core @babel/preset-env @babel/preset-react babel-jest
+          npm install --save-dev jest jest-environment-jsdom @testing-library/react @testing-library/jest-dom @babel/core @babel/preset-env @babel/preset-react babel-jest identity-obj-proxy
 
-      # Download the generated tests
-      - name: Download Generated Tests
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: generated-tests
           path: src/services/generated_tests/output
@@ -108,12 +104,15 @@ jobs:
         run: |
           mkdir -p __mocks__
           echo "module.exports = 'test-file-stub';" > __mocks__/fileMock.js
-          echo "require('@testing-library/jest-dom');" > src/setupTests.js
+          echo "import '@testing-library/jest-dom';" > src/setupTests.js
+          echo "import React from 'react';" >> src/setupTests.js
 
-      - name: List Generated Tests
+      - name: Verify test files
         run: |
-          echo "Generated test files:"
-          ls -la src/services/generated_tests/output
+          echo "Current directory structure:"
+          ls -R src/services/generated_tests/
+          echo "Content of output directory:"
+          ls -la src/services/generated_tests/output || echo "Output directory not found"
 
       - name: Run tests
         run: npm test

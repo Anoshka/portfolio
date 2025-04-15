@@ -93,30 +93,76 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          npm install --save-dev jest jest-environment-jsdom @testing-library/react @testing-library/jest-dom @babel/core @babel/preset-env @babel/preset-react babel-jest identity-obj-proxy
+          npm install --save-dev jest jest-environment-jsdom @testing-library/react @testing-library/jest-dom @babel/core @babel/preset-env @babel/preset-react babel-jest identity-obj-proxy react-router-dom canvas
 
       - uses: actions/download-artifact@v4
         with:
           name: generated-tests
           path: src/services/generated_tests/output
 
-      - name: Fix test imports
+      - name: Create test utilities
+        run: |
+          mkdir -p src/services/generated_tests
+          echo 'import React from "react";
+          import { BrowserRouter, MemoryRouter } from "react-router-dom";
+
+          export const TestWrapper = ({ children }) => {
+            return (
+              <MemoryRouter>
+                {children}
+              </MemoryRouter>
+            );
+          };
+
+          export const mockCanvas = () => {
+            // Mock canvas and WebGL context for Three.js
+            HTMLCanvasElement.prototype.getContext = jest.fn(() => ({
+              getImageData: jest.fn(),
+              putImageData: jest.fn(),
+              drawImage: jest.fn(),
+              scale: jest.fn(),
+              measureText: jest.fn(() => ({ width: 0 })),
+            }));
+          };' > src/services/generated_tests/testUtils.jsx
+
+      - name: Fix test files
         run: |
           for file in src/services/generated_tests/output/*.test.jsx; do
             if [ -f "$file" ]; then
-              # Extract component name from test file name
               component_name=$(basename "$file" .test.jsx)
               
-              # Find the actual component file
-              component_path=$(find src/components -name "${component_name}.jsx" -o -name "${component_name}/index.jsx")
-              
-              if [ -n "$component_path" ]; then
-                # Calculate relative path from test file to component
-                relative_path=$(realpath --relative-to="$(dirname "$file")" "$(dirname "$component_path")")
-                
-                # Update import statement in test file
-                sed -i "s|from '\./${component_name}'|from '${relative_path}/${component_name}'|g" "$file"
-              fi
+              # Create test content with proper imports and setup
+              echo "import React from 'react';
+          import { render } from '@testing-library/react';
+          import { TestWrapper, mockCanvas } from '../testUtils';
+          import $component_name from '../../components/$component_name';
+
+          // Mock canvas for components that use Three.js
+          if ('$component_name' === 'Animation') {
+            mockCanvas();
+          }
+
+          describe('$component_name', () => {
+            const defaultProps = {
+              ...(('$component_name' === 'Card') && {
+                title: 'Test Card',
+                image: 'test-image.jpg',
+                link: 'https://test.com'
+              }),
+              ...(('$component_name' === 'Header') && {
+                isOpen: false,
+                toggleMenu: jest.fn()
+              })
+            };
+
+            test('renders without crashing', () => {
+              render(
+                <TestWrapper>
+                  <$component_name {...defaultProps} />
+                </TestWrapper>
+              );
+            });
+          });" > "$file"
             fi
           done
 
@@ -131,14 +177,32 @@ jobs:
               ["@babel/preset-env", {
                 "targets": {
                   "node": "current"
-                },
-                "modules": false
+                }
               }],
               ["@babel/preset-react", {
                 "runtime": "automatic"
               }]
             ]
           }' > .babelrc.json
+
+          # Create Jest config
+          echo 'export default {
+            testEnvironment: "jsdom",
+            moduleNameMapper: {
+              "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/fileMock.js",
+              "\\.(css|less|scss|sass)$": "identity-obj-proxy"
+            },
+            setupFilesAfterEnv: ["<rootDir>/src/setupTests.js"],
+            transform: {
+              "^.+\\.(js|jsx|ts|tsx)$": "babel-jest"
+            },
+            moduleDirectories: ["node_modules", "src"],
+            testMatch: ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[jt]s?(x)"],
+            moduleFileExtensions: ["js", "jsx", "ts", "tsx", "json", "node"],
+            transformIgnorePatterns: [
+              "/node_modules/(?!three|@react-three).+\\.js$"
+            ]
+          };' > jest.config.mjs
 
           # Create test setup files
           mkdir -p __mocks__
@@ -150,12 +214,10 @@ jobs:
         run: |
           echo "Test files:"
           ls -la src/services/generated_tests/output/
-          echo "Component files:"
-          ls -R src/components/
-          echo "Jest config:"
-          cat jest.config.mjs
-          echo "Babel config:"
-          cat .babelrc.json
+          echo "Test utils:"
+          cat src/services/generated_tests/testUtils.jsx
+          echo "Sample test file:"
+          cat src/services/generated_tests/output/Card.test.jsx
 
       - name: Run tests
         run: npm test

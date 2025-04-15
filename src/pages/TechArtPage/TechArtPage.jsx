@@ -1,6 +1,6 @@
-import React from "react";
-import TechArtGrid from "../../components/TechArtGrid/TechArtGrid.jsx";
-import "./TechArtPage.scss";
+import React from 'react';
+import TechArtGrid from '../../components/TechArtGrid/TechArtGrid.jsx';
+import './TechArtPage.scss';
 
 const TechArtPage = () => {
   return (

@@ -1,6 +1,6 @@
-import React from "react";
-import "./LandingPage.scss";
-import TypedText from "../../components/TypeEffect/TypeEffect";
+import React from 'react';
+import './LandingPage.scss';
+import TypedText from '../../components/TypeEffect/TypeEffect';
 
 function LandingPage() {
   return (

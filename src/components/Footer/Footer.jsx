@@ -1,9 +1,9 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
-import "./Footer.scss";
-import linkedinIcon from "../../assets/icons/linkedin_clean.png";
-import emailIcon from "../../assets/icons/email_clean.png";
-import githubIcon from "../../assets/icons/github_clean.png";
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import './Footer.scss';
+import linkedinIcon from '../../assets/icons/linkedin_clean.png';
+import emailIcon from '../../assets/icons/email_clean.png';
+import githubIcon from '../../assets/icons/github_clean.png';
 
 function Footer() {
   return (

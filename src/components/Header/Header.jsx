@@ -1,25 +1,25 @@
-import "./Header.scss";
-import { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
-import logo from "../../assets/avatar.png";
-import SunIcon from "../../assets/icons/sunshine_clean.png";
-import DarkIcon from "../../assets/icons/dark.png";
+import './Header.scss';
+import { useState, useEffect } from 'react';
+import { NavLink } from 'react-router-dom';
+import logo from '../../assets/avatar.png';
+import SunIcon from '../../assets/icons/sunshine_clean.png';
+import DarkIcon from '../../assets/icons/dark.png';
 
 function Header() {
   const themes = [
-    { name: "light", type: "image", image: SunIcon },
-    { name: "pink", type: "color", color: "#FF69B4" },
-    { name: "blue", type: "color", color: "#007BFF" },
-    { name: "green", type: "color", color: "#28A745" },
-    { name: "yellow", type: "color", color: "#FFC107" },
-    { name: "dark", type: "image", image: DarkIcon },
+    { name: 'light', type: 'image', image: SunIcon },
+    { name: 'pink', type: 'color', color: '#FF69B4' },
+    { name: 'blue', type: 'color', color: '#007BFF' },
+    { name: 'green', type: 'color', color: '#28A745' },
+    { name: 'yellow', type: 'color', color: '#FFC107' },
+    { name: 'dark', type: 'image', image: DarkIcon },
   ];
 
   const [selectedTheme, setSelectedTheme] = useState(themes[0]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
-    document.body.setAttribute("data-theme", selectedTheme.name);
+    document.body.setAttribute('data-theme', selectedTheme.name);
   }, [selectedTheme]);
 
   return (
@@ -44,13 +44,13 @@ function Header() {
           </NavLink>
 
           <div
-            className={`header__theme-selector ${isDropdownOpen ? "open" : ""}`}
+            className={`header__theme-selector ${isDropdownOpen ? 'open' : ''}`}
             onMouseEnter={() => setIsDropdownOpen(true)}
             onMouseLeave={() => setIsDropdownOpen(false)}
           >
             {/* Currently Selected Theme */}
             <div className="header__theme-selected">
-              {selectedTheme.type === "image" ? (
+              {selectedTheme.type === 'image' ? (
                 <img src={selectedTheme.image} alt={selectedTheme.name} />
               ) : (
                 <div
@@ -73,7 +73,7 @@ function Header() {
                       setIsDropdownOpen(false); // Close dropdown after selection
                     }}
                   >
-                    {theme.type === "image" ? (
+                    {theme.type === 'image' ? (
                       <img src={theme.image} alt={theme.name} />
                     ) : (
                       <div

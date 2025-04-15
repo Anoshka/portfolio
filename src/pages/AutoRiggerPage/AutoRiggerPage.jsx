@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 function AutoRiggerPage() {
   return (
@@ -8,7 +8,7 @@ function AutoRiggerPage() {
       providing a fast, efficient, and consistent rigging workflow. - Fully
       automated joint placement and skinning process - Supports both biped and
       quadruped characters - Intuitive UI for custom adjustments and fine-tuning
-      - Reduces rigging time by up to 70%{" "}
+      - Reduces rigging time by up to 70%{' '}
     </div>
   );
 }

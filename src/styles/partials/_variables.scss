@@ -1,5 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap');
 
 // Breakpoints
 $breakpoint-mobile: 22.5rem;
@@ -40,14 +40,14 @@ $yellow-text: #f3f3f3;
 $yellow-accent: #facc15;
 
 //font weight
-$primary-font: "Press Start 2P", Arial, Helvetica, sans-serif;
-$primary-font-fontface: "Play";
+$primary-font: 'Press Start 2P', Arial, Helvetica, sans-serif;
+$primary-font-fontface: 'Play';
 $font-weight-semi-bold600: 600;
 $font-weight-regular400: 400;
 
 //secondary font
-$secondary-font: "Play", Arial, Helvetica, sans-serif;
-$secondary-font-fontface: "Play";
+$secondary-font: 'Play', Arial, Helvetica, sans-serif;
+$secondary-font-fontface: 'Play';
 $font-weight-semi-bold600: 600;
 $font-weight-regular400: 400;
 

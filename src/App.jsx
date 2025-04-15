@@ -1,14 +1,14 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import "./App.scss";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import './App.scss';
 //component imports
-import Header from "./components/Header/Header.jsx";
-import Footer from "./components/Footer/Footer.jsx";
+import Header from './components/Header/Header.jsx';
+import Footer from './components/Footer/Footer.jsx';
 //page imports
-import LandingPage from "./pages/LandingPage/LandingPage.jsx";
-import ResumePage from "./pages/ResumePage/ResumePage.jsx";
-import NotFoundPage from "./pages/NotFoundPage/NotFoundPage.jsx";
-import TechArtPage from "./pages/TechArtPage/TechArtPage.jsx";
-import WebDevPage from "./pages/WebDevPage/WebDevPage.jsx";
+import LandingPage from './pages/LandingPage/LandingPage.jsx';
+import ResumePage from './pages/ResumePage/ResumePage.jsx';
+import NotFoundPage from './pages/NotFoundPage/NotFoundPage.jsx';
+import TechArtPage from './pages/TechArtPage/TechArtPage.jsx';
+import WebDevPage from './pages/WebDevPage/WebDevPage.jsx';
 
 const App = () => {
   return (

@@ -249,52 +249,17 @@ jobs:
       - name: Run tests
         run: |
           node --expose-gc --max-old-space-size=4096 node_modules/jest/bin/jest.js \
-            --config jest.config.json \
+            --testEnvironment=jsdom \
+            --moduleNameMapper='{"\\.(css|less|scss|sass)$":"identity-obj-proxy","\\.(jpg|jpeg|png|gif|webp|svg)$":"<rootDir>/__mocks__/fileMock.js"}' \
+            --transform='{"^.+\\.(js|jsx)$":"babel-jest"}' \
+            --setupFilesAfterEnv='["<rootDir>/src/setupTests.js"]' \
+            --testMatch='**/generated_tests/output/**/*.test.jsx' \
+            --moduleDirectories='["node_modules","src"]' \
             --runInBand \
             --detectOpenHandles \
             --forceExit \
             --testTimeout 15000 \
             --verbose
-
-      - name: Create Jest config
-        run: |
-          echo '{
-            "testEnvironment": "jsdom",
-            "moduleNameMapper": {
-              "\\.(css|less|scss|sass)$": "identity-obj-proxy",
-              "\\.(jpg|jpeg|png|gif|webp|svg)$": "<rootDir>/__mocks__/fileMock.js"
-            },
-            "transform": {
-              "^.+\\.(js|jsx)$": "babel-jest"
-            },
-            "setupFilesAfterEnv": ["<rootDir>/src/setupTests.js"],
-            "testMatch": ["**/generated_tests/output/**/*.test.jsx"],
-            "moduleDirectories": ["node_modules", "src"],
-            "modulePathIgnorePatterns": [],
-            "testTimeout": 15000,
-            "setupFiles": ["<rootDir>/src/services/generated_tests/testSetup.js"]
-          }' > jest.config.json
-
-      - name: Create test setup
-        run: |
-          echo 'import { jest } from "@jest/globals";
-
-          // Mock react-router-dom globally
-          jest.mock("react-router-dom", () => ({
-            ...jest.requireActual("react-router-dom"),
-            useNavigate: () => jest.fn(),
-            useLocation: () => ({ pathname: "/" }),
-            useParams: () => ({}),
-          }));
-
-          // Setup global mocks
-          global.beforeEach(() => {
-            jest.resetModules();
-          });
-
-          global.afterEach(() => {
-            jest.clearAllMocks();
-          });' > src/services/generated_tests/testSetup.js
 
   # 4. Deploy to Staging
   deploy-staging:

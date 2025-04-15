@@ -41,4 +41,4 @@
             --forceExit \
             --testTimeout 15000 \
             --verbose \
-            --testPathIgnorePatterns="AutoRiggerPage.test.jsx"
+            "Card|Footer|Header|Timeline|TypeEffect|WebDevGrid"

@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import TestGenerator from './testGenerator.js';
+import glob from 'glob';
 
 class TestRunner {
   constructor(apiKey) {
@@ -36,5 +37,21 @@ class TestRunner {
     fs.writeFileSync(testPath, testCode);
   }
 }
+
+async function main() {
+  const generator = new TestGenerator();
+
+  // Find all component files
+  const componentFiles = glob.sync('src/components/**/*.jsx');
+  const pageFiles = glob.sync('src/pages/**/*.jsx');
+
+  // Generate tests for all components
+  for (const file of [...componentFiles, ...pageFiles]) {
+    console.log(`Generating test for ${file}...`);
+    await generator.generateTest(file);
+  }
+}
+
+main().catch(console.error);
 
 export default TestRunner;

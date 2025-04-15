@@ -1,63 +1,61 @@
 import { OpenAI } from 'openai';
+import fs from 'fs';
+import path from 'path';
 
 class TestGenerator {
-  constructor(apiKey) {
-    this.openai = new OpenAI(apiKey);
+  constructor() {
+    this.openai = new OpenAI(process.env.OPENAI_API_KEY);
+    this.outputDir = path.join(
+      process.cwd(),
+      'src/services/generated_tests/output'
+    );
   }
 
-  async generateComponentTest(componentCode, componentName) {
+  async generateTest(componentPath) {
+    const code = fs.readFileSync(componentPath, 'utf-8');
+    const componentName = path.basename(componentPath, '.jsx');
+
     const prompt = `
-      Generate a test for this React component named ${componentName}:
-      ${componentCode}
+      Generate a Jest test for this React component:
+      ${code}
+
+      Requirements:
+      1. Use React Testing Library
+      2. Test component rendering
+      3. Test user interactions
+      4. Test route handling (if applicable)
+      5. Test responsive design
+      6. Test animations (if present)
+      7. Include error cases
       
-      Include tests for:
-      1. Basic rendering
-      2. User interactions
-      3. Route testing (if applicable)
-      4. Responsive design checks
-      5. Animation functionality (if applicable)
-      
-      Return only the test code in Jest format using React Testing Library.
+      Return only the test code.
     `;
 
     try {
       const completion = await this.openai.createCompletion({
         model: 'gpt-4',
         prompt,
-        max_tokens: 1000,
+        max_tokens: 1500,
+        temperature: 0.7,
       });
 
-      return completion.choices[0].text;
+      const testCode = completion.choices[0].text;
+      this.saveTest(componentName, testCode);
+      return testCode;
     } catch (error) {
       console.error(`Error generating test for ${componentName}:`, error);
       throw error;
     }
   }
 
-  async generateRouteTest(routes) {
-    const prompt = `
-      Generate tests to verify these routes work correctly and handle page refresh:
-      ${JSON.stringify(routes, null, 2)}
-      
-      Include tests for:
-      1. Navigation works
-      2. Page refresh maintains correct route
-      3. 404 handling
-      4. URL parameter handling (if any)
-    `;
-
-    try {
-      const completion = await this.openai.createCompletion({
-        model: 'gpt-4',
-        prompt,
-        max_tokens: 1000,
-      });
-
-      return completion.choices[0].text;
-    } catch (error) {
-      console.error('Error generating route tests:', error);
-      throw error;
+  saveTest(componentName, testCode) {
+    if (!fs.existsSync(this.outputDir)) {
+      fs.mkdirSync(this.outputDir, { recursive: true });
     }
+
+    const testPath = path.join(this.outputDir, `${componentName}.test.jsx`);
+    fs.writeFileSync(testPath, testCode);
+    console.log(`Test saved: ${testPath}`);
   }
 }
 

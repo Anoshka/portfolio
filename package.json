@@ -38,8 +38,11 @@
     "eslint": "^9.24.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "glob": "^11.0.1",
     "globals": "^15.9.0",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
+    "jsdom": "^26.1.0",
     "openai": "^4.94.0",
     "prettier": "^3.5.3",
     "vite": "^5.4.1"
@@ -49,5 +52,14 @@
     "singleQuote": true,
     "tabWidth": 2,
     "trailingComma": "es5"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": [
+      "@testing-library/jest-dom/extend-expect"
+    ],
+    "moduleNameMapper": {
+      "\\.(css|scss)$": "identity-obj-proxy"
+    }
   }
 }

@@ -166,23 +166,16 @@ jobs:
             if [ -f "$file" ]; then
               component_name=$(basename "$file" .test.jsx)
               
-              # Determine if it's a page or component and check for index.jsx
+              # Determine if it's a page or component
               if [[ "$component_name" == *"Page" ]]; then
-                base_path="../../pages/${component_name}"
+                import_path="../../pages/${component_name}/${component_name}"
               else
-                base_path="../../components/${component_name}"
+                import_path="../../components/${component_name}/Card"
               fi
 
-              # Try to find the actual component file
-              if [ -f "src/pages/${component_name}/index.jsx" ]; then
-                import_path="${base_path}"
-              elif [ -f "src/pages/${component_name}/${component_name}.jsx" ]; then
-                import_path="${base_path}/${component_name}"
-              elif [ -f "src/components/${component_name}/index.jsx" ]; then
-                import_path="${base_path}"
-              else
-                import_path="${base_path}/${component_name}"
-              fi
+              # Debug output
+              echo "Processing test for ${component_name}"
+              echo "Looking for component at: src/${import_path}.jsx"
 
               echo "import React from 'react';
           import { render, screen } from '@testing-library/react';
@@ -225,81 +218,15 @@ jobs:
             fi
           done
 
-      - name: Setup test configuration
-        run: |
-          # Remove any existing Babel config files
-          rm -f .babelrc .babelrc.json
-
-          # Create single .babelrc.json
-          echo '{
-            "presets": [
-              ["@babel/preset-env", {
-                "targets": {
-                  "node": "current"
-                }
-              }],
-              ["@babel/preset-react", {
-                "runtime": "automatic"
-              }]
-            ]
-          }' > .babelrc.json
-
-          # Create Jest config
-          echo 'export default {
-            testEnvironment: "jsdom",
-            moduleNameMapper: {
-              "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/fileMock.js",
-              "\\.(css|less|scss|sass)$": "identity-obj-proxy"
-            },
-            setupFilesAfterEnv: ["<rootDir>/src/setupTests.js"],
-            transform: {
-              "^.+\\.(js|jsx|ts|tsx)$": "babel-jest"
-            },
-            moduleDirectories: ["node_modules", "src"],
-            testMatch: ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[jt]s?(x)"],
-            moduleFileExtensions: ["js", "jsx", "ts", "tsx", "json", "node"],
-            transformIgnorePatterns: [
-              "/node_modules/(?!three|@react-three).+\\.js$"
-            ],
-            testEnvironmentOptions: {
-              customExportConditions: ["node", "node-addons"]
-            },
-            roots: ["<rootDir>/src"],
-            modulePaths: ["<rootDir>/src"]
-          };' > jest.config.mjs
-
-          # Create Babel config
-          echo '{
-            "presets": [
-              ["@babel/preset-env", {
-                "targets": {
-                  "node": "current"
-                }
-              }],
-              ["@babel/preset-react", {
-                "runtime": "automatic"
-              }]
-            ]
-          }' > .babelrc.json
-
-          # Create test setup files
-          mkdir -p __mocks__
-          echo "export default 'test-file-stub';" > __mocks__/fileMock.js
-          echo "import '@testing-library/jest-dom';" > src/setupTests.js
-          echo "import React from 'react';" >> src/setupTests.js
-
+      # Add a step to verify the test files and component locations
       - name: Verify file structure
         run: |
-          echo "Component directories:"
-          ls -R src/components/
-          echo "Page directories:"
-          ls -R src/pages/
           echo "Test files:"
-          ls -la src/services/generated_tests/output/
-          echo "Test utils:"
-          cat src/services/generated_tests/testUtils.jsx
-          echo "Sample test file:"
-          cat src/services/generated_tests/output/Card.test.jsx
+          ls -R src/services/generated_tests/output/
+          echo "Component files:"
+          ls -R src/components/
+          echo "Page files:"
+          ls -R src/pages/
 
       - name: Run tests
         run: |

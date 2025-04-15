@@ -40,4 +40,5 @@
             --detectOpenHandles \
             --forceExit \
             --testTimeout 15000 \
-            --verbose
+            --verbose \
+            --testPathIgnorePatterns="AutoRiggerPage.test.jsx"

@@ -10,7 +10,7 @@
     "prettier": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,scss,json}\"",
     "prettier:write": "prettier --write \"src/**/*.{js,jsx,ts,tsx,scss,css,json}\"",
     "prettier:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,scss,css,json}\"",
-    "test": "jest --config jest.config.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.config.mjs",
     "test:generate": "node src/services/generated_tests/testRunner.js",
     "lint": "eslint \"src/**/*.{js,jsx}\" --format stylish --fix"
   },

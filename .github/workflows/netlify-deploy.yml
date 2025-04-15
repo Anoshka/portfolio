@@ -103,7 +103,7 @@ jobs:
       - name: Create test setup files
         run: |
           mkdir -p __mocks__
-          echo "module.exports = 'test-file-stub';" > __mocks__/fileMock.js
+          echo "export default 'test-file-stub';" > __mocks__/fileMock.js
           echo "import '@testing-library/jest-dom';" > src/setupTests.js
           echo "import React from 'react';" >> src/setupTests.js
 

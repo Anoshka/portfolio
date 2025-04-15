@@ -73,7 +73,7 @@ jobs:
 
       # Save the generated tests as an artifact
       - name: Upload Generated Tests
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: generated-tests
           path: src/services/generated_tests/output

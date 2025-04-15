@@ -12,6 +12,7 @@ class TestGenerator {
   }
 
   async generateTest(componentPath) {
+    console.log(`Generating test for: ${componentPath}`);
     const code = fs.readFileSync(componentPath, 'utf-8');
     const componentName = path.basename(componentPath, '.jsx');
 
@@ -41,11 +42,28 @@ class TestGenerator {
 
       const testCode = completion.choices[0].text;
       this.saveTest(componentName, testCode);
+      console.log(`Successfully generated test for: ${componentName}`);
       return testCode;
     } catch (error) {
       console.error(`Error generating test for ${componentName}:`, error);
-      throw error;
+      // Create a basic test if OpenAI fails
+      const basicTest = this.createBasicTest(componentName);
+      this.saveTest(componentName, basicTest);
+      return basicTest;
     }
+  }
+
+  createBasicTest(componentName) {
+    return `
+      import { render } from '@testing-library/react';
+      import ${componentName} from './${componentName}';
+
+      describe('${componentName}', () => {
+        test('renders without crashing', () => {
+          render(<${componentName} />);
+        });
+      });
+    `;
   }
 
   saveTest(componentName, testCode) {

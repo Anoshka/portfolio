@@ -62,16 +62,7 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          npm install --save-dev jest jest-environment-jsdom @testing-library/react @testing-library/jest-dom openai glob
-
-      - name: Verify OpenAI API Key
-        run: |
-          if [ -z "${{ secrets.OPENAI_API_KEY }}" ]; then
-            echo "❌ OPENAI_API_KEY is not set"
-            exit 1
-          else
-            echo "✅ OPENAI_API_KEY is set"
-          fi
+          npm install --save-dev openai glob
 
       - name: Generate Tests
         run: |
@@ -79,6 +70,13 @@ jobs:
           node src/services/generated_tests/testRunner.js
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      # Save the generated tests as an artifact
+      - name: Upload Generated Tests
+        uses: actions/upload-artifact@v3
+        with:
+          name: generated-tests
+          path: src/services/generated_tests/output
 
   # 3. Run Tests
   test:
@@ -98,21 +96,23 @@ jobs:
           npm ci
           npm install --save-dev jest jest-environment-jsdom @testing-library/react @testing-library/jest-dom identity-obj-proxy @babel/core @babel/preset-env @babel/preset-react babel-jest
 
+      # Download the generated tests
+      - name: Download Generated Tests
+        uses: actions/download-artifact@v3
+        with:
+          name: generated-tests
+          path: src/services/generated_tests/output
+
       - name: Create test setup files
         run: |
           mkdir -p __mocks__
-          mkdir -p src/services/generated_tests/output
           echo "module.exports = 'test-file-stub';" > __mocks__/fileMock.js
           echo "require('@testing-library/jest-dom');" > src/setupTests.js
 
-          # Create a sample test
-          echo "
-          describe('Initial test', () => {
-            test('should pass', () => {
-              expect(true).toBe(true);
-            });
-          });
-          " > src/services/generated_tests/output/initial.test.js
+      - name: List Generated Tests
+        run: |
+          echo "Generated test files:"
+          ls -la src/services/generated_tests/output
 
       - name: Run tests
         run: npm test

@@ -96,16 +96,16 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          npm install --save-dev jest jest-environment-jsdom @testing-library/react @testing-library/jest-dom identity-obj-proxy
+          npm install --save-dev jest jest-environment-jsdom @testing-library/react @testing-library/jest-dom identity-obj-proxy @babel/core @babel/preset-env @babel/preset-react babel-jest
 
       - name: Create test setup files
         run: |
           mkdir -p __mocks__
           mkdir -p src/services/generated_tests/output
           echo "module.exports = 'test-file-stub';" > __mocks__/fileMock.js
-          echo "import '@testing-library/jest-dom';" > src/setupTests.js
+          echo "require('@testing-library/jest-dom');" > src/setupTests.js
 
-          # Create a sample test to ensure Jest runs
+          # Create a sample test
           echo "
           describe('Initial test', () => {
             test('should pass', () => {

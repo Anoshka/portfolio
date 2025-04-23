@@ -1,80 +1,80 @@
-import { OpenAI } from 'openai';
-import fs from 'fs';
-import path from 'path';
+// import { OpenAI } from 'openai';
+// import fs from 'fs';
+// import path from 'path';
 
-class TestGenerator {
-  constructor() {
-    this.openai = new OpenAI(process.env.OPENAI_API_KEY);
-    this.outputDir = path.join(
-      process.cwd(),
-      'src/services/generated_tests/output'
-    );
-  }
+// class TestGenerator {
+//   constructor() {
+//     this.openai = new OpenAI(process.env.OPENAI_API_KEY);
+//     this.outputDir = path.join(
+//       process.cwd(),
+//       'src/services/generated_tests/output'
+//     );
+//   }
 
-  async generateTest(componentPath) {
-    console.log(`Generating test for: ${componentPath}`);
-    const code = fs.readFileSync(componentPath, 'utf-8');
-    const componentName = path.basename(componentPath, '.jsx');
+//   async generateTest(componentPath) {
+//     console.log(`Generating test for: ${componentPath}`);
+//     const code = fs.readFileSync(componentPath, 'utf-8');
+//     const componentName = path.basename(componentPath, '.jsx');
 
-    const prompt = `
-      Generate a Jest test for this React component:
-      ${code}
+//     const prompt = `
+//       Generate a Jest test for this React component:
+//       ${code}
 
-      Requirements:
-      1. Use React Testing Library
-      2. Test component rendering
-      3. Test user interactions
-      4. Test route handling (if applicable)
-      5. Test responsive design
-      6. Test animations (if present)
-      7. Include error cases
-      
-      Return only the test code.
-    `;
+//       Requirements:
+//       1. Use React Testing Library
+//       2. Test component rendering
+//       3. Test user interactions
+//       4. Test route handling (if applicable)
+//       5. Test responsive design
+//       6. Test animations (if present)
+//       7. Include error casess
 
-    try {
-      const completion = await this.openai.createCompletion({
-        model: 'gpt-4',
-        prompt,
-        max_tokens: 1500,
-        temperature: 0.7,
-      });
+//       Return only the test code.
+//     `;
 
-      const testCode = completion.choices[0].text;
-      this.saveTest(componentName, testCode);
-      console.log(`Successfully generated test for: ${componentName}`);
-      return testCode;
-    } catch (error) {
-      console.error(`Error generating test for ${componentName}:`, error);
-      // Create a basic test if OpenAI fails
-      const basicTest = this.createBasicTest(componentName);
-      this.saveTest(componentName, basicTest);
-      return basicTest;
-    }
-  }
+//     try {
+//       const completion = await this.openai.createCompletion({
+//         model: 'gpt-4',
+//         prompt,
+//         max_tokens: 1500,
+//         temperature: 0.7,
+//       });
 
-  createBasicTest(componentName) {
-    return `
-      import { render } from '@testing-library/react';
-      import ${componentName} from './${componentName}';
+//       const testCode = completion.choices[0].text;
+//       this.saveTest(componentName, testCode);
+//       console.log(`Successfully generated test for: ${componentName}`);
+//       return testCode;
+//     } catch (error) {
+//       console.error(`Error generating test for ${componentName}:`, error);
+//       // Create a basic test if OpenAI fails
+//       const basicTest = this.createBasicTest(componentName);
+//       this.saveTest(componentName, basicTest);
+//       return basicTest;
+//     }
+//   }
 
-      describe('${componentName}', () => {
-        test('renders without crashing', () => {
-          render(<${componentName} />);
-        });
-      });
-    `;
-  }
+//   createBasicTest(componentName) {
+//     return `
+//       import { render } from '@testing-library/react';
+//       import ${componentName} from './${componentName}';
 
-  saveTest(componentName, testCode) {
-    if (!fs.existsSync(this.outputDir)) {
-      fs.mkdirSync(this.outputDir, { recursive: true });
-    }
+//       describe('${componentName}', () => {
+//         test('renders without crashing', () => {
+//           render(<${componentName} />);
+//         });
+//       });
+//     `;
+//   }
 
-    const testPath = path.join(this.outputDir, `${componentName}.test.jsx`);
-    fs.writeFileSync(testPath, testCode);
-    console.log(`Test saved: ${testPath}`);
-  }
-}
+//   saveTest(componentName, testCode) {
+//     if (!fs.existsSync(this.outputDir)) {
+//       fs.mkdirSync(this.outputDir, { recursive: true });
+//     }
 
-export default TestGenerator;
+//     const testPath = path.join(this.outputDir, `${componentName}.test.jsx`);
+//     fs.writeFileSync(testPath, testCode);
+//     console.log(`Test saved: ${testPath}`);
+//   }
+// }
+
+// export default TestGenerator;

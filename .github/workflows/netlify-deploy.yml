@@ -182,7 +182,7 @@ jobs:
           for file in src/services/generated_tests/output/*.test.jsx; do
             if [ -f "$file" ]; then
               component_name=$(basename "$file" .test.jsx)
-
+              
               # Determine if it's a page or component
               if [[ "$component_name" == *"Page" ]]; then
                 import_path="../../pages/${component_name}/${component_name}"
@@ -293,7 +293,7 @@ jobs:
 
   # 4. Deploy to Staging
   deploy-staging:
-    # needs: test
+    needs: test
     if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     environment: staging
@@ -326,7 +326,7 @@ jobs:
 
   # 5. Deploy to Production
   deploy-production:
-    # needs: test
+    needs: test
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: production

@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import TestGenerator from './testGenerator.js';
 import { glob } from 'glob';
-import * as process from 'dotenv';
 
 class TestRunner {
   constructor(apiKey) {

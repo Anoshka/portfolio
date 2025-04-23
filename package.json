@@ -58,23 +58,6 @@
     "tabWidth": 2,
     "trailingComma": "es5"
   },
-  "jest": {
-    "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": [
-      "<rootDir>/src/setupTests.js"
-    ],
-    "moduleNameMapper": {
-      "\\.(css|scss)$": "identity-obj-proxy",
-      "\\.(jpg|jpeg|png|gif|webp|svg)$": "<rootDir>/__mocks__/fileMock.js"
-    },
-    "transform": {
-      "^.+\\.(js|jsx)$": "babel-jest"
-    },
-    "testMatch": [
-      "<rootDir>/src/**/*.test.{js,jsx}",
-      "<rootDir>/src/services/generated_tests/output/**/*.test.{js,jsx}"
-    ]
-  },
   "presets": [
     "@babel/preset-env",
     [

@@ -25,6 +25,7 @@ class TestRunner {
 
     // Save test
     const testPath = path.join(this.testOutputDir, `${componentName}.test.jsx`);
+    console.log(`Test will be saved at: ${testPath}`);
     fs.writeFileSync(testPath, testCode);
 
     // Run test
@@ -34,6 +35,7 @@ class TestRunner {
   async runRouteTests(routes) {
     const testCode = await this.generator.generateRouteTest(routes);
     const testPath = path.join(this.testOutputDir, 'routes.test.jsx');
+    console.log(`Test will be saved at: ${testPath}`);
     fs.writeFileSync(testPath, testCode);
   }
 }

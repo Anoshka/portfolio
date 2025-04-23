@@ -16,7 +16,7 @@
     ]
   ],
   "plugins": [
-    // Any plugins you might have used can be added here if necessary
+    "@babel/plugin-transform-runtime"
   ],
   "env": {
     "test": {

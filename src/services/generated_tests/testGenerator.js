@@ -4,7 +4,10 @@ import path from 'path';
 
 class TestGenerator {
   constructor() {
-    this.openai = new OpenAI(process.env.OPENAI_API_KEY);
+    this.openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY, // API Key
+      organization: process.env.OPENAI_ORG_ID, // Optional: your OpenAI org ID
+    });
     this.outputDir = path.join(
       process.cwd(),
       'src/services/generated_tests/output'
@@ -33,7 +36,7 @@ class TestGenerator {
     `;
 
     try {
-      const completion = await this.openai.createCompletion({
+      const completion = await this.openai.completions.create({
         model: 'gpt-4',
         prompt,
         max_tokens: 1500,
@@ -48,7 +51,7 @@ class TestGenerator {
       return testCode;
     } catch (error) {
       console.error(`Error generating test for ${componentName}:`, error);
-      // Create a basic test if OpenAI fails
+      console.error(error.response?.data); // Log OpenAI API error details (if available)
       const basicTest = this.createBasicTest(componentName);
       this.saveTest(componentName, basicTest);
       return basicTest;

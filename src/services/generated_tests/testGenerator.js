@@ -44,7 +44,7 @@ class TestGenerator {
     try {
       // Call OpenAI Codex to generate test
       const completion = await this.openai.chat.completions.create({
-        model: 'code-davinci-002', // Use Codex model
+        model: 'gpt-3.5-turbo', // Use Codex model
         messages: [
           {
             role: 'system',

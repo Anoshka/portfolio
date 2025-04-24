@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import TestGenerator from './testGenerator.js';
 import { glob } from 'glob';
+import jest from 'jest';
 
 class TestRunner {
   constructor(apiKey) {
@@ -18,18 +19,29 @@ class TestRunner {
     const componentName = path.basename(componentPath, '.jsx');
 
     // Generate test
-    const testCode = await this.generator.generateComponentTest(
-      componentCode,
-      componentName
-    );
+    const testCode = await this.generator.generateTest(componentPath);
 
     // Save test
     const testPath = path.join(this.testOutputDir, `${componentName}.test.jsx`);
     console.log(`Test will be saved at: ${testPath}`);
     fs.writeFileSync(testPath, testCode);
 
-    // Run test
-    // need to add jest.runCLI() to run tests immediately
+    // Run Jest on the generated test file
+    await this.runTest(componentName);
+  }
+
+  async runTest(componentName) {
+    const testPath = path.join(this.testOutputDir, `${componentName}.test.jsx`);
+    // Run Jest using the generated test file
+    const result = await jest.runCLI(
+      {
+        config: {
+          testMatch: [testPath],
+        },
+      },
+      [process.cwd()]
+    );
+    console.log(result);
   }
 
   async runRouteTests(routes) {
@@ -46,6 +58,9 @@ async function main() {
   // Find all component files
   const componentFiles = glob.sync('src/components/**/*.jsx');
   const pageFiles = glob.sync('src/pages/**/*.jsx');
+
+  console.log('Component files:', componentFiles);
+  console.log('Page files:', pageFiles);
 
   // Generate tests for all components
   for (const file of [...componentFiles, ...pageFiles]) {

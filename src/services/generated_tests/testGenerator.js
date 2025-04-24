@@ -41,7 +41,9 @@ class TestGenerator {
       });
 
       const testCode = completion.choices[0].text;
+      console.log(`Generated test for ${componentName}: ${testCode}`);
       this.saveTest(componentName, testCode);
+      console.log(`Successfully generated test for: ${componentName}`);
       console.log(`Successfully generated test for: ${componentName}`);
       return testCode;
     } catch (error) {

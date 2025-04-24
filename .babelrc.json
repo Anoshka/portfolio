@@ -5,7 +5,8 @@
       {
         "targets": {
           "node": "current"
-        }
+        },
+        "modules": "auto"
       }
     ],
     [
@@ -20,7 +21,12 @@
   ],
   "env": {
     "test": {
-      "plugins": ["@babel/plugin-transform-modules-commonjs"]
+      "plugins": [
+        "@babel/plugin-transform-modules-commonjs"
+      ]
     }
-  }
+  },
+  "ignore": [
+    "**/node_modules/**"
+  ]
 }

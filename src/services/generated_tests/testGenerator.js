@@ -1,12 +1,14 @@
-import { OpenAI } from 'openai';
+import { OpenAI } from 'openai'; // Import OpenAI SDK
 import fs from 'fs';
 import path from 'path';
+import dotenv from 'dotenv';
+dotenv.config();
 
 class TestGenerator {
   constructor() {
+    // Initialize OpenAI with API Key (make sure it's in your environment variables)
     this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY, // API Key
-      organization: process.env.OPENAI_ORG_ID, // Optional: your OpenAI org ID
+      apiKey: process.env.OPENAI_API_KEY,
     });
     this.outputDir = path.join(
       process.cwd(),
@@ -14,11 +16,15 @@ class TestGenerator {
     );
   }
 
+  // Generate test for a given component
   async generateTest(componentPath) {
     console.log(`Generating test for: ${componentPath}`);
+
+    // Read the component code
     const code = fs.readFileSync(componentPath, 'utf-8');
     const componentName = path.basename(componentPath, '.jsx');
 
+    // Prepare prompt for Codex (GPT-3)
     const prompt = `
       Generate a Jest test for this React component:
       ${code}
@@ -30,34 +36,45 @@ class TestGenerator {
       4. Test route handling (if applicable)
       5. Test responsive design
       6. Test animations (if present)
-      7. Include error casess
-      
+      7. Include error cases
+
       Return only the test code.
     `;
 
     try {
-      const completion = await this.openai.completions.create({
-        model: 'gpt-4',
-        prompt,
-        max_tokens: 1500,
-        temperature: 0.7,
+      // Call OpenAI Codex to generate test
+      const completion = await this.openai.chat.completions.create({
+        model: 'code-davinci-002', // Use Codex model
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are a helpful assistant that generates Jest test cases for React components.',
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
       });
 
-      const testCode = completion.choices[0].text;
-      console.log(`Generated test for ${componentName}: ${testCode}`);
+      // Extract generated test code from the response
+      const testCode = completion.choices[0].message.content;
+
+      // Save the generated test code to a file
       this.saveTest(componentName, testCode);
-      console.log(`Successfully generated test for: ${componentName}`);
       console.log(`Successfully generated test for: ${componentName}`);
       return testCode;
     } catch (error) {
       console.error(`Error generating test for ${componentName}:`, error);
-      console.error(error.response?.data); // Log OpenAI API error details (if available)
+      // Fallback to a basic test if Codex fails
       const basicTest = this.createBasicTest(componentName);
       this.saveTest(componentName, basicTest);
       return basicTest;
     }
   }
 
+  // Simple fallback test when Codex fails
   createBasicTest(componentName) {
     return `
       import { render } from '@testing-library/react';
@@ -71,6 +88,7 @@ class TestGenerator {
     `;
   }
 
+  // Save the test code to the output directory
   saveTest(componentName, testCode) {
     if (!fs.existsSync(this.outputDir)) {
       fs.mkdirSync(this.outputDir, { recursive: true });

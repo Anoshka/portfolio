@@ -1,22 +1,29 @@
+// postinstall.cjs
 const path = require('path');
-const rimraf = require('rimraf');
-const glob = require('glob'); // Use the synchronous version of glob
+const { rimraf } = require('rimraf');
+const { globSync } = require('glob');
 
-const babelrcPattern = path.join('node_modules', '**', '.babelrc');
+const patterns = ['./node_modules/**/.babelrc', './node_modules/**/.npmrc'];
 
-// Use the synchronous glob to find .babelrc files
-const files = ['./node_modules/**/.babelrc', './node_modules/**/.npmrc'];
+async function cleanup() {
+  try {
+    const files = patterns.flatMap((pattern) => globSync(pattern));
 
-if (files.length > 0) {
-  files.forEach((filePath) => {
-    rimraf(filePath, (deleteErr) => {
-      if (deleteErr) {
-        console.error(`Error deleting ${filePath}:`, deleteErr);
-      } else {
-        console.log(`Successfully deleted ${filePath}`);
+    if (files.length > 0) {
+      for (const filePath of files) {
+        try {
+          await rimraf(filePath);
+          console.log(`Successfully deleted ${filePath}`);
+        } catch (err) {
+          console.error(`Error deleting ${filePath}:`, err);
+        }
       }
-    });
-  });
-} else {
-  console.log('No .babelrc files found in node_modules.');
+    } else {
+      console.log('No files found to clean up.');
+    }
+  } catch (err) {
+    console.error('Error during cleanup:', err);
+  }
 }
+
+cleanup().catch(console.error);

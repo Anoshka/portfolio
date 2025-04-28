@@ -1,5 +1,5 @@
 {
-  "name": "InStock-client",
+  "name": "portfolio-client",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -28,7 +28,7 @@
     "three": "^0.174.0",
     "typewriter-effect": "^2.21.0",
     "validator": "^13.12.0",
-    "glob": "^9.0.0"
+    "glob": "^10.3.10"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
@@ -55,7 +55,7 @@
     "jsdom": "^26.1.0",
     "openai": "^4.96.0",
     "prettier": "^3.5.3",
-    "rimraf": "^5.0.10",
+    "rimraf": "^5.0.5",
     "vite": "^6.2.6"
   },
   "prettier": {

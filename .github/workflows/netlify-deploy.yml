@@ -17,7 +17,7 @@ env:
   NODE_VERSION: '20'
   NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
   NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  HUGGING_FACE_API_KEY: ${{ secrets.HUGGING_FACE_API_KEY }}
 
 jobs:
   # 1. Format Code
@@ -73,7 +73,7 @@ jobs:
         run: |
           node src/services/generated_tests/testRunner.js
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          HUGGING_FACE_API_KEY: ${{ secrets.HUGGING_FACE_API_KEY }}
 
       - name: Check if tests were generated
         id: check_tests

@@ -53,10 +53,10 @@ class TestRunner {
 }
 
 async function main() {
-  const apiKey = process.env.OPENAI_API_KEY; // Fetch the API key from the GitHub Actions environment variables
+  const apiKey = process.env.HUGGING_FACE_API_KEY; // Fetch the API key from the GitHub Actions environment variables
   if (!apiKey) {
     console.error(
-      'OPENAI_API_KEY is not set. Please make sure the GitHub secret is defined.'
+      'HUGGING_FACE_API_KEY is not set. Please make sure the GitHub secret is defined.'
     );
     process.exit(1);
   }

@@ -14,32 +14,26 @@ class TestRunner {
   }
 
   async runComponentTests(componentPath) {
-    // Read component code
-    const componentCode = fs.readFileSync(componentPath, 'utf-8');
     const componentName = path.basename(componentPath, '.jsx');
 
-    // Generate test
     const testCode = await this.generator.generateTest(componentPath);
 
-    // Save test
     const testPath = path.join(this.testOutputDir, `${componentName}.test.jsx`);
     console.log(`Test will be saved at: ${testPath}`);
     fs.writeFileSync(testPath, testCode);
 
-    // Run Jest on the generated test file
     await this.runTest(componentName);
   }
 
   async runTest(componentName) {
     const testPath = path.join(this.testOutputDir, `${componentName}.test.jsx`);
-    // Run Jest using the generated test file
     const result = await jest.runCLI(
       {
         config: {
-          testMatch: [testPath],
+          testMatch: [testPath], // Ensure the correct path is passed here
         },
       },
-      [process.cwd()]
+      [process.cwd()] // Ensure Jest runs in the correct directory
     );
     console.log(result);
   }
@@ -53,7 +47,7 @@ class TestRunner {
 }
 
 async function main() {
-  const apiKey = process.env.HUGGING_FACE_API_KEY; // Fetch the API key from the GitHub Actions environment variables
+  const apiKey = process.env.HUGGING_FACE_API_KEY;
   if (!apiKey) {
     console.error(
       'HUGGING_FACE_API_KEY is not set. Please make sure the GitHub secret is defined.'
@@ -61,16 +55,14 @@ async function main() {
     process.exit(1);
   }
 
-  const generator = new TestGenerator(apiKey); // Pass the API key here
+  const generator = new TestGenerator(apiKey);
 
-  // Find all component files
   const componentFiles = glob.sync('src/components/**/*.jsx');
   const pageFiles = glob.sync('src/pages/**/*.jsx');
 
   console.log('Component files:', componentFiles);
   console.log('Page files:', pageFiles);
 
-  // Generate tests for all components
   for (const file of [...componentFiles, ...pageFiles]) {
     console.log(`Generating test for ${file}...`);
     await generator.generateTest(file);

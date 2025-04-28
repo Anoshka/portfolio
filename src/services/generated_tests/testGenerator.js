@@ -2,13 +2,8 @@ import { OpenAI } from 'openai'; // Import OpenAI SDK
 import fs from 'fs';
 import path from 'path';
 
-// Don't need dotenv anymore since the API key is in GitHub Secrets
-// import dotenv from 'dotenv';
-// dotenv.config();
-
 class TestGenerator {
   constructor() {
-    // Get the API Key from environment variable (passed via GitHub Actions)
     const apiKey = process.env.HUGGING_FACE_API_KEY;
 
     if (!apiKey) {
@@ -32,11 +27,9 @@ class TestGenerator {
   async generateTest(componentPath) {
     console.log(`Generating test for: ${componentPath}`);
 
-    // Read the component code
     const code = fs.readFileSync(componentPath, 'utf-8');
     const componentName = path.basename(componentPath, '.jsx');
 
-    // Prepare prompt for Codex (GPT-3)
     const prompt = `
       Generate a Jest test for this React component:
       ${code}
@@ -54,9 +47,8 @@ class TestGenerator {
     `;
 
     try {
-      // Call OpenAI Codex to generate test
       const completion = await this.openai.chat.completions.create({
-        model: 'gpt-3.5-turbo', // Use Codex model
+        model: 'gpt-3.5-turbo',
         messages: [
           {
             role: 'system',
@@ -70,16 +62,13 @@ class TestGenerator {
         ],
       });
 
-      // Extract generated test code from the response
       const testCode = completion.choices[0].message.content;
 
-      // Save the generated test code to a file
       this.saveTest(componentName, testCode);
       console.log(`Successfully generated test for: ${componentName}`);
       return testCode;
     } catch (error) {
       console.error(`Error generating test for ${componentName}:`, error);
-      // Fallback to a basic test if Codex fails
       const basicTest = this.createBasicTest(componentName);
       this.saveTest(componentName, basicTest);
       return basicTest;
@@ -88,10 +77,13 @@ class TestGenerator {
 
   // Simple fallback test when Codex fails
   createBasicTest(componentName) {
+    const isPage = componentName.includes('Page');
+    const folderPath = isPage ? 'pages' : 'components';
+
     return `
       import { render } from '@testing-library/react';
-      import ${componentName} from './${componentName}';
-
+      import ${componentName} from '../../${folderPath}/${componentName}/${componentName}.jsx';
+  
       describe('${componentName}', () => {
         test('renders without crashing', () => {
           render(<${componentName} />);
@@ -100,15 +92,14 @@ class TestGenerator {
     `;
   }
 
-  // Save the test code to the output directory
   saveTest(componentName, testCode) {
     if (!fs.existsSync(this.outputDir)) {
       fs.mkdirSync(this.outputDir, { recursive: true });
     }
 
     const testPath = path.join(this.outputDir, `${componentName}.test.jsx`);
-    fs.writeFileSync(testPath, testCode);
-    console.log(`Test saved: ${testPath}`);
+    fs.writeFileSync(testPath, testCode); // This will overwrite the file
+    console.log(`Test for ${componentName} saved at: ${testPath}`);
   }
 }
 

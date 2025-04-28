@@ -1,11 +1,12 @@
 module.exports = {
-  testEnvironment: 'jsdom',
-  moduleNameMapper: {
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-    '\\.(jpg|jpeg|png|gif|webp|svg)$': '<rootDir>/__mocks__/fileMock.js',
-  },
   transform: {
     '^.+\\.(js|jsx|mjs)$': 'babel-jest',
+  },
+  moduleFileExtensions: ['js', 'jsx', 'json', 'node'],
+  testEnvironment: 'jsdom',
+  moduleNameMapper: {
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy', // Mock stylesheets
+    '\\.(jpg|jpeg|png|gif|webp|svg)$': '<rootDir>/__mocks__/fileMock.js', // Mock image files
   },
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.js'],
   testMatch: ['**/generated_tests/output/**/*.test.jsx'],
@@ -14,4 +15,9 @@ module.exports = {
   transformIgnorePatterns: [
     '/node_modules/(?!(@testing-library|react-router-dom)/)',
   ],
+  globals: {
+    'babel-jest': {
+      useESModules: true,
+    },
+  },
 };

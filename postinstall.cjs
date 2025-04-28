@@ -5,15 +5,15 @@ const glob = require('glob'); // Use the synchronous version of glob
 const babelrcPattern = path.join('node_modules', '**', '.babelrc');
 
 // Use the synchronous glob to find .babelrc files
-const files = glob.sync(babelrcPattern);
+const files = ['./node_modules/**/.babelrc', './node_modules/**/.npmrc'];
 
 if (files.length > 0) {
   files.forEach((filePath) => {
     rimraf(filePath, (deleteErr) => {
       if (deleteErr) {
-        console.error(`Error deleting file: ${filePath}`, deleteErr);
+        console.error(`Error deleting ${filePath}:`, deleteErr);
       } else {
-        console.log(`Successfully deleted: ${filePath}`);
+        console.log(`Successfully deleted ${filePath}`);
       }
     });
   });

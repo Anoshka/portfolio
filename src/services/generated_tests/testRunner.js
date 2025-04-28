@@ -6,7 +6,7 @@ import jest from 'jest';
 
 class TestRunner {
   constructor(apiKey) {
-    this.generator = new TestGenerator(apiKey);
+    this.generator = new TestGenerator(apiKey); // Pass the API key here
     this.testOutputDir = path.join(
       process.cwd(),
       'src/services/generated_tests/output'
@@ -53,7 +53,15 @@ class TestRunner {
 }
 
 async function main() {
-  const generator = new TestGenerator();
+  const apiKey = process.env.OPENAI_API_KEY; // Fetch the API key from environment variables
+  if (!apiKey) {
+    console.error(
+      'OPENAI_API_KEY is not set. Please make sure the GitHub secret is defined.'
+    );
+    process.exit(1);
+  }
+
+  const generator = new TestGenerator(apiKey); // Pass the API key here
 
   // Find all component files
   const componentFiles = glob.sync('src/components/**/*.jsx');

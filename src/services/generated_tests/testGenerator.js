@@ -1,18 +1,31 @@
+import { OpenAI } from 'openai'; // Import OpenAI SDK
 import fs from 'fs';
 import path from 'path';
-import axios from 'axios';
-import dotenv from 'dotenv';
 
-// Load environment variables
-dotenv.config();
+// Don't need dotenv anymore since the API key is in GitHub Secrets
+// import dotenv from 'dotenv';
+// dotenv.config();
 
 class TestGenerator {
   constructor() {
+    // Get the API Key from environment variable (passed via GitHub Actions)
+    const apiKey = process.env.HUGGING_FACE_API_KEY;
+
+    if (!apiKey) {
+      console.error(
+        'API key is missing! Please provide the Hugging Face API key.'
+      );
+      process.exit(1); // Exit the process if no API key is found
+    }
+
+    // Initialize OpenAI with the API key from the environment variable
+    this.openai = new OpenAI({
+      apiKey: apiKey,
+    });
     this.outputDir = path.join(
       process.cwd(),
       'src/services/generated_tests/output'
     );
-    this.huggingFaceAPIKey = process.env.HUGGING_FACE_API_KEY; // Get API key from env
   }
 
   // Generate test for a given component
@@ -23,8 +36,9 @@ class TestGenerator {
     const code = fs.readFileSync(componentPath, 'utf-8');
     const componentName = path.basename(componentPath, '.jsx');
 
-    // Prepare prompt for the CodeGen model
-    const prompt = `Generate a Jest test for this React component:
+    // Prepare prompt for Codex (GPT-3)
+    const prompt = `
+      Generate a Jest test for this React component:
       ${code}
 
       Requirements:
@@ -36,24 +50,28 @@ class TestGenerator {
       6. Test animations (if present)
       7. Include error cases
 
-      Return only the test code.`;
+      Return only the test code.
+    `;
 
     try {
-      // Call Hugging Face CodeGen model to generate the test
-      const response = await axios.post(
-        'https://api-inference.huggingface.co/models/Salesforce/codegen-350M-mono', // Use the CodeGen model endpoint
-        {
-          inputs: prompt,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${this.huggingFaceAPIKey}`,
+      // Call OpenAI Codex to generate test
+      const completion = await this.openai.chat.completions.create({
+        model: 'gpt-3.5-turbo', // Use Codex model
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are a helpful assistant that generates Jest test cases for React components.',
           },
-        }
-      );
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+      });
 
-      // Extract the generated test code from the response
-      const testCode = response.data[0].generated_text;
+      // Extract generated test code from the response
+      const testCode = completion.choices[0].message.content;
 
       // Save the generated test code to a file
       this.saveTest(componentName, testCode);
@@ -61,14 +79,14 @@ class TestGenerator {
       return testCode;
     } catch (error) {
       console.error(`Error generating test for ${componentName}:`, error);
-      // Fallback to a basic test if CodeGen fails
+      // Fallback to a basic test if Codex fails
       const basicTest = this.createBasicTest(componentName);
       this.saveTest(componentName, basicTest);
       return basicTest;
     }
   }
 
-  // Simple fallback test when CodeGen fails
+  // Simple fallback test when Codex fails
   createBasicTest(componentName) {
     return `
       import { render } from '@testing-library/react';

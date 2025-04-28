@@ -251,14 +251,6 @@ jobs:
           # Create setupTests.js with CommonJS syntax
           echo 'require("@testing-library/jest-dom");' > src/setupTests.js
 
-          # Create .babelrc for proper transpilation
-          echo '{
-            "presets": [
-              ["@babel/preset-env", { "targets": { "node": "current" } }],
-              ["@babel/preset-react", { "runtime": "automatic" }]
-            ]
-          }' > .babelrc
-
       # Update Jest config
       - name: Update Jest config
         run: |
@@ -277,7 +269,8 @@ jobs:
             extensionsToTreatAsEsm: [".jsx"],
             transformIgnorePatterns: [
               "/node_modules/(?!(@testing-library|react-router-dom)/)"
-            ]
+            ],
+            rootDir: "."
           }' > jest.config.mjs
 
       # Run tests

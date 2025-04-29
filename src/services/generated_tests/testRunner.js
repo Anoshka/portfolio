@@ -4,6 +4,14 @@ import TestGenerator from './testGenerator.js';
 import { glob } from 'glob';
 import jest from 'jest';
 
+const DEBUG = process.env.DEBUG === 'true';
+
+function debug(...args) {
+  if (DEBUG) {
+    console.log('[DEBUG]', ...args);
+  }
+}
+
 class TestRunner {
   constructor(apiKey) {
     this.generator = new TestGenerator(apiKey);
@@ -60,13 +68,15 @@ class TestRunner {
 }
 
 async function main() {
+  debug('Starting test generation...');
   const apiKey = process.env.HUGGING_FACE_API_KEY;
+
   if (!apiKey) {
-    console.error(
-      'HUGGING_FACE_API_KEY is not set. Please make sure the GitHub secret is defined.'
-    );
+    console.error('HUGGING_FACE_API_KEY is not set');
     process.exit(1);
   }
+
+  debug('API key found');
 
   // Ensure output directory exists and is empty
   if (fs.existsSync('src/services/generated_tests/output')) {
@@ -79,13 +89,21 @@ async function main() {
   const componentFiles = glob.sync('src/components/**/*.jsx');
   const pageFiles = glob.sync('src/pages/**/*.jsx');
 
-  console.log('Component files:', componentFiles);
-  console.log('Page files:', pageFiles);
+  debug('Found component files:', componentFiles);
+  debug('Found page files:', pageFiles);
 
   for (const file of [...componentFiles, ...pageFiles]) {
-    console.log(`Generating test for ${file}...`);
-    await runner.generateComponentTest(file);
+    debug(`Generating test for ${file}...`);
+    try {
+      await runner.generateComponentTest(file);
+      debug(`Successfully generated test for ${file}`);
+    } catch (error) {
+      console.error(`Error generating test for ${file}:`, error);
+      process.exit(1);
+    }
   }
+
+  debug('Test generation completed');
 }
 
 main().catch(console.error);

@@ -73,10 +73,15 @@ jobs:
         run: |
           # Clean up old tests first
           rm -rf src/services/generated_tests/output/*
-          # Generate new tests
-          NODE_OPTIONS='--experimental-vm-modules' node src/services/generated_tests/testRunner.js
+          # Generate new tests with better error handling
+          node src/services/generated_tests/testRunner.js || {
+            echo "Test generation failed with exit code $?"
+            ls -la src/services/generated_tests/output/
+            exit 1
+          }
         env:
           HUGGING_FACE_API_KEY: ${{ secrets.HUGGING_FACE_API_KEY }}
+          DEBUG: 'true' # Add this for more verbose output
 
       - name: Check if tests were generated
         id: check_tests
@@ -410,17 +415,18 @@ jobs:
 
   # 6. Notification
   notify:
-    needs: [deploy-staging, deploy-production]
+    needs: test
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Deployment Status
         run: |
-          if [ "${{ needs.deploy-staging.result }}" = "success" ] || [ "${{ needs.deploy-production.result }}" = "success" ]; then
-            echo "🎉 Deployment successful!"
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "🎉 Production deployment status: ${{ needs.deploy-production.result }}"
+          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+            echo "🎉 Staging deployment status: ${{ needs.deploy-staging.result }}"
           else
-            echo "❌ Deployment failed"
-            exit 1
+            echo "✅ Tests completed successfully"
           fi
 
       - name: Create Deployment Comment

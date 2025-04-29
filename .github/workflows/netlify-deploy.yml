@@ -185,9 +185,9 @@ jobs:
               
               # Determine if it's a page or component
               if [[ "$component_name" == *"Page" ]]; then
-                import_path="../../pages/${component_name}/${component_name}"
+                import_path="../../../pages/${component_name}/${component_name}"
               else
-                import_path="../../components/${component_name}/${component_name}"
+                import_path="../../../components/${component_name}/${component_name}"
               fi
 
               # Debug output

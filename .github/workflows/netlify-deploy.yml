@@ -64,7 +64,7 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          npm install --save-dev openai glob
+          npm install --save-dev node-fetch@3.3.2 glob
 
       - name: Create test output directory
         run: mkdir -p src/services/generated_tests/output
@@ -74,7 +74,7 @@ jobs:
           # Clean up old tests first
           rm -rf src/services/generated_tests/output/*
           # Generate new tests
-          node src/services/generated_tests/testRunner.js
+          NODE_OPTIONS='--experimental-vm-modules' node src/services/generated_tests/testRunner.js
         env:
           HUGGING_FACE_API_KEY: ${{ secrets.HUGGING_FACE_API_KEY }}
 

@@ -1,168 +1,151 @@
-import { OpenAI } from 'openai'; // Import OpenAI SDK
 import fs from 'fs';
 import path from 'path';
+import { getTestPrompt } from './testPrompts.js';
 
 class TestGenerator {
   constructor() {
     const apiKey = process.env.HUGGING_FACE_API_KEY;
-
     if (!apiKey) {
-      console.error(
-        'API key is missing! Please provide the Hugging Face API key.'
-      );
-      process.exit(1); // Exit the process if no API key is found
+      throw new Error('HUGGING_FACE_API_KEY is required');
     }
 
-    // Initialize OpenAI with the API key from the environment variable
-    this.openai = new OpenAI({
-      apiKey: apiKey,
-    });
+    this.apiKey = apiKey;
     this.outputDir = path.join(
       process.cwd(),
       'src/services/generated_tests/output'
     );
-
-    // Components to skip during test generation
-    this.skipComponents = ['Animation'];
+    this.skipComponents = ['Animation']; // Add any components you want to skip
   }
 
-  // Generate test for a given component
   async generateTest(componentPath) {
     const componentName = path.basename(componentPath, '.jsx');
 
-    // Skip specified components
     if (this.skipComponents.includes(componentName)) {
-      console.log(
-        `Skipping test generation for ${componentName} as it's in the skip list`
-      );
+      console.log(`Skipping test generation for ${componentName}`);
       return null;
     }
 
     console.log(`Generating test for: ${componentPath}`);
-
     const code = fs.readFileSync(componentPath, 'utf-8');
-    const needsRouter =
-      code.includes('react-router-dom') ||
-      code.includes('useNavigate') ||
-      code.includes('Link') ||
-      code.includes('Route');
-
-    const prompt = `
-      Generate a Jest test for this React component:
-      ${code}
-
-      Requirements:
-      1. Use React Testing Library
-      2. Test component rendering
-      3. Test user interactions
-      4. Test route handling (if applicable)
-      5. Test responsive design
-      6. Test animations (if present)
-      7. Include error cases
-      ${needsRouter ? '8. Make sure to wrap the component in BrowserRouter since it uses React Router' : ''}
-
-      Return only the test code.
-      ${needsRouter ? 'Important: The component uses React Router, so it must be wrapped in BrowserRouter in the tests.' : ''}
-    `;
+    const prompt = getTestPrompt(componentName, code);
 
     try {
-      const completion = await this.openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content:
-              'You are a helpful assistant that generates Jest test cases for React components.',
+      const response = await fetch(
+        'https://api-inference.huggingface.co/models/meta-llama/Llama-2-70b-chat-hf',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.apiKey}`,
           },
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-      });
+          body: JSON.stringify({
+            inputs: prompt,
+            parameters: {
+              max_new_tokens: 2000,
+              temperature: 0.7,
+              top_p: 0.95,
+              do_sample: true,
+              return_full_text: false,
+            },
+          }),
+        }
+      );
 
-      const testCode = completion.choices[0].message.content;
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      const testCode = this.processGeneratedCode(
+        result[0].generated_text,
+        componentName
+      );
 
       if (testCode) {
         this.saveTest(componentName, testCode);
-        console.log(`Successfully generated test for: ${componentName}`);
+        return testCode;
       }
-      return testCode;
     } catch (error) {
       console.error(`Error generating test for ${componentName}:`, error);
-      const basicTest = this.createBasicTest(componentName);
-      if (basicTest) {
-        this.saveTest(componentName, basicTest);
+      const fallbackTest = this.createFallbackTest(componentName);
+      if (fallbackTest) {
+        this.saveTest(componentName, fallbackTest);
       }
-      return basicTest;
+      return fallbackTest;
     }
   }
 
-  // Simple fallback test when Codex fails
-  createBasicTest(componentName) {
-    // Skip specified components
-    if (this.skipComponents.includes(componentName)) {
-      console.log(
-        `Skipping basic test creation for ${componentName} as it's in the skip list`
-      );
-      return null;
-    }
+  processGeneratedCode(generatedText, componentName) {
+    // Clean up the generated code
+    let code = generatedText.trim();
 
-    const isPage = componentName.includes('Page');
-    const folderPath = isPage ? 'pages' : 'components';
+    // Ensure proper imports
+    const imports = `import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { TestWrapper${componentName === 'Animation' ? ', mockCanvas' : ''} } from '../testUtils';
+import ${componentName} from '${componentName.includes('Page') ? '../../../pages' : '../../../components'}/${componentName}/${componentName}';`;
 
-    // Read the component file to check if it needs Router
-    const componentPath = path.join(
-      process.cwd(),
-      'src',
-      folderPath,
-      componentName,
-      `${componentName}.jsx`
+    // Replace any direct BrowserRouter imports/usage with TestWrapper
+    code = code.replace(
+      /import.*BrowserRouter.*from.*react-router-dom.*;\n?/g,
+      ''
     );
-    const componentCode = fs.readFileSync(componentPath, 'utf-8');
-    const needsRouter =
-      componentCode.includes('react-router-dom') ||
-      componentCode.includes('useNavigate') ||
-      componentCode.includes('Link') ||
-      componentCode.includes('Route');
+    code = code.replace(
+      /<BrowserRouter>(.*?)<\/BrowserRouter>/gs,
+      '<TestWrapper>$1</TestWrapper>'
+    );
 
-    const imports = `
-      import { render } from '@testing-library/react';
-      ${needsRouter ? "import { BrowserRouter } from 'react-router-dom';" : ''}
-      import ${componentName} from '../../../${folderPath}/${componentName}/${componentName}.jsx';
-    `;
+    // Add warning suppression for React Router
+    const setup = `
+// Suppress React Router warnings
+beforeAll(() => {
+  jest.spyOn(console, 'warn').mockImplementation((msg) => {
+    if (!msg.includes('React Router')) {
+      console.warn(msg);
+    }
+  });
+});
 
-    const renderCode = needsRouter
-      ? `render(<BrowserRouter><${componentName} /></BrowserRouter>);`
-      : `render(<${componentName} />);`;
+afterAll(() => {
+  jest.restoreAllMocks();
+});`;
 
-    return `
-      ${imports}
-  
-      describe('${componentName}', () => {
-        test('renders without crashing', () => {
-          ${renderCode}
-        });
-      });
-    `.trim();
+    return `${imports}
+
+${setup}
+
+${code}`;
+  }
+
+  createFallbackTest(componentName) {
+    const isPage = componentName.includes('Page');
+
+    return `import React from 'react';
+import { render } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { TestWrapper } from '../testUtils';
+import ${componentName} from '${isPage ? '../../../pages' : '../../../components'}/${componentName}/${componentName}';
+
+describe('${componentName}', () => {
+  test('renders without crashing', () => {
+    render(
+      <TestWrapper>
+        <${componentName} />
+      </TestWrapper>
+    );
+  });
+});`;
   }
 
   saveTest(componentName, testCode) {
-    // Skip saving tests for specified components
-    if (this.skipComponents.includes(componentName)) {
-      console.log(
-        `Skipping test save for ${componentName} as it's in the skip list`
-      );
-      return;
-    }
-
     if (!fs.existsSync(this.outputDir)) {
       fs.mkdirSync(this.outputDir, { recursive: true });
     }
 
     const testPath = path.join(this.outputDir, `${componentName}.test.jsx`);
     fs.writeFileSync(testPath, testCode);
-    console.log(`Test for ${componentName} saved at: ${testPath}`);
+    console.log(`Test saved: ${testPath}`);
   }
 }
 

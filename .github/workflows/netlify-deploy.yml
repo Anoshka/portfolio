@@ -74,20 +74,21 @@ jobs:
 
       - name: Verify Hugging Face API Access
         run: |
-          echo "Testing API access with text-generation model..."
+          echo "Testing API access with basic model..."
           response=$(curl -s -X POST \
             -H "Authorization: Bearer $HUGGING_FACE_API_KEY" \
             -H "Content-Type: application/json" \
-            -d '{"inputs": "Write a test for"}' \
-            "https://api-inference.huggingface.co/models/gpt2")
+            -d '{"inputs": "Hello"}' \
+            "https://api-inference.huggingface.co/models/distilbert-base-uncased")
 
-          if echo "$response" | grep -q "error"; then
-            echo "❌ API Error Response:"
-            echo "$response"
+          echo "Full response:"
+          echo "$response"
+
+          if echo "$response" | grep -q "error\|Not Found"; then
+            echo "❌ API Error Response"
             exit 1
           else
-            echo "✅ API access verified"
-            echo "Response preview: ${response:0:100}..."
+            echo "✅ API access verified successfully"
           fi
         env:
           HUGGING_FACE_API_KEY: ${{ secrets.HUGGING_FACE_API_KEY }}

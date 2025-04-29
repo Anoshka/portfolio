@@ -11,6 +11,7 @@ class TestGenerator {
     }
 
     this.apiKey = apiKey;
+    this.model = 'bigcode/starcoderbase';
     this.outputDir = path.join(
       process.cwd(),
       'src/services/generated_tests/output'
@@ -45,7 +46,7 @@ class TestGenerator {
 
         // First, check if the model is ready
         const checkResponse = await fetch(
-          'https://api-inference.huggingface.co/models/bigcode/starcoder',
+          `https://api-inference.huggingface.co/models/${this.model}`,
           {
             method: 'HEAD',
             headers: {
@@ -66,7 +67,7 @@ class TestGenerator {
         }
 
         const response = await fetch(
-          'https://api-inference.huggingface.co/models/bigcode/starcoder',
+          `https://api-inference.huggingface.co/models/${this.model}`,
           {
             method: 'POST',
             headers: {
@@ -76,12 +77,14 @@ class TestGenerator {
             body: JSON.stringify({
               inputs: prompt,
               parameters: {
-                max_new_tokens: 1024,
-                temperature: 0.2, // Lower temperature for more focused output
+                max_new_tokens: 800,
+                temperature: 0.1,
                 top_p: 0.95,
                 do_sample: true,
                 return_full_text: false,
-                num_return_sequences: 1,
+              },
+              options: {
+                wait_for_model: true,
               },
             }),
           }
@@ -96,21 +99,10 @@ class TestGenerator {
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error(`Full error response:`, errorText);
-
-          if (response.status === 404) {
-            throw new Error(
-              'Model not found. Please check the model name and try again.'
-            );
-          } else if (response.status === 403) {
-            throw new Error(
-              'Authentication failed. Please check your API key.'
-            );
-          } else {
-            throw new Error(
-              `API request failed: ${response.statusText}. Details: ${errorText}`
-            );
-          }
+          console.error('Error response:', errorText);
+          throw new Error(
+            `API request failed: ${response.statusText}. Details: ${errorText}`
+          );
         }
 
         const result = await response.json();

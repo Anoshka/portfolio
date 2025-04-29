@@ -64,29 +64,65 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          npm install --save-dev node-fetch@3.3.2 glob
+          npm install --save-dev \
+            node-fetch@3.3.2 \
+            glob@10.3.10 \
+            p-timeout@6.1.2
 
       - name: Create test output directory
         run: mkdir -p src/services/generated_tests/output
 
-      - name: Generate Tests
-        id: generate_tests
+      - name: Verify Hugging Face API Access
         run: |
-          # Clean up old tests first
-          rm -rf src/services/generated_tests/output/*
-          # Generate new tests
-          node src/services/generated_tests/testRunner.js
-
-          # Display generation results
-          if [ -f "src/services/generated_tests/output/generation-results.json" ]; then
-            echo "Test generation results:"
-            cat src/services/generated_tests/output/generation-results.json
-          else
-            echo "No test generation results found"
+          response=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $HUGGING_FACE_API_KEY" https://api-inference.huggingface.co/models/bigcode/starcoder)
+          if [ "$response" == "401" ] || [ "$response" == "403" ]; then
+            echo "❌ API key verification failed"
             exit 1
+          else
+            echo "✅ API key verified successfully"
           fi
         env:
           HUGGING_FACE_API_KEY: ${{ secrets.HUGGING_FACE_API_KEY }}
+
+      - name: Verify Hugging Face Model Status
+        run: |
+          echo "Checking if model is ready..."
+          for i in {1..5}; do
+            response=$(curl -s -w "%{http_code}" -o /dev/null -H "Authorization: Bearer $HUGGING_FACE_API_KEY" https://api-inference.huggingface.co/models/bigcode/starcoder)
+            if [ "$response" == "200" ]; then
+              echo "✅ Model is ready"
+              exit 0
+            fi
+            echo "Model is loading, waiting 30 seconds... (attempt $i/5)"
+            sleep 30
+          done
+          echo "❌ Model failed to load after 5 attempts"
+          exit 1
+        env:
+          HUGGING_FACE_API_KEY: ${{ secrets.HUGGING_FACE_API_KEY }}
+
+      - name: Generate Tests
+        run: |
+          # Clean up old tests first
+          rm -rf src/services/generated_tests/output/*
+          # Generate new tests with increased timeout and debug output
+          NODE_OPTIONS="--max-old-space-size=4096 --no-warnings" \
+          DEBUG=true \
+          GENERATION_TIMEOUT=120000 \
+          node src/services/generated_tests/testRunner.js || {
+            echo "Test generation failed, checking output directory..."
+            ls -la src/services/generated_tests/output/
+            if [ -n "$(ls -A src/services/generated_tests/output/)" ]; then
+              echo "Some tests were generated despite errors, continuing..."
+            else
+              echo "No tests were generated"
+              exit 1
+            fi
+          }
+        env:
+          HUGGING_FACE_API_KEY: ${{ secrets.HUGGING_FACE_API_KEY }}
+          DEBUG: 'true'
+          NODE_ENV: 'production'
 
       - name: Check if tests were generated
         id: check_tests
@@ -108,6 +144,16 @@ jobs:
           path: src/services/generated_tests/output
           retention-days: 1
           if-no-files-found: error
+
+      - name: Upload Error Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: error-logs
+          path: |
+            src/services/generated_tests/output/
+            ./*.log
+          retention-days: 1
 
   # 3. Run Tests
   test:

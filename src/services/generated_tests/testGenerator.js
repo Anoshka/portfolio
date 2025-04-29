@@ -43,8 +43,30 @@ class TestGenerator {
 
         console.log(`Attempt ${attempt}/${maxRetries} for ${componentName}`);
 
+        // First, check if the model is ready
+        const checkResponse = await fetch(
+          'https://api-inference.huggingface.co/models/bigcode/starcoder',
+          {
+            method: 'HEAD',
+            headers: {
+              Authorization: `Bearer ${this.apiKey}`,
+            },
+          }
+        );
+
+        if (checkResponse.status === 503) {
+          console.log('Model is loading, waiting...');
+          // Get the estimated time from the response
+          const waitTime = parseInt(
+            checkResponse.headers.get('X-Wait-For') || '20'
+          );
+          await new Promise((resolve) =>
+            setTimeout(resolve, (waitTime + 5) * 1000)
+          );
+        }
+
         const response = await fetch(
-          'https://api-inference.huggingface.co/models/google/flan-t5-xxl',
+          'https://api-inference.huggingface.co/models/bigcode/starcoder',
           {
             method: 'POST',
             headers: {
@@ -54,28 +76,61 @@ class TestGenerator {
             body: JSON.stringify({
               inputs: prompt,
               parameters: {
-                max_new_tokens: 2000,
-                temperature: 0.7,
+                max_new_tokens: 1024,
+                temperature: 0.2, // Lower temperature for more focused output
                 top_p: 0.95,
                 do_sample: true,
                 return_full_text: false,
+                num_return_sequences: 1,
               },
             }),
           }
         );
 
+        // Log the full response for debugging
+        console.log(`Response status: ${response.status}`);
+        console.log(
+          `Response headers:`,
+          Object.fromEntries(response.headers.entries())
+        );
+
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(
-            `API request failed: ${response.statusText}. Details: ${errorText}`
-          );
+          console.error(`Full error response:`, errorText);
+
+          if (response.status === 404) {
+            throw new Error(
+              'Model not found. Please check the model name and try again.'
+            );
+          } else if (response.status === 403) {
+            throw new Error(
+              'Authentication failed. Please check your API key.'
+            );
+          } else {
+            throw new Error(
+              `API request failed: ${response.statusText}. Details: ${errorText}`
+            );
+          }
         }
 
         const result = await response.json();
-        const testCode = result[0].generated_text;
+        console.log('Raw API response:', JSON.stringify(result, null, 2));
+
+        let testCode;
+        if (Array.isArray(result)) {
+          testCode = result[0].generated_text;
+        } else if (result.generated_text) {
+          testCode = result.generated_text;
+        } else {
+          throw new Error('Unexpected API response format');
+        }
+
+        // Clean up the generated code
+        testCode = testCode.replace(/```jsx?|```/g, '').trim();
 
         if (!testCode || !testCode.includes('import')) {
-          throw new Error('Generated test code is invalid');
+          console.log('Generated code:', testCode);
+          throw new Error('Generated test code is invalid or incomplete');
         }
 
         this.saveTest(componentName, testCode);
@@ -105,8 +160,10 @@ class TestGenerator {
           return fallbackTest;
         }
 
-        // Wait before retrying
-        await new Promise((resolve) => setTimeout(resolve, 2000 * attempt));
+        // Exponential backoff
+        const waitTime = Math.pow(2, attempt) * 1000;
+        console.log(`Waiting ${waitTime / 1000} seconds before retry...`);
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
       }
     }
   }

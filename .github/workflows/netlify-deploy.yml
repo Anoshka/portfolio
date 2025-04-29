@@ -74,12 +74,20 @@ jobs:
 
       - name: Verify Hugging Face API Access
         run: |
-          response=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $HUGGING_FACE_API_KEY" https://api-inference.huggingface.co/models/bigcode/starcoder)
-          if [ "$response" == "401" ] || [ "$response" == "403" ]; then
-            echo "❌ API key verification failed"
+          echo "Testing API access with text-generation model..."
+          response=$(curl -s -X POST \
+            -H "Authorization: Bearer $HUGGING_FACE_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{"inputs": "Write a test for"}' \
+            "https://api-inference.huggingface.co/models/gpt2")
+
+          if echo "$response" | grep -q "error"; then
+            echo "❌ API Error Response:"
+            echo "$response"
             exit 1
           else
-            echo "✅ API key verified successfully"
+            echo "✅ API access verified"
+            echo "Response preview: ${response:0:100}..."
           fi
         env:
           HUGGING_FACE_API_KEY: ${{ secrets.HUGGING_FACE_API_KEY }}

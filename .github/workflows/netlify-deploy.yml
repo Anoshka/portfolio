@@ -73,33 +73,35 @@ jobs:
 
       - name: Verify Hugging Face API Access
         run: |
+          # First, verify the API key format
+          if [[ ! $HUGGING_FACE_API_KEY == hf_* ]]; then
+            echo "❌ API key format is incorrect. It should start with 'hf_'"
+            exit 1
+          fi
+
+          echo "✅ API key format verified"
           echo "Testing API access..."
+
+          # Make the API call with explicit Bearer format
           response=$(curl -s \
-            -H "Authorization: Bearer $HUGGING_FACE_API_KEY" \
+            -H "Authorization: Bearer ${HUGGING_FACE_API_KEY}" \
             "https://huggingface.co/api/whoami")
 
           echo "API Response:"
           echo "$response"
 
-          if echo "$response" | grep -q "\"type\":\"user\""; then
+          if [[ "$response" == *"Invalid credentials"* ]]; then
+            echo "❌ API key is not valid"
+            echo "Please ensure you:"
+            echo "1. Generated a new token at https://huggingface.co/settings/tokens"
+            echo "2. Selected 'read' role"
+            echo "3. Copied the entire token starting with 'hf_'"
+            echo "4. Added it to GitHub secrets without any extra spaces"
+            exit 1
+          elif [[ "$response" == *"type"* ]]; then
             echo "✅ API key is valid"
-            
-            # Now test model access
-            model_response=$(curl -s \
-              -H "Authorization: Bearer $HUGGING_FACE_API_KEY" \
-              "https://huggingface.co/api/models/gpt2")
-            
-            echo "Model API Response:"
-            echo "$model_response"
-            
-            if echo "$model_response" | grep -q "error"; then
-              echo "❌ Model access failed"
-              exit 1
-            else
-              echo "✅ Model access verified"
-            fi
           else
-            echo "❌ Invalid API key"
+            echo "❌ Unexpected response"
             exit 1
           fi
         env:

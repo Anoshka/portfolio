@@ -151,4 +151,5 @@ describe('${componentName}', () => {
   }
 }
 
+//new test
 export default TestGenerator;

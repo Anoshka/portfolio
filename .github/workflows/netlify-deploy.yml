@@ -420,7 +420,7 @@ jobs:
 
   # 6. Notification
   notify:
-    needs: test
+    needs: [deploy-staging, deploy-production]
     if: always()
     runs-on: ubuntu-latest
     steps:

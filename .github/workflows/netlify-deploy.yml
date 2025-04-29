@@ -86,17 +86,20 @@ jobs:
 
       - name: Verify Hugging Face Model Status
         run: |
-          echo "Checking if model is ready..."
-          for i in {1..5}; do
-            response=$(curl -s -w "%{http_code}" -o /dev/null -H "Authorization: Bearer $HUGGING_FACE_API_KEY" https://api-inference.huggingface.co/models/bigcode/starcoder)
+          echo "Checking model availability..."
+          MODELS=("Salesforce/codegen-350M-mono" "bigcode/santacoder" "microsoft/CodeGPT-small-py")
+
+          for MODEL in "${MODELS[@]}"; do
+            echo "Checking $MODEL..."
+            response=$(curl -s -w "%{http_code}" -o /dev/null -H "Authorization: Bearer $HUGGING_FACE_API_KEY" "https://api-inference.huggingface.co/models/$MODEL")
             if [ "$response" == "200" ]; then
-              echo "✅ Model is ready"
+              echo "✅ Model $MODEL is ready"
               exit 0
             fi
-            echo "Model is loading, waiting 30 seconds... (attempt $i/5)"
-            sleep 30
+            echo "Model $MODEL not immediately available, trying next..."
           done
-          echo "❌ Model failed to load after 5 attempts"
+
+          echo "❌ No models are currently available"
           exit 1
         env:
           HUGGING_FACE_API_KEY: ${{ secrets.HUGGING_FACE_API_KEY }}

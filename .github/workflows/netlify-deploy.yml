@@ -266,15 +266,14 @@ jobs:
             setupFilesAfterEnv: ["<rootDir>/src/setupTests.js"],
             testMatch: ["**/generated_tests/output/**/*.test.jsx"],
             moduleDirectories: ["node_modules", "src"],
-            extensionsToTreatAsEsm: [".jsx", ".js", ".mjs"],
+            extensionsToTreatAsEsm: [".jsx", ".mjs"],
             transformIgnorePatterns: [
               "/node_modules/(?!(@testing-library|react-router-dom)/)"
             ],
-            rootDir: ".",
-            type: "module"
+            rootDir: "."
           }' > jest.config.mjs
 
-      # Run tests with experimental VM modules
+      # Run tests
       - name: Run tests
         run: |
           node --experimental-vm-modules node_modules/jest/bin/jest.js \

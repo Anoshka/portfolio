@@ -254,7 +254,7 @@ jobs:
       # Update Jest config
       - name: Update Jest config
         run: |
-          echo 'export default {
+          echo 'module.exports = {
             testEnvironment: "jsdom",
             moduleNameMapper: {
               "\\.(css|less|scss|sass)$": "identity-obj-proxy",
@@ -266,18 +266,37 @@ jobs:
             setupFilesAfterEnv: ["<rootDir>/src/setupTests.js"],
             testMatch: ["**/generated_tests/output/**/*.test.jsx"],
             moduleDirectories: ["node_modules", "src"],
-            extensionsToTreatAsEsm: [".jsx", ".mjs"],
+            extensionsToTreatAsEsm: [".jsx"],
             transformIgnorePatterns: [
               "/node_modules/(?!(@testing-library|react-router-dom)/)"
             ],
             rootDir: "."
-          }' > jest.config.mjs
+          }' > jest.config.cjs
+
+      - name: Create Jest config
+        run: |
+          echo '{
+            "testEnvironment": "jsdom",
+            "moduleNameMapper": {
+              "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+              "\\.(jpg|jpeg|png|gif|webp|svg)$": "<rootDir>/__mocks__/fileMock.js"
+            },
+            "transform": {
+              "^.+\\.(js|jsx)$": "babel-jest"
+            },
+            "setupFilesAfterEnv": ["<rootDir>/src/setupTests.js"],
+            "testMatch": ["**/generated_tests/output/**/*.test.jsx"],
+            "moduleDirectories": ["node_modules", "src"],
+            "modulePathIgnorePatterns": [],
+            "testTimeout": 15000,
+            "setupFiles": ["<rootDir>/src/services/generated_tests/testSetup.js"]
+          }' > jest.config.json
 
       # Run tests
       - name: Run tests
         run: |
-          node --experimental-vm-modules node_modules/jest/bin/jest.js \
-            --config=jest.config.mjs \
+          node --expose-gc --max-old-space-size=4096 node_modules/jest/bin/jest.js \
+            --config jest.config.json \
             --runInBand \
             --detectOpenHandles \
             --forceExit \

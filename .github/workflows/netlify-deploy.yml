@@ -71,6 +71,9 @@ jobs:
 
       - name: Generate Tests
         run: |
+          # Clean up old tests first
+          rm -rf src/services/generated_tests/output/*
+          # Generate new tests
           node src/services/generated_tests/testRunner.js
         env:
           HUGGING_FACE_API_KEY: ${{ secrets.HUGGING_FACE_API_KEY }}
@@ -261,7 +264,7 @@ jobs:
               "\\.(jpg|jpeg|png|gif|webp|svg)$": "<rootDir>/__mocks__/fileMock.js"
             },
             transform: {
-              "^.+\\.(js|jsx|mjs)$": "babel-jest"
+              "^.+\\.(js|jsx|cjs)$": "babel-jest"
             },
             setupFilesAfterEnv: ["<rootDir>/src/setupTests.js"],
             testMatch: ["**/generated_tests/output/**/*.test.jsx"],

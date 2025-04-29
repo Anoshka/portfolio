@@ -6,11 +6,24 @@ import jest from 'jest';
 
 class TestRunner {
   constructor(apiKey) {
-    this.generator = new TestGenerator(apiKey); // Pass the API key here
+    this.generator = new TestGenerator(apiKey);
     this.testOutputDir = path.join(
       process.cwd(),
       'src/services/generated_tests/output'
     );
+  }
+
+  async generateComponentTest(componentPath) {
+    const componentName = path.basename(componentPath, '.jsx');
+    const testCode = await this.generator.generateTest(componentPath);
+    if (testCode) {
+      const testPath = path.join(
+        this.testOutputDir,
+        `${componentName}.test.jsx`
+      );
+      console.log(`Test will be saved at: ${testPath}`);
+      fs.writeFileSync(testPath, testCode);
+    }
   }
 
   async runComponentTests(componentPath) {
@@ -55,7 +68,13 @@ async function main() {
     process.exit(1);
   }
 
-  const generator = new TestGenerator(apiKey);
+  // Ensure output directory exists and is empty
+  if (fs.existsSync('src/services/generated_tests/output')) {
+    fs.rmSync('src/services/generated_tests/output', { recursive: true });
+  }
+  fs.mkdirSync('src/services/generated_tests/output', { recursive: true });
+
+  const runner = new TestRunner(apiKey);
 
   const componentFiles = glob.sync('src/components/**/*.jsx');
   const pageFiles = glob.sync('src/pages/**/*.jsx');
@@ -65,7 +84,7 @@ async function main() {
 
   for (const file of [...componentFiles, ...pageFiles]) {
     console.log(`Generating test for ${file}...`);
-    await generator.generateTest(file);
+    await runner.generateComponentTest(file);
   }
 }
 

@@ -1,22 +1,15 @@
 import fs from 'fs';
 import path from 'path';
-import fetch from 'node-fetch';
+import { spawn } from 'child_process';
 import { getTestPrompt } from './testPrompts.js';
 
 class TestGenerator {
   constructor() {
-    const apiKey = process.env.HUGGING_FACE_API_KEY;
-    if (!apiKey) {
-      throw new Error('HUGGING_FACE_API_KEY is required');
-    }
-
-    this.apiKey = apiKey;
-    this.model = 'bigcode/starcoderbase';
     this.outputDir = path.join(
       process.cwd(),
       'src/services/generated_tests/output'
     );
-    this.skipComponents = ['Animation'];
+    this.skipComponents = ['AutoRiggerPage', 'Animation'];
     this.results = {
       successful: [],
       failed: [],
@@ -26,8 +19,6 @@ class TestGenerator {
 
   async generateTest(componentPath) {
     const componentName = path.basename(componentPath, '.jsx');
-    const maxRetries = 3;
-    let lastError;
 
     if (this.skipComponents.includes(componentName)) {
       console.log(`⏭️ Skipping test generation for ${componentName}`);
@@ -37,126 +28,70 @@ class TestGenerator {
 
     console.log(`🔄 Generating test for: ${componentPath}`);
 
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        const code = fs.readFileSync(componentPath, 'utf-8');
-        const prompt = getTestPrompt(componentName, code);
+    try {
+      const code = fs.readFileSync(componentPath, 'utf-8');
+      const prompt = getTestPrompt(componentName, code);
 
-        console.log(`Attempt ${attempt}/${maxRetries} for ${componentName}`);
+      // Call Python script for local model inference
+      const testCode = await new Promise((resolve, reject) => {
+        const pythonProcess = spawn('python', [
+          'src/services/generated_tests/local_model.py',
+        ]);
 
-        // First, check if the model is ready
-        const checkResponse = await fetch(
-          `https://api-inference.huggingface.co/models/${this.model}`,
-          {
-            method: 'HEAD',
-            headers: {
-              Authorization: `Bearer ${this.apiKey}`,
-            },
+        let result = '';
+        let error = '';
+
+        pythonProcess.stdout.on('data', (data) => {
+          result += data.toString();
+        });
+
+        pythonProcess.stderr.on('data', (data) => {
+          error += data.toString();
+        });
+
+        pythonProcess.stdin.write(
+          JSON.stringify({
+            component_name: componentName,
+            component_code: code,
+            prompt_template: prompt,
+          })
+        );
+        pythonProcess.stdin.end();
+
+        pythonProcess.on('close', (code) => {
+          if (code !== 0) {
+            reject(new Error(`Python process failed: ${error}`));
+            return;
           }
-        );
-
-        if (checkResponse.status === 503) {
-          console.log('Model is loading, waiting...');
-          // Get the estimated time from the response
-          const waitTime = parseInt(
-            checkResponse.headers.get('X-Wait-For') || '20'
-          );
-          await new Promise((resolve) =>
-            setTimeout(resolve, (waitTime + 5) * 1000)
-          );
-        }
-
-        const response = await fetch(
-          `https://api-inference.huggingface.co/models/${this.model}`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${this.apiKey}`,
-            },
-            body: JSON.stringify({
-              inputs: prompt,
-              parameters: {
-                max_new_tokens: 800,
-                temperature: 0.1,
-                top_p: 0.95,
-                do_sample: true,
-                return_full_text: false,
-              },
-              options: {
-                wait_for_model: true,
-              },
-            }),
+          try {
+            const { test_code } = JSON.parse(result);
+            resolve(test_code);
+          } catch (e) {
+            reject(new Error(`Failed to parse Python output: ${e.message}`));
           }
-        );
+        });
+      });
 
-        // Log the full response for debugging
-        console.log(`Response status: ${response.status}`);
-        console.log(
-          `Response headers:`,
-          Object.fromEntries(response.headers.entries())
-        );
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Error response:', errorText);
-          throw new Error(
-            `API request failed: ${response.statusText}. Details: ${errorText}`
-          );
-        }
-
-        const result = await response.json();
-        console.log('Raw API response:', JSON.stringify(result, null, 2));
-
-        let testCode;
-        if (Array.isArray(result)) {
-          testCode = result[0].generated_text;
-        } else if (result.generated_text) {
-          testCode = result.generated_text;
-        } else {
-          throw new Error('Unexpected API response format');
-        }
-
-        // Clean up the generated code
-        testCode = testCode.replace(/```jsx?|```/g, '').trim();
-
-        if (!testCode || !testCode.includes('import')) {
-          console.log('Generated code:', testCode);
-          throw new Error('Generated test code is invalid or incomplete');
-        }
-
-        this.saveTest(componentName, testCode);
-        this.results.successful.push(componentName);
-        console.log(`✅ Successfully generated test for: ${componentName}`);
-        return testCode;
-      } catch (error) {
-        lastError = error;
-        console.error(
-          `❌ Attempt ${attempt} failed for ${componentName}:`,
-          error
-        );
-
-        if (attempt === maxRetries) {
-          console.error(
-            `❌ All ${maxRetries} attempts failed for ${componentName}`
-          );
-          this.results.failed.push({
-            component: componentName,
-            error: lastError.message,
-          });
-          const fallbackTest = this.createFallbackTest(componentName);
-          if (fallbackTest) {
-            this.saveTest(componentName, fallbackTest);
-            console.log(`⚠️ Used fallback test for: ${componentName}`);
-          }
-          return fallbackTest;
-        }
-
-        // Exponential backoff
-        const waitTime = Math.pow(2, attempt) * 1000;
-        console.log(`Waiting ${waitTime / 1000} seconds before retry...`);
-        await new Promise((resolve) => setTimeout(resolve, waitTime));
+      if (!testCode || !testCode.includes('import')) {
+        throw new Error('Generated test code is invalid');
       }
+
+      this.saveTest(componentName, testCode);
+      this.results.successful.push(componentName);
+      console.log(`✅ Successfully generated test for: ${componentName}`);
+      return testCode;
+    } catch (error) {
+      console.error(`❌ Error generating test for ${componentName}:`, error);
+      this.results.failed.push({
+        component: componentName,
+        error: error.message,
+      });
+      const fallbackTest = this.createFallbackTest(componentName);
+      if (fallbackTest) {
+        this.saveTest(componentName, fallbackTest);
+        console.log(`⚠️ Used fallback test for: ${componentName}`);
+      }
+      return fallbackTest;
     }
   }
 

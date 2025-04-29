@@ -151,10 +151,18 @@ jobs:
           mkdir -p src/services/generated_tests
           echo 'import React from "react";
           import { MemoryRouter } from "react-router-dom";
+          import { act } from "react";
+
+          // Configure React Router v6 future flags
+          const router = {
+            future: {
+              v7_startTransition: true
+            }
+          };
 
           export const TestWrapper = ({ children }) => {
             return (
-              <MemoryRouter>
+              <MemoryRouter future={router.future}>
                 {children}
               </MemoryRouter>
             );

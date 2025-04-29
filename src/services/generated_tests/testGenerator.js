@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import fetch from 'node-fetch';
 import { getTestPrompt } from './testPrompts.js';
 
 class TestGenerator {
@@ -14,22 +15,29 @@ class TestGenerator {
       process.cwd(),
       'src/services/generated_tests/output'
     );
-    this.skipComponents = ['Animation']; // Add any components you want to skip
+    this.skipComponents = ['Animation'];
+    this.results = {
+      successful: [],
+      failed: [],
+      skipped: [],
+    };
   }
 
   async generateTest(componentPath) {
     const componentName = path.basename(componentPath, '.jsx');
 
     if (this.skipComponents.includes(componentName)) {
-      console.log(`Skipping test generation for ${componentName}`);
+      console.log(`⏭️ Skipping test generation for ${componentName}`);
+      this.results.skipped.push(componentName);
       return null;
     }
 
-    console.log(`Generating test for: ${componentPath}`);
-    const code = fs.readFileSync(componentPath, 'utf-8');
-    const prompt = getTestPrompt(componentName, code);
+    console.log(`🔄 Generating test for: ${componentPath}`);
 
     try {
+      const code = fs.readFileSync(componentPath, 'utf-8');
+      const prompt = getTestPrompt(componentName, code);
+
       const response = await fetch(
         'https://api-inference.huggingface.co/models/meta-llama/Llama-2-70b-chat-hf',
         {
@@ -56,66 +64,29 @@ class TestGenerator {
       }
 
       const result = await response.json();
-      const testCode = this.processGeneratedCode(
-        result[0].generated_text,
-        componentName
-      );
+      const testCode = result[0].generated_text;
 
-      if (testCode) {
-        this.saveTest(componentName, testCode);
-        return testCode;
+      if (!testCode || !testCode.includes('import')) {
+        throw new Error('Generated test code is invalid');
       }
+
+      this.saveTest(componentName, testCode);
+      this.results.successful.push(componentName);
+      console.log(`✅ Successfully generated test for: ${componentName}`);
+      return testCode;
     } catch (error) {
-      console.error(`Error generating test for ${componentName}:`, error);
+      console.error(`❌ Error generating test for ${componentName}:`, error);
+      this.results.failed.push({
+        component: componentName,
+        error: error.message,
+      });
       const fallbackTest = this.createFallbackTest(componentName);
       if (fallbackTest) {
         this.saveTest(componentName, fallbackTest);
+        console.log(`⚠️ Used fallback test for: ${componentName}`);
       }
       return fallbackTest;
     }
-  }
-
-  processGeneratedCode(generatedText, componentName) {
-    // Clean up the generated code
-    let code = generatedText.trim();
-
-    // Ensure proper imports
-    const imports = `import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { TestWrapper${componentName === 'Animation' ? ', mockCanvas' : ''} } from '../testUtils';
-import ${componentName} from '${componentName.includes('Page') ? '../../../pages' : '../../../components'}/${componentName}/${componentName}';`;
-
-    // Replace any direct BrowserRouter imports/usage with TestWrapper
-    code = code.replace(
-      /import.*BrowserRouter.*from.*react-router-dom.*;\n?/g,
-      ''
-    );
-    code = code.replace(
-      /<BrowserRouter>(.*?)<\/BrowserRouter>/gs,
-      '<TestWrapper>$1</TestWrapper>'
-    );
-
-    // Add warning suppression for React Router
-    const setup = `
-// Suppress React Router warnings
-beforeAll(() => {
-  jest.spyOn(console, 'warn').mockImplementation((msg) => {
-    if (!msg.includes('React Router')) {
-      console.warn(msg);
-    }
-  });
-});
-
-afterAll(() => {
-  jest.restoreAllMocks();
-});`;
-
-    return `${imports}
-
-${setup}
-
-${code}`;
   }
 
   createFallbackTest(componentName) {
@@ -145,7 +116,26 @@ describe('${componentName}', () => {
 
     const testPath = path.join(this.outputDir, `${componentName}.test.jsx`);
     fs.writeFileSync(testPath, testCode);
-    console.log(`Test saved: ${testPath}`);
+    console.log(`📝 Test saved: ${testPath}`);
+  }
+
+  getResults() {
+    return {
+      summary: {
+        total:
+          this.results.successful.length +
+          this.results.failed.length +
+          this.results.skipped.length,
+        successful: this.results.successful.length,
+        failed: this.results.failed.length,
+        skipped: this.results.skipped.length,
+      },
+      details: {
+        successful: this.results.successful,
+        failed: this.results.failed,
+        skipped: this.results.skipped,
+      },
+    };
   }
 }
 

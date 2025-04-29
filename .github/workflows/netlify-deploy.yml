@@ -70,18 +70,23 @@ jobs:
         run: mkdir -p src/services/generated_tests/output
 
       - name: Generate Tests
+        id: generate_tests
         run: |
           # Clean up old tests first
           rm -rf src/services/generated_tests/output/*
-          # Generate new tests with better error handling
-          node src/services/generated_tests/testRunner.js || {
-            echo "Test generation failed with exit code $?"
-            ls -la src/services/generated_tests/output/
+          # Generate new tests
+          node src/services/generated_tests/testRunner.js
+
+          # Display generation results
+          if [ -f "src/services/generated_tests/output/generation-results.json" ]; then
+            echo "Test generation results:"
+            cat src/services/generated_tests/output/generation-results.json
+          else
+            echo "No test generation results found"
             exit 1
-          }
+          fi
         env:
           HUGGING_FACE_API_KEY: ${{ secrets.HUGGING_FACE_API_KEY }}
-          DEBUG: 'true' # Add this for more verbose output
 
       - name: Check if tests were generated
         id: check_tests

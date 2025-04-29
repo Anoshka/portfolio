@@ -1,46 +1,52 @@
 export const getTestPrompt = (componentName, code) => {
-  // Base prompt for all components
-  const basePrompt = `
-Generate a Jest test for this React component using React Testing Library.
+  return `You are a test generator. Generate a Jest unit test for this React component.
 Component name: ${componentName}
 Component code:
+\`\`\`jsx
 ${code}
+\`\`\`
 
 Requirements:
 1. Use @testing-library/react and @testing-library/jest-dom
-2. Import from TestWrapper instead of BrowserRouter
+2. Test must use TestWrapper from '../testUtils' instead of BrowserRouter
 3. Test basic rendering
-4. Test user interactions where applicable
-5. Include error handling cases
+4. Test user interactions if present (clicks, inputs, etc.)
+5. Test error states if applicable
 6. Use proper assertions with expect()
 
-Test structure should follow this format:
-- Import statements at the top
-- Describe block for the component
-- Individual test cases using test() or it()
-- Proper cleanup in afterEach if needed
+${
+  componentName === 'Animation'
+    ? `
+Special instructions for Animation component:
+- Use mockCanvas from testUtils
+- Skip Three.js specific tests
+- Only test basic mounting/unmounting
+`
+    : ''
+}
 
-Return only the test code, no explanations.`;
+${
+  componentName === 'Header'
+    ? `
+Special instructions for Header component:
+- Test with isOpen={false} as default prop
+- Test navigation menu toggle
+- Skip actual navigation tests
+- Test responsive design breakpoints
+`
+    : ''
+}
 
-  // Special handling for specific components
-  if (componentName === 'Animation') {
-    return `${basePrompt}
+Return ONLY valid Jest test code that follows this format:
+\`\`\`jsx
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { TestWrapper${componentName === 'Animation' ? ', mockCanvas' : ''} } from '../testUtils';
+import ${componentName} from '${componentName.includes('Page') ? '../../../pages' : '../../../components'}/${componentName}/${componentName}';
 
-Additional requirements:
-1. Mock the canvas context using mockCanvas from testUtils
-2. Skip any Three.js specific tests
-3. Only test basic mounting/unmounting`;
-  }
+// Your test code here
+\`\`\`
 
-  if (componentName === 'Header') {
-    return `${basePrompt}
-
-Additional requirements:
-1. Test with isOpen={false} as default prop
-2. Test navigation menu toggle
-3. Skip actual navigation tests
-4. Test responsive design breakpoints`;
-  }
-
-  return basePrompt;
+Do not include any explanations, only return the test code.`;
 };

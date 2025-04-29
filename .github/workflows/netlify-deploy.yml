@@ -268,11 +268,12 @@ jobs:
             moduleDirectories: ["node_modules", "src"],
             extensionsToTreatAsEsm: [".jsx"],
             transformIgnorePatterns: [
-              "/node_modules/(?!(@testing-library|react-router-dom)/)"
+              "/node_modules/(?!(@testing-library|react-router-dom|three)/)"
             ],
             rootDir: "."
           }' > jest.config.cjs
 
+      # Create Jest config
       - name: Create Jest config
         run: |
           echo '{
@@ -282,21 +283,23 @@ jobs:
               "\\.(jpg|jpeg|png|gif|webp|svg)$": "<rootDir>/__mocks__/fileMock.js"
             },
             "transform": {
-              "^.+\\.(js|jsx)$": "babel-jest"
+              "^.+\\.(js|jsx|cjs)$": "babel-jest"
             },
             "setupFilesAfterEnv": ["<rootDir>/src/setupTests.js"],
             "testMatch": ["**/generated_tests/output/**/*.test.jsx"],
             "moduleDirectories": ["node_modules", "src"],
-            "modulePathIgnorePatterns": [],
-            "testTimeout": 15000,
-            "setupFiles": ["<rootDir>/src/services/generated_tests/testSetup.js"]
+            "extensionsToTreatAsEsm": [".jsx"],
+            "transformIgnorePatterns": [
+              "/node_modules/(?!(@testing-library|react-router-dom|three)/)"
+            ],
+            "testTimeout": 15000
           }' > jest.config.json
 
       # Run tests
       - name: Run tests
         run: |
           node --expose-gc --max-old-space-size=4096 node_modules/jest/bin/jest.js \
-            --config jest.config.json \
+            --config=jest.config.cjs \
             --runInBand \
             --detectOpenHandles \
             --forceExit \

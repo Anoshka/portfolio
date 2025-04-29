@@ -9,7 +9,7 @@ class TestGenerator {
       process.cwd(),
       'src/services/generated_tests/output'
     );
-    this.skipComponents = ['AutoRiggerPage', 'Animation'];
+    this.skipComponents = ['AutoRiggerPage'];
     this.results = {
       successful: [],
       failed: [],
@@ -32,7 +32,6 @@ class TestGenerator {
       const code = fs.readFileSync(componentPath, 'utf-8');
       const prompt = getTestPrompt(componentName, code);
 
-      // Call Python script for local model inference
       const testCode = await new Promise((resolve, reject) => {
         const pythonProcess = spawn('python', [
           'src/services/generated_tests/local_model.py',
@@ -47,6 +46,7 @@ class TestGenerator {
 
         pythonProcess.stderr.on('data', (data) => {
           error += data.toString();
+          console.error(`Python error: ${data}`);
         });
 
         pythonProcess.stdin.write(
@@ -60,14 +60,20 @@ class TestGenerator {
 
         pythonProcess.on('close', (code) => {
           if (code !== 0) {
-            reject(new Error(`Python process failed: ${error}`));
+            reject(
+              new Error(`Python process failed with code ${code}: ${error}`)
+            );
             return;
           }
           try {
             const { test_code } = JSON.parse(result);
             resolve(test_code);
           } catch (e) {
-            reject(new Error(`Failed to parse Python output: ${e.message}`));
+            reject(
+              new Error(
+                `Failed to parse Python output: ${e.message}\nOutput was: ${result}`
+              )
+            );
           }
         });
       });

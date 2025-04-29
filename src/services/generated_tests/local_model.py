@@ -5,13 +5,13 @@ import sys
 
 def generate_test(component_name, component_code, prompt_template):
     # Use a smaller code generation model
-    model_name = "bigcode/starcoderbase-1b"  # 1.3GB model size
+    model_name = "bigcode/starcoderbase-1b"
     
     print(f"Loading model {model_name}...")
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
-        torch_dtype=torch.float16,  # Use half precision to save memory
+        torch_dtype=torch.float16,
         device_map="auto"
     )
 
@@ -33,7 +33,7 @@ def generate_test(component_name, component_code, prompt_template):
     
     generated_test = tokenizer.decode(outputs[0], skip_special_tokens=True)
     
-    # Extract the test code between ```jsx and ``` if present
+    # Extract the test code
     if "```jsx" in generated_test:
         generated_test = generated_test.split("```jsx")[1].split("```")[0]
     elif "```" in generated_test:
@@ -42,7 +42,6 @@ def generate_test(component_name, component_code, prompt_template):
     return generated_test.strip()
 
 if __name__ == "__main__":
-    # Read input from stdin
     input_data = json.loads(sys.stdin.read())
     result = generate_test(
         input_data["component_name"],

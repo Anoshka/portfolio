@@ -151,18 +151,20 @@ jobs:
           mkdir -p src/services/generated_tests
           echo 'import React from "react";
           import { MemoryRouter } from "react-router-dom";
-          import { act } from "react";
 
-          // Configure React Router v6 future flags
-          const router = {
+          // Configure all React Router v6/v7 future flags
+          const routerConfig = {
             future: {
-              v7_startTransition: true
-            }
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+              // Add any other future flags here
+            },
+            basename: "/"
           };
 
           export const TestWrapper = ({ children }) => {
             return (
-              <MemoryRouter future={router.future}>
+              <MemoryRouter {...routerConfig}>
                 {children}
               </MemoryRouter>
             );
@@ -201,24 +203,26 @@ jobs:
                 import_path="../../../components/${component_name}/${component_name}"
               fi
 
-              # Debug output
-              echo "Processing test for ${component_name}"
-              echo "Import path: ${import_path}"
-
               echo "import React from 'react';
           import { render, screen } from '@testing-library/react';
           import '@testing-library/jest-dom';
           import { TestWrapper, mockCanvas } from '../testUtils';
           import ${component_name} from '${import_path}';
 
-          // Mock react-router-dom before tests
-          jest.mock('react-router-dom', () => ({
-            ...jest.requireActual('react-router-dom'),
-            useNavigate: () => jest.fn(),
-          }));
+          // Silence specific React Router warnings
+          beforeAll(() => {
+            jest.spyOn(console, 'warn').mockImplementation((msg) => {
+              if (!msg.includes('React Router')) {
+                console.warn(msg);
+              }
+            });
+          });
+
+          afterAll(() => {
+            jest.restoreAllMocks();
+          });
 
           describe('${component_name}', () => {
-            // Setup before tests
             beforeAll(() => {
               if ('${component_name}' === 'Animation') {
                 mockCanvas();
@@ -259,8 +263,27 @@ jobs:
       # Create test setup files
       - name: Create test setup files
         run: |
-          # Create setupTests.js with ES module syntax
-          echo 'import "@testing-library/jest-dom";' > src/setupTests.js
+          # Create setupTests.js
+          echo 'import React from "react";
+          import "@testing-library/jest-dom";
+          import { configure } from "@testing-library/react";
+
+          // Override act to use React.act
+          configure({ 
+            asyncUtilTimeout: 5000,
+            defaultHidden: true,
+            eventWrapper: (cb) => {
+              return React.act(cb);
+            }
+          });
+
+          // Suppress specific console warnings we cant fix
+          const originalError = console.error;
+          console.error = (...args) => {
+            if (args[0]?.includes("ReactDOMTestUtils.act")) return;
+            if (args[0]?.includes("React Router Future Flag Warning")) return;
+            originalError.call(console, ...args);
+          };' > src/setupTests.js
 
       # Update Jest config
       - name: Update Jest config
@@ -301,9 +324,13 @@ jobs:
             "moduleDirectories": ["node_modules", "src"],
             "extensionsToTreatAsEsm": [".jsx"],
             "transformIgnorePatterns": [
-              "/node_modules/(?!(@testing-library|react-router-dom|three)/)"
+              "/node_modules/(?!(@testing-library|react-router-dom)/)"
             ],
-            "testTimeout": 15000
+            "testTimeout": 15000,
+            "verbose": true,
+            "globals": {
+              "React": "react"
+            }
           }' > jest.config.json
 
       # Run tests

@@ -248,8 +248,8 @@ jobs:
       # Create test setup files
       - name: Create test setup files
         run: |
-          # Create setupTests.js with CommonJS syntax
-          echo 'require("@testing-library/jest-dom");' > src/setupTests.js
+          # Create setupTests.js with ES module syntax
+          echo 'import "@testing-library/jest-dom";' > src/setupTests.js
 
       # Update Jest config
       - name: Update Jest config
@@ -266,14 +266,15 @@ jobs:
             setupFilesAfterEnv: ["<rootDir>/src/setupTests.js"],
             testMatch: ["**/generated_tests/output/**/*.test.jsx"],
             moduleDirectories: ["node_modules", "src"],
-            extensionsToTreatAsEsm: [".jsx"],
+            extensionsToTreatAsEsm: [".jsx", ".js", ".mjs"],
             transformIgnorePatterns: [
               "/node_modules/(?!(@testing-library|react-router-dom)/)"
             ],
-            rootDir: "."
+            rootDir: ".",
+            type: "module"
           }' > jest.config.mjs
 
-      # Run tests
+      # Run tests with experimental VM modules
       - name: Run tests
         run: |
           node --experimental-vm-modules node_modules/jest/bin/jest.js \

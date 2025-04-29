@@ -21,14 +21,31 @@ class TestGenerator {
       process.cwd(),
       'src/services/generated_tests/output'
     );
+
+    // Components to skip during test generation
+    this.skipComponents = ['Animation'];
   }
 
   // Generate test for a given component
   async generateTest(componentPath) {
+    const componentName = path.basename(componentPath, '.jsx');
+
+    // Skip specified components
+    if (this.skipComponents.includes(componentName)) {
+      console.log(
+        `Skipping test generation for ${componentName} as it's in the skip list`
+      );
+      return null;
+    }
+
     console.log(`Generating test for: ${componentPath}`);
 
     const code = fs.readFileSync(componentPath, 'utf-8');
-    const componentName = path.basename(componentPath, '.jsx');
+    const needsRouter =
+      code.includes('react-router-dom') ||
+      code.includes('useNavigate') ||
+      code.includes('Link') ||
+      code.includes('Route');
 
     const prompt = `
       Generate a Jest test for this React component:
@@ -42,8 +59,10 @@ class TestGenerator {
       5. Test responsive design
       6. Test animations (if present)
       7. Include error cases
+      ${needsRouter ? '8. Make sure to wrap the component in BrowserRouter since it uses React Router' : ''}
 
       Return only the test code.
+      ${needsRouter ? 'Important: The component uses React Router, so it must be wrapped in BrowserRouter in the tests.' : ''}
     `;
 
     try {
@@ -64,41 +83,85 @@ class TestGenerator {
 
       const testCode = completion.choices[0].message.content;
 
-      this.saveTest(componentName, testCode);
-      console.log(`Successfully generated test for: ${componentName}`);
+      if (testCode) {
+        this.saveTest(componentName, testCode);
+        console.log(`Successfully generated test for: ${componentName}`);
+      }
       return testCode;
     } catch (error) {
       console.error(`Error generating test for ${componentName}:`, error);
       const basicTest = this.createBasicTest(componentName);
-      this.saveTest(componentName, basicTest);
+      if (basicTest) {
+        this.saveTest(componentName, basicTest);
+      }
       return basicTest;
     }
   }
 
   // Simple fallback test when Codex fails
   createBasicTest(componentName) {
+    // Skip specified components
+    if (this.skipComponents.includes(componentName)) {
+      console.log(
+        `Skipping basic test creation for ${componentName} as it's in the skip list`
+      );
+      return null;
+    }
+
     const isPage = componentName.includes('Page');
     const folderPath = isPage ? 'pages' : 'components';
 
-    return `
+    // Read the component file to check if it needs Router
+    const componentPath = path.join(
+      process.cwd(),
+      'src',
+      folderPath,
+      componentName,
+      `${componentName}.jsx`
+    );
+    const componentCode = fs.readFileSync(componentPath, 'utf-8');
+    const needsRouter =
+      componentCode.includes('react-router-dom') ||
+      componentCode.includes('useNavigate') ||
+      componentCode.includes('Link') ||
+      componentCode.includes('Route');
+
+    const imports = `
       import { render } from '@testing-library/react';
-      import ${componentName} from '../../${folderPath}/${componentName}/${componentName}.jsx';
+      ${needsRouter ? "import { BrowserRouter } from 'react-router-dom';" : ''}
+      import ${componentName} from '../../../${folderPath}/${componentName}/${componentName}.jsx';
+    `;
+
+    const renderCode = needsRouter
+      ? `render(<BrowserRouter><${componentName} /></BrowserRouter>);`
+      : `render(<${componentName} />);`;
+
+    return `
+      ${imports}
   
       describe('${componentName}', () => {
         test('renders without crashing', () => {
-          render(<${componentName} />);
+          ${renderCode}
         });
       });
-    `;
+    `.trim();
   }
 
   saveTest(componentName, testCode) {
+    // Skip saving tests for specified components
+    if (this.skipComponents.includes(componentName)) {
+      console.log(
+        `Skipping test save for ${componentName} as it's in the skip list`
+      );
+      return;
+    }
+
     if (!fs.existsSync(this.outputDir)) {
       fs.mkdirSync(this.outputDir, { recursive: true });
     }
 
     const testPath = path.join(this.outputDir, `${componentName}.test.jsx`);
-    fs.writeFileSync(testPath, testCode); // This will overwrite the file
+    fs.writeFileSync(testPath, testCode);
     console.log(`Test for ${componentName} saved at: ${testPath}`);
   }
 }

@@ -13,7 +13,7 @@ module.exports = {
   moduleDirectories: ['node_modules', 'src'],
   extensionsToTreatAsEsm: ['.jsx'],
   transformIgnorePatterns: [
-    '/node_modules/(?!(@testing-library|react-router-dom)/)',
+    '/node_modules/(?!(@testing-library|react-router-dom|three)/)',
   ],
   globals: {
     'babel-jest': {

@@ -89,7 +89,7 @@ jobs:
 
           echo "API Response:"
           echo "$response"
-
+          #credential instructions
           if [[ "$response" == *"Invalid credentials"* ]]; then
             echo "❌ API key is not valid"
             echo "Please ensure you:"

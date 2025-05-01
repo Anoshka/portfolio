@@ -88,6 +88,11 @@ jobs:
           rm -rf src/services/generated_tests/output/*
           # Generate new tests using templates
           NODE_OPTIONS="--experimental-vm-modules" node src/services/generated_tests/templateGenerator.js
+          # Show generated tests
+          echo "Generated test files:"
+          ls -l src/services/generated_tests/output/
+          echo "\nContent of first test file:"
+          head -n 20 src/services/generated_tests/output/*.test.jsx | cat
 
       - name: Check if tests were generated
         id: check_tests
@@ -362,7 +367,6 @@ jobs:
             --runInBand \
             --detectOpenHandles \
             --forceExit \
-            --testTimeout 15000 \
             --verbose
 
   # 4. Deploy to Staging

@@ -55,11 +55,43 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { TestWrapper, mockCanvas } from '../testUtils';
+
+// Mock Three.js modules
+jest.mock('three', () => ({
+  WebGLRenderer: jest.fn().mockImplementation(() => ({
+    setSize: jest.fn(),
+    render: jest.fn(),
+    setClearColor: jest.fn(),
+    domElement: document.createElement('canvas')
+  })),
+  Scene: jest.fn(),
+  PerspectiveCamera: jest.fn(),
+  AmbientLight: jest.fn(),
+  DirectionalLight: jest.fn(),
+  Clock: jest.fn(() => ({ getElapsedTime: () => 0 })),
+  Vector3: jest.fn()
+}));
+
+jest.mock('three/examples/jsm/loaders/FBXLoader', () => ({
+  FBXLoader: jest.fn().mockImplementation(() => ({
+    load: jest.fn((url, onLoad) => onLoad({}))
+  }))
+}));
+
+jest.mock('three/examples/jsm/controls/OrbitControls', () => ({
+  OrbitControls: jest.fn()
+}));
+
 import ${componentName} from '${importPath}';
 
 describe('${componentName}', () => {
   beforeAll(() => {
     mockCanvas();
+  });
+
+  beforeEach(() => {
+    // Clear all mocks before each test
+    jest.clearAllMocks();
   });
 
   test('renders without crashing', () => {

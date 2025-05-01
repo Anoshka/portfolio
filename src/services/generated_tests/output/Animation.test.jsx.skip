@@ -1,8 +1,0 @@
-import { render } from '@testing-library/react';
-import Animation from '../../../components/Animation/Animation.jsx';
-
-describe.skip('Animation', () => {
-  test('renders without crashing', () => {
-    render(<Animation />);
-  });
-});

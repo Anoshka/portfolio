@@ -1,8 +1,16 @@
-import { render } from '@testing-library/react';
-import TechArtGrid from '../../../components/TechArtGrid/TechArtGrid.jsx';
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { TestWrapper } from '../testUtils';
+import TechArtGrid from '../../../components/TechArtGrid/TechArtGrid';
 
 describe('TechArtGrid', () => {
+  
   test('renders without crashing', () => {
-    render(<TechArtGrid />);
+    render(
+      <TestWrapper>
+        <TechArtGrid />
+      </TestWrapper>
+    );
   });
 });

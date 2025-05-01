@@ -1,8 +1,16 @@
-import { render } from '@testing-library/react';
-import NotFoundPage from '../../../pages/NotFoundPage/NotFoundPage.jsx';
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { TestWrapper } from '../testUtils';
+import NotFoundPage from '../../../pages/NotFoundPage/NotFoundPage';
 
 describe('NotFoundPage', () => {
+  
   test('renders without crashing', () => {
-    render(<NotFoundPage />);
+    render(
+      <TestWrapper>
+        <NotFoundPage />
+      </TestWrapper>
+    );
   });
 });

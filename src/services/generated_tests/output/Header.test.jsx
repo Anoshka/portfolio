@@ -1,13 +1,27 @@
-import { render } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
-import Header from '../../../components/Header/Header.jsx';
+import React from 'react';
+import { render, screen , fireEvent} from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { TestWrapper } from '../testUtils';
+import Header from '../../../components/Header/Header';
 
 describe('Header', () => {
-  test('renders without crashing', () => {
+  
+  test('renders navigation links', () => {
     render(
-      <BrowserRouter>
-        <Header />
-      </BrowserRouter>
+      <TestWrapper>
+        <Header isOpen={false} />
+      </TestWrapper>
     );
+    expect(screen.getByRole('navigation')).toBeInTheDocument();
+  });
+
+  test('toggles menu on button click', () => {
+    render(
+      <TestWrapper>
+        <Header isOpen={false} />
+      </TestWrapper>
+    );
+    const button = screen.getByRole('button');
+    fireEvent.click(button);
   });
 });

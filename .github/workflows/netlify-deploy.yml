@@ -84,12 +84,20 @@ jobs:
 
       - name: Generate Tests
         run: |
+          # Debug information
+          echo "Current directory: $PWD"
+          echo "GitHub workspace: $GITHUB_WORKSPACE"
+
+          # Set the workspace directory
+          WORKSPACE_DIR="${GITHUB_WORKSPACE}"
+          echo "Using workspace directory: $WORKSPACE_DIR"
+
           # Force remove and recreate output directory
           rm -rf src/services/generated_tests/output
           mkdir -p src/services/generated_tests/output
 
-          # Generate new tests
-          NODE_OPTIONS="--experimental-vm-modules" node src/services/generated_tests/templateGenerator.js
+          # Generate new tests with workspace directory set
+          WORKSPACE_DIR=$WORKSPACE_DIR NODE_OPTIONS="--experimental-vm-modules" node src/services/generated_tests/templateGenerator.js
 
           # Verify generated files
           echo "\nGenerated files:"
@@ -380,7 +388,7 @@ jobs:
   # 4. Deploy to Staging
   deploy-staging:
     needs: test
-    if: github.ref == 'refs/heads/staging'
+    if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: staging
     steps:
@@ -401,10 +409,10 @@ jobs:
         with:
           publish-dir: './dist'
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: 'Deploy to staging'
+          deploy-message: 'Deploy to staging from ${{ github.ref_name }}'
           enable-pull-request-comment: true
           enable-commit-comment: true
-          alias: staging
+          alias: staging-${{ github.ref_name }}
           production: false
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
@@ -451,10 +459,8 @@ jobs:
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "🎉 Production deployment status: ${{ needs.deploy-production.result }}"
-          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
-            echo "🎉 Staging deployment status: ${{ needs.deploy-staging.result }}"
           else
-            echo "✅ Tests completed successfully"
+            echo "🎉 Staging deployment status: ${{ needs.deploy-staging.result }} (Branch: ${{ github.ref_name }})"
           fi
 
       - name: Create Deployment Comment
@@ -470,6 +476,7 @@ jobs:
             ### Build Details
             - Branch: ${context.payload.pull_request.head.ref}
             - Commit: ${context.sha}
+            - Environment: ${context.ref === 'refs/heads/main' ? 'Production' : 'Staging'}
             - Triggered by: ${context.actor}
             `;
 

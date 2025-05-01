@@ -5,29 +5,33 @@ import { getTestPrompt } from './testPrompts.js';
 
 class TemplateGenerator {
   constructor() {
-    // Check if we're running locally or in GitHub Actions
-    const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
+    // Get workspace directory from environment or use default
+    const workspaceDir = process.env.WORKSPACE_DIR || process.cwd();
 
-    if (isGitHubActions) {
-      this.outputDir = path.join(
-        process.cwd(),
-        'src/services/generated_tests/output'
-      );
-    } else {
-      // Local Windows environment
-      this.outputDir = path.join(
-        'D:',
-        'personal',
-        'portfolio',
-        'portfolio',
-        'src',
-        'services',
-        'generated_tests',
-        'output'
-      );
-    }
+    // Normalize the workspace path for the current OS
+    const normalizedWorkspaceDir = path.normalize(workspaceDir);
 
-    console.log('🔍 Using output directory:', this.outputDir);
+    console.log('🔍 Environment:', {
+      WORKSPACE_DIR: process.env.WORKSPACE_DIR,
+      CWD: process.cwd(),
+      GITHUB_WORKSPACE: process.env.GITHUB_WORKSPACE,
+      normalizedWorkspaceDir,
+    });
+
+    // Set output directory relative to workspace
+    this.outputDir = path.join(
+      normalizedWorkspaceDir,
+      'src',
+      'services',
+      'generated_tests',
+      'output'
+    );
+
+    console.log('🔍 Paths:', {
+      outputDir: this.outputDir,
+      absoluteOutputDir: path.resolve(this.outputDir),
+    });
+
     this.skipComponents = ['Animation'];
   }
 

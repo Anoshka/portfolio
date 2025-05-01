@@ -18,7 +18,7 @@ class TemplateGenerator {
     // Force remove the entire output directory
     if (fs.existsSync(this.outputDir)) {
       fs.rmSync(this.outputDir, { recursive: true, force: true });
-      console.log('   Removed existing output directory');
+      console.log('   Removed existing output directory', this.outputDir);
     }
 
     // Create fresh output directory

@@ -5,34 +5,65 @@ import { getTestPrompt } from './testPrompts.js';
 
 class TemplateGenerator {
   constructor() {
-    this.outputDir = path.join(
-      process.cwd(),
-      'src/services/generated_tests/output'
-    );
+    // Check if we're running locally or in GitHub Actions
+    const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
+
+    if (isGitHubActions) {
+      this.outputDir = path.join(
+        process.cwd(),
+        'src/services/generated_tests/output'
+      );
+    } else {
+      // Local Windows environment
+      this.outputDir = path.join(
+        'D:',
+        'personal',
+        'portfolio',
+        'portfolio',
+        'src',
+        'services',
+        'generated_tests',
+        'output'
+      );
+    }
+
+    console.log('🔍 Using output directory:', this.outputDir);
     this.skipComponents = ['Animation'];
   }
 
   cleanOutputDirectory() {
     console.log('🧹 Cleaning output directory...');
 
-    // Force remove the entire output directory
-    if (fs.existsSync(this.outputDir)) {
-      fs.rmSync(this.outputDir, { recursive: true, force: true });
-      console.log('   Removed existing output directory', this.outputDir);
+    try {
+      // Force remove the entire output directory
+      if (fs.existsSync(this.outputDir)) {
+        const files = fs.readdirSync(this.outputDir);
+        for (const file of files) {
+          const filePath = path.join(this.outputDir, file);
+          fs.unlinkSync(filePath);
+          console.log(`   Removed: ${file}`);
+        }
+        console.log('   Removed all files from output directory');
+      } else {
+        console.log('   Output directory does not exist, creating it...');
+      }
+
+      // Create or ensure output directory exists
+      fs.mkdirSync(this.outputDir, { recursive: true });
+      console.log('📁 Created/verified output directory at:', this.outputDir);
+
+      // Remove any lingering Animation test files
+      const animationFiles = globSync(
+        path.join(this.outputDir, 'Animation.test.*')
+      );
+      animationFiles.forEach((file) => {
+        fs.unlinkSync(file);
+        console.log(`   Removed lingering file: ${file}`);
+      });
+    } catch (error) {
+      console.error('❌ Error cleaning output directory:', error);
+      throw error;
     }
-
-    // Create fresh output directory
-    fs.mkdirSync(this.outputDir, { recursive: true });
-    console.log('📁 Created fresh output directory');
-
-    // Remove any lingering Animation test files
-    const animationFiles = globSync(
-      path.join(this.outputDir, 'Animation.test.*')
-    );
-    animationFiles.forEach((file) => {
-      fs.unlinkSync(file);
-      console.log(`   Removed lingering file: ${file}`);
-    });
   }
 
   generateTestFromPrompt(componentName, prompt, importPath) {
@@ -120,7 +151,6 @@ describe('${componentName}', () => {
   generateTestForComponent(componentPath) {
     const componentName = path.basename(componentPath, '.jsx');
 
-    // Early return for Animation component
     if (this.skipComponents.includes(componentName)) {
       console.log(`⏭️ Skipping test generation for ${componentName}`);
       return;
@@ -150,34 +180,54 @@ describe('${componentName}', () => {
       console.log(`✅ Generated test for: ${componentName}`);
     } catch (error) {
       console.error(`❌ Error generating test for ${componentName}:`, error);
+      throw error;
     }
   }
 
   saveTest(componentName, testCode) {
-    const testPath = path.join(this.outputDir, `${componentName}.test.jsx`);
+    try {
+      const testPath = path.join(this.outputDir, `${componentName}.test.jsx`);
 
-    // Force overwrite the file
-    fs.writeFileSync(testPath, testCode.trim() + '\n', { flag: 'w' });
-    console.log(`📝 Saved test: ${testPath}`);
+      // Ensure directory exists before writing
+      fs.mkdirSync(path.dirname(testPath), { recursive: true });
+
+      // Force overwrite the file
+      fs.writeFileSync(testPath, testCode.trim() + '\n', { flag: 'w' });
+      console.log(`📝 Saved test to: ${testPath}`);
+    } catch (error) {
+      console.error(`❌ Error saving test for ${componentName}:`, error);
+      throw error;
+    }
   }
 
   async generateAllTests() {
-    // Clean up before generating new tests
-    this.cleanOutputDirectory();
+    try {
+      // Clean up before generating new tests
+      this.cleanOutputDirectory();
 
-    const componentFiles = globSync('src/components/**/*.jsx');
-    const pageFiles = globSync('src/pages/**/*.jsx');
+      const componentFiles = globSync('src/components/**/*.jsx');
+      const pageFiles = globSync('src/pages/**/*.jsx');
 
-    console.log('\n🔄 Starting test generation...');
-    for (const file of [...componentFiles, ...pageFiles]) {
-      this.generateTestForComponent(file);
+      console.log('\n🔄 Starting test generation...');
+      console.log('📁 Found components:', componentFiles);
+      console.log('📁 Found pages:', pageFiles);
+
+      for (const file of [...componentFiles, ...pageFiles]) {
+        this.generateTestForComponent(file);
+      }
+      console.log('\n✅ Test generation complete!');
+    } catch (error) {
+      console.error('❌ Error generating tests:', error);
+      throw error;
     }
-    console.log('\n✅ Test generation complete!');
   }
 }
 
 // Run the generator
 const generator = new TemplateGenerator();
-generator.generateAllTests().catch(console.error);
+generator.generateAllTests().catch((error) => {
+  console.error('❌ Fatal error:', error);
+  process.exit(1);
+});
 
 export default TemplateGenerator;

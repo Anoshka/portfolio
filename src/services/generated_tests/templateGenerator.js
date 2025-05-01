@@ -5,31 +5,40 @@ import { getTestPrompt } from './testPrompts.js';
 
 class TemplateGenerator {
   constructor() {
-    // Get workspace directory from environment or use default
-    const workspaceDir = process.env.WORKSPACE_DIR || process.cwd();
+    // Determine the environment
+    const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
+    const isWindows = process.platform === 'win32';
 
-    // Normalize the workspace path for the current OS
-    const normalizedWorkspaceDir = path.normalize(workspaceDir);
+    // Set base directory based on environment
+    let baseDir;
+    if (isGitHubActions) {
+      // Use GitHub workspace in Actions
+      baseDir = process.env.GITHUB_WORKSPACE;
+    } else if (isWindows) {
+      // Use Windows path locally
+      baseDir = 'D:/personal/portfolio/portfolio';
+    } else {
+      // Fallback to current working directory
+      baseDir = process.cwd();
+    }
 
-    console.log('🔍 Environment:', {
-      WORKSPACE_DIR: process.env.WORKSPACE_DIR,
-      CWD: process.cwd(),
-      GITHUB_WORKSPACE: process.env.GITHUB_WORKSPACE,
-      normalizedWorkspaceDir,
-    });
+    // Normalize the base path for the current OS
+    this.baseDir = path.normalize(baseDir);
 
-    // Set output directory relative to workspace
+    // Set output directory relative to base directory
     this.outputDir = path.join(
-      normalizedWorkspaceDir,
+      this.baseDir,
       'src',
       'services',
       'generated_tests',
       'output'
     );
 
-    console.log('🔍 Paths:', {
+    console.log('🔍 Environment:', {
+      isGitHubActions,
+      isWindows,
+      baseDir: this.baseDir,
       outputDir: this.outputDir,
-      absoluteOutputDir: path.resolve(this.outputDir),
     });
 
     this.skipComponents = ['Animation'];

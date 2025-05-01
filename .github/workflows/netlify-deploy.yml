@@ -84,27 +84,33 @@ jobs:
 
       - name: Generate Tests
         run: |
-          # Debug information
-          echo "Current directory: $PWD"
-          echo "GitHub workspace: $GITHUB_WORKSPACE"
-
-          # Set the workspace directory
-          WORKSPACE_DIR="${GITHUB_WORKSPACE}"
-          echo "Using workspace directory: $WORKSPACE_DIR"
-
-          # Force remove and recreate output directory
+          # Clean and create output directory
           rm -rf src/services/generated_tests/output
           mkdir -p src/services/generated_tests/output
 
-          # Generate new tests with workspace directory set
-          WORKSPACE_DIR=$WORKSPACE_DIR NODE_OPTIONS="--experimental-vm-modules" node src/services/generated_tests/templateGenerator.js
+          # Generate new tests
+          NODE_OPTIONS="--experimental-vm-modules" node src/services/generated_tests/templateGenerator.js
 
-          # Verify generated files
-          echo "\nGenerated files:"
-          find src/services/generated_tests/output -type f -exec ls -l {} \;
+          # Show generated files
+          echo "Generated test files:"
+          ls -la src/services/generated_tests/output/
 
-          # Ensure proper permissions
-          chmod -R 644 src/services/generated_tests/output/*.jsx
+      # Add new step to commit and push generated tests
+      - name: Commit Generated Tests
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+          # Add and commit the generated tests
+          git add src/services/generated_tests/output/
+
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to generated tests"
+          else
+            git commit -m "test: update generated tests [skip ci]"
+            git push
+          fi
 
       - name: Verify Generated Tests
         run: |

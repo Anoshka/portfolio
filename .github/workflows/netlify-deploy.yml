@@ -81,8 +81,8 @@ jobs:
         run: |
           # Clean up old tests first
           rm -rf src/services/generated_tests/output/*
-          # Generate new tests
-          python src/services/generated_tests/local_model.py
+          # Generate new tests using templates
+          node src/services/generated_tests/templateGenerator.js
 
       - name: Check if tests were generated
         id: check_tests

@@ -55,77 +55,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install AI dependencies
         run: |
-          npm ci
-          npm install --save-dev \
-            node-fetch@3.3.2 \
-            glob@10.3.10 \
-            p-timeout@6.1.2
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install transformers sentencepiece
+
+      - name: Cache Hugging Face model
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/huggingface
+          key: ${{ runner.os }}-huggingface-starcoderbase-1b
+          restore-keys: |
+            ${{ runner.os }}-huggingface-
 
       - name: Create test output directory
         run: mkdir -p src/services/generated_tests/output
-
-      - name: Verify Hugging Face API Access
-        run: |
-          # First, verify the API key format
-          if [[ ! $HUGGING_FACE_API_KEY == hf_* ]]; then
-            echo "❌ API key format is incorrect. It should start with 'hf_'"
-            exit 1
-          fi
-
-          echo "✅ API key format verified"
-          echo "Testing API access..."
-
-          # Make the API call with explicit Bearer format
-          response=$(curl -s \
-            -H "Authorization: Bearer ${HUGGING_FACE_API_KEY}" \
-            "https://huggingface.co/api/whoami")
-
-          echo "API Response:"
-          echo "$response"
-          #credential instructions
-          if [[ "$response" == *"Invalid credentials"* ]]; then
-            echo "❌ API key is not valid"
-            echo "Please ensure you:"
-            echo "1. Generated a new token at https://huggingface.co/settings/tokens"
-            echo "2. Selected 'read' role"
-            echo "3. Copied the entire token starting with 'hf_'"
-            echo "4. Added it to GitHub secrets without any extra spaces"
-            exit 1
-          elif [[ "$response" == *"type"* ]]; then
-            echo "✅ API key is valid"
-          else
-            echo "❌ Unexpected response"
-            exit 1
-          fi
-        env:
-          HUGGING_FACE_API_KEY: ${{ secrets.HUGGING_FACE_API_KEY }}
-
-      - name: Verify Hugging Face Model Status
-        run: |
-          echo "Checking model availability..."
-          MODELS=("Salesforce/codegen-350M-mono" "bigcode/santacoder" "microsoft/CodeGPT-small-py")
-
-          for MODEL in "${MODELS[@]}"; do
-            echo "Checking $MODEL..."
-            response=$(curl -s -w "%{http_code}" -o /dev/null -H "Authorization: Bearer $HUGGING_FACE_API_KEY" "https://api-inference.huggingface.co/models/$MODEL")
-            if [ "$response" == "200" ]; then
-              echo "✅ Model $MODEL is ready"
-              exit 0
-            fi
-            echo "Model $MODEL not immediately available, trying next..."
-          done
-
-          echo "❌ No models are currently available"
-          exit 1
-        env:
-          HUGGING_FACE_API_KEY: ${{ secrets.HUGGING_FACE_API_KEY }}
 
       - name: Generate Tests
         run: |

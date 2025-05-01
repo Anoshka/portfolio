@@ -84,13 +84,9 @@ jobs:
 
       - name: Generate Tests
         run: |
-          # Ensure output directory exists and is empty
+          # Force remove and recreate output directory
+          rm -rf src/services/generated_tests/output
           mkdir -p src/services/generated_tests/output
-          rm -rf src/services/generated_tests/output/*
-
-          # Show initial state
-          echo "Initial directory state:"
-          ls -la src/services/generated_tests/output/
 
           # Generate new tests
           NODE_OPTIONS="--experimental-vm-modules" node src/services/generated_tests/templateGenerator.js

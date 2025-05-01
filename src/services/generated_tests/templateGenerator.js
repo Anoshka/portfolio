@@ -8,7 +8,21 @@ class TemplateGenerator {
       process.cwd(),
       'src/services/generated_tests/output'
     );
-    this.skipComponents = ['AutoRiggerPage'];
+    this.skipComponents = ['Animation'];
+  }
+
+  cleanOutputDirectory() {
+    if (fs.existsSync(this.outputDir)) {
+      console.log('🧹 Cleaning output directory...');
+      fs.readdirSync(this.outputDir).forEach((file) => {
+        const filePath = path.join(this.outputDir, file);
+        fs.unlinkSync(filePath);
+        console.log(`   Removed: ${file}`);
+      });
+    } else {
+      fs.mkdirSync(this.outputDir, { recursive: true });
+      console.log('📁 Created output directory');
+    }
   }
 
   generateTestForComponent(componentPath) {
@@ -235,12 +249,17 @@ describe('${componentName}', () => {
   }
 
   async generateAllTests() {
+    // Clean up before generating new tests
+    this.cleanOutputDirectory();
+
     const componentFiles = globSync('src/components/**/*.jsx');
     const pageFiles = globSync('src/pages/**/*.jsx');
 
+    console.log('\n🔄 Starting test generation...');
     for (const file of [...componentFiles, ...pageFiles]) {
       this.generateTestForComponent(file);
     }
+    console.log('\n✅ Test generation complete!');
   }
 }
 

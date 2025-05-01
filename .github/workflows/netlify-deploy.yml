@@ -84,25 +84,37 @@ jobs:
 
       - name: Generate Tests
         run: |
-          # Clean up old tests first
+          # Ensure output directory exists and is empty
+          mkdir -p src/services/generated_tests/output
           rm -rf src/services/generated_tests/output/*
-          # Generate new tests using templates
+
+          # Show initial state
+          echo "Initial directory state:"
+          ls -la src/services/generated_tests/output/
+
+          # Generate new tests
           NODE_OPTIONS="--experimental-vm-modules" node src/services/generated_tests/templateGenerator.js
-          # Show generated tests
-          echo "Generated test files:"
-          ls -l src/services/generated_tests/output/
-          echo "\nContent of first test file:"
-          head -n 20 src/services/generated_tests/output/*.test.jsx | cat
+
+          # Verify generated files
+          echo "\nGenerated files:"
+          find src/services/generated_tests/output -type f -exec ls -l {} \;
+
+          # Ensure proper permissions
+          chmod -R 644 src/services/generated_tests/output/*.jsx
+
+      - name: Verify Generated Tests
+        run: |
+          NODE_OPTIONS="--experimental-vm-modules" node src/services/generated_tests/verify-tests.js
 
       - name: Check if tests were generated
         id: check_tests
         run: |
-          if [ -n "$(ls -A src/services/generated_tests/output/)" ]; then
+          if [ -n "$(find src/services/generated_tests/output -type f -name '*.test.jsx')" ]; then
             echo "files_exist=true" >> $GITHUB_OUTPUT
-            echo "Tests were generated successfully"
+            echo "✅ Tests were generated successfully"
           else
             echo "files_exist=false" >> $GITHUB_OUTPUT
-            echo "No test files were generated"
+            echo "❌ No test files were generated"
             exit 1
           fi
 

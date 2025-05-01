@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { glob } from 'glob';
+import { globSync } from 'glob';
 
 class TemplateGenerator {
   constructor() {
@@ -203,8 +203,8 @@ describe('${componentName}', () => {
   }
 
   async generateAllTests() {
-    const componentFiles = glob.sync('src/components/**/*.jsx');
-    const pageFiles = glob.sync('src/pages/**/*.jsx');
+    const componentFiles = globSync('src/components/**/*.jsx');
+    const pageFiles = globSync('src/pages/**/*.jsx');
 
     for (const file of [...componentFiles, ...pageFiles]) {
       this.generateTestForComponent(file);

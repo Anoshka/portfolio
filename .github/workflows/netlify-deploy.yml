@@ -74,6 +74,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-huggingface-
 
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install --save-dev glob@10.3.10
+
       - name: Create test output directory
         run: mkdir -p src/services/generated_tests/output
 
@@ -82,7 +87,7 @@ jobs:
           # Clean up old tests first
           rm -rf src/services/generated_tests/output/*
           # Generate new tests using templates
-          node src/services/generated_tests/templateGenerator.js
+          NODE_OPTIONS="--experimental-vm-modules" node src/services/generated_tests/templateGenerator.js
 
       - name: Check if tests were generated
         id: check_tests

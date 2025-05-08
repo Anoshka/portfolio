@@ -5,7 +5,6 @@ import { TestWrapper } from '../testUtils';
 import Footer from '../../../components/Footer/Footer';
 
 describe('Footer', () => {
-  
   test('renders without crashing', () => {
     render(
       <TestWrapper>

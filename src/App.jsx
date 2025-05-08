@@ -9,6 +9,8 @@ import ResumePage from './pages/ResumePage/ResumePage.jsx';
 import NotFoundPage from './pages/NotFoundPage/NotFoundPage.jsx';
 import TechArtPage from './pages/TechArtPage/TechArtPage.jsx';
 import WebDevPage from './pages/WebDevPage/WebDevPage.jsx';
+import TechArtProjectPage from './pages/TechArtProjectPage/TechArtProjectPage.jsx';
+import WebDevProjectPage from './pages/WebDevProjectPage/WebDevProjectPage.jsx';
 
 const App = () => {
   return (
@@ -20,6 +22,8 @@ const App = () => {
         <Route path="/resume" element={<ResumePage />} />
         <Route path="/tech_art" element={<TechArtPage />} />
         <Route path="/web_dev" element={<WebDevPage />} />
+        <Route path="/tech_art/:projectId" element={<TechArtProjectPage />} />
+        <Route path="/web_dev/:projectId" element={<WebDevProjectPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Footer />

@@ -1,8 +1,16 @@
-import { render } from '@testing-library/react';
-import WebDevGrid from '../../../components/WebDevGrid/WebDevGrid.jsx';
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { TestWrapper } from '../testUtils';
+import WebDevGrid from '../../../components/WebDevGrid/WebDevGrid';
 
 describe('WebDevGrid', () => {
+  
   test('renders without crashing', () => {
-    render(<WebDevGrid />);
+    render(
+      <TestWrapper>
+        <WebDevGrid />
+      </TestWrapper>
+    );
   });
 });

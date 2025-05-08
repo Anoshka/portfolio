@@ -11,7 +11,7 @@ on:
   push:
     branches: [main, tech-art-content]
   pull_request:
-    branches: ['main', 'staging']
+    branches: ['main']
 
 env:
   NODE_VERSION: '20'
@@ -391,82 +391,59 @@ jobs:
             --forceExit \
             --verbose
 
-  # 4. Deploy to Staging
-  deploy-staging:
-    needs: ${{ github.ref == 'refs/heads/main' && 'test' || '' }}
-    if: github.ref != 'refs/heads/main'
+  deploy-main:
+    needs: test
     runs-on: ubuntu-latest
-    environment: staging
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build site
-        run: npm run build
-
-      - name: Deploy to Netlify (Staging)
-        uses: nwtgck/actions-netlify@v2
-        with:
-          publish-dir: './dist'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: 'Deploy to staging from ${{ github.ref_name }}'
-          enable-pull-request-comment: true
-          enable-commit-comment: true
-          alias: staging-${{ github.ref_name }}
-          production: false
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-
-  # 5. Deploy to Production
-  deploy-production:
-    needs: ${{ github.ref == 'refs/heads/main' && 'test' || '' }}
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    environment: production
     steps:
       - uses: actions/checkout@v3
-
-      - uses: actions/setup-node@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build site
-        run: npm run build
-
-      - name: Deploy to Netlify (Production)
-        uses: nwtgck/actions-netlify@v2
-        with:
-          publish-dir: './dist'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: 'Deploy to production'
-          enable-commit-comment: true
-          production: true
+          node-version: '18.x'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - name: Deploy to Netlify
+        uses: netlify/actions/cli@master
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        with:
+          args: deploy --dir=build --prod
+
+  deploy-tech-art:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/tech-art-content'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - name: Deploy to Netlify
+        uses: netlify/actions/cli@master
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        with:
+          args: deploy --dir=build --prod
 
   # 6. Notification
   notify:
-    needs: [deploy-staging, deploy-production]
+    needs: [deploy-main, deploy-tech-art]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Deployment Status
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "🎉 Production deployment status: ${{ needs.deploy-production.result }}"
+            echo "🎉 Production deployment status: ${{ needs.deploy-main.result }}"
           else
-            echo "🎉 Staging deployment status: ${{ needs.deploy-staging.result }} (Branch: ${{ github.ref_name }})"
+            echo "🎉 Staging deployment status: ${{ needs.deploy-tech-art.result }} (Branch: ${{ github.ref_name }})"
           fi
 
       - name: Create Deployment Comment
@@ -475,7 +452,7 @@ jobs:
         with:
           script: |
             const message = `
-            ## Deployment Status: ${{ needs.deploy-staging.result }}
+            ## Deployment Status: ${{ needs.deploy-tech-art.result }}
 
             ${process.env.DEPLOY_URL ? `🔗 Preview URL: ${process.env.DEPLOY_URL}` : ''}
 

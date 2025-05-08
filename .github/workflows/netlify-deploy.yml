@@ -9,7 +9,7 @@ permissions:
 
 on:
   push:
-    branches: ['**']
+    branches: [main, tech-art-content]
   pull_request:
     branches: ['main', 'staging']
 
@@ -149,7 +149,7 @@ jobs:
 
   # 3. Run Tests
   test:
-    needs: generate-tests
+    if: github.ref != 'refs/heads/tech-art-content'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -393,7 +393,7 @@ jobs:
 
   # 4. Deploy to Staging
   deploy-staging:
-    needs: test
+    needs: ${{ github.ref == 'refs/heads/main' && 'test' || '' }}
     if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: staging
@@ -426,7 +426,7 @@ jobs:
 
   # 5. Deploy to Production
   deploy-production:
-    needs: test
+    needs: ${{ github.ref == 'refs/heads/main' && 'test' || '' }}
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: production

@@ -15,7 +15,7 @@ function Header() {
     { name: 'dark', type: 'image', image: DarkIcon },
   ];
 
-  const [selectedTheme, setSelectedTheme] = useState(themes[0]);
+  const [selectedTheme, setSelectedTheme] = useState(themes[3]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {

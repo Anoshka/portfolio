@@ -1,3 +1,8 @@
+// styles/main.scss
+@use '../../styles/partials/variables' as *;
+@use '../../styles/partials/mixins' as *;
+@use '../../components/TechArtGrid/TechArtGrid.scss' as *;
+
 .work {
   &__video-container {
     position: relative;

@@ -1,130 +1,254 @@
 import './TechArtGrid.scss';
 import img from '../../assets/images/placeholder.png';
+import linkedinIcon from '../../assets/icons/linkedin_clean.png';
+import emailIcon from '../../assets/icons/email_clean.png';
+import { Link } from 'react-router-dom';
+import { useState } from 'react';
+
+const VIDEO_PASSWORD = 'anoshkajhaveridemoreel1111!';
 
 // Project data (update with actual images & links)
 const projects = [
   {
     title: 'Auto Rigger',
-    software: 'Python | Maya',
+    software: 'Python | PyQT/PySide2 | PyMel  | Maya',
     image: img,
-    link: '#',
+    link: '/tech_art/auto_rigger',
     description: `
-      A powerful automation tool designed to streamline the character rigging process. 
+      An modular automation tool designed to streamline the character rigging process. 
       This tool significantly reduces the manual effort required, providing a fast, 
       efficient, and consistent rigging workflow.
       
       - Fully automated joint placement and skinning process  
-      - Supports both biped and quadruped characters  
-      - Intuitive UI for custom adjustments and fine-tuning  
-      - Reduces rigging time by up to 70%  
+      - Allows for custom adjustments, limb additions, stretchy arm/spine and control customisations
+      - Intuitive and dockable PyQT UI with control customizations
     `,
   },
   {
     title: 'Rigging Toolkit',
-    software: 'Python | Maya',
+    software: 'Python | PyQT/PySide2 | PyMel  | Maya',
     image: img,
-    link: '#',
+    link: '/tech_art/rigging_toolkit',
     description: `
       A collection of custom scripts and tools that enhance the rigging process 
       for animators and technical artists. 
 
-      - Automated weight painting for optimized deformations  
-      - Smart joint mirroring and renaming features  
-      - Integration with industry-standard tools like Autodesk Maya  
-      - Python-based scripting for easy customization  
+      - Clean and intuitive UI  
+      - mechanical automations such as auto wheel builder and batch xform connectors
+      - Deformation and skinning tools to prepare rig for ingestion into Unreal Engine
+      - QOL tools for quick scene updates and visualisation
+    `,
+  },
+
+  {
+    title: 'Asset Management',
+    software: 'Python | p4v | REST APi | JSON | Jira',
+    image: img,
+    link: '/tech_art/asset_management_tools',
+    description: `
+      Developed an asset management system between Perforce, Jira and Prism, that centralises ticket management, asset updates 
+      validation and production status
+
+      - Subprocess bash shell for user interaction
+      - Automates asset management within one platform 
+      - Auto updates perforce check-ins and Jira ticket status, and provides production information for management
     `,
   },
   {
-    title: 'Fireman Sam',
-    software: 'Python | Maya',
+    title: 'Crowd Automations and Shotgrid SDK updates',
+    software: 'Python | Maya | Houdini | Bash',
     image: img,
-    link: '#',
+    link: '/tech_art/crowd_automations',
     description: `
-      Worked on the technical rigging and pipeline automation for the Fireman Sam 
-      animated series. Ensured high-quality character movement and compatibility across 
-      multiple software platforms.
-
-      - Developed modular rigs for multiple character types  
-      - Enhanced facial rigging for expressive animations  
-      - Optimized rigs for real-time performance in Unreal Engine  
-    `,
-  },
-  {
-    title: 'Lego and Friends',
-    software: 'Python | Maya',
-    image: img,
-    link: '#',
-    description: `
-      A specialized rigging and animation project for the Lego and Friends franchise. 
-      Developed modular rigs that improved the animation pipeline and streamlined character 
-      interactions.
-
-      - Implemented Lego-style snapping and articulation for seamless movement  
-      - Created reusable animation presets for faster production  
-      - Integrated with Unreal Engine for real-time previews  
-    `,
-  },
-  {
-    title: 'Asset Management Tools',
-    software: 'Python | Maya',
-    image: img,
-    link: '#',
-    description: `
-      Developed a robust asset management system that integrates seamlessly with 
-      existing production pipelines.
-
-      - Supports version control for multiple assets  
-      - Automated metadata tagging for easy organization  
-      - Cross-platform compatibility with major 3D software  
-    `,
+      Crowd Automation - A system that inputs motion capture skeleton data and batch applies to multiple photogrammetry models, removing manual rigging process and reducing rig production time from over a month to two days, developed at Versatile Media. 
+      `,
+    //   - Developed and scripted an HDA that takes file input and output paths and generates rig
+    //   - subprocesses maya to generate auto-rig process through customised Vetala code
+    //   - seamlessly transfers motion capture data from Motion Builder to Unreal engine, allowing a crowd to be built in under 24 hours
+    // ,
   },
   {
     title: 'Train Crash',
-    software: 'Python | Maya',
+    software: 'Houdini | Maya | PyMel',
     image: img,
-    link: '#',
+    link: '/tech_art/train_crash',
     description: `
-      Technical direction and tool development for the simulation and rigging of 
-      a complex train crash sequence.
+      A passion project developed at Capilano University
 
-      - Physics-based rigging system for realistic destruction  
-      - Custom animation constraints for smooth motion control  
-      - Optimized for high-fidelity rendering in Unreal Engine  
+      - A mathematically accurate steam locomotive  
+      - Train crash into a cabin, animation created in Autodesk Maya, and physics manipulated in Houdini
+      - Dust and particle effects created in Houdini, substance painter used for train texturing
     `,
   },
   {
-    title: 'Crown Automations',
+    title: 'Work at Wildbrain Studios',
     software: 'Python | Maya',
     image: img,
-    link: '#',
+    link: '/tech_art/fireman_sam',
     description: `
-      An automation system that generates procedural crown designs and animations 
-      based on user-defined parameters.
-
-      - Generates high-quality, stylized crown models in seconds  
-      - Customizable design parameters for unique variations  
-      - Seamlessly integrates with existing production workflows  
+      Worked on Fireman Sam season 13, which was the first season rendered in Unreal Engine, Lego and Friends season 2, and In The Night Garden. 
+      `,
+    isProtected: true,
+  },
+  {
+    title: 'Spidey and His Amazing Friends',
+    software: 'Python | Maya',
+    image: img,
+    link: '/tech_art/spidey',
+    description: `
+      Worked on this Disney production at Atomic Cartoons
     `,
+    isProtected: true,
+  },
+  {
+    title: 'Paw Patrol Rubble and Crew',
+    software: 'Python | Maya',
+    image: img,
+    link: '/tech_art/spidey',
+    description: `
+      Developed Vehicle rigs for Rubble & Crew at Shapeshifters Interactive
+    `,
+    isProtected: true,
   },
 ];
 
 const TechArtGrid = () => {
+  const [unlocked, setUnlocked] = useState(false);
+  const [input, setInput] = useState('');
+  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (input === VIDEO_PASSWORD) {
+      setUnlocked(true);
+      setError('');
+      setShowSuccess(true);
+    } else {
+      setError(
+        'The password you entered is incorrect. Please ensure you match cases and special characters.'
+      );
+      setShowSuccess(false);
+    }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  // Filter projects based on protection status
+  const visibleProjects = projects.filter(
+    (project) => !project.isProtected || unlocked
+  );
+
   return (
-    <div className="project-list">
-      {projects.map((project, index) => (
-        <a key={index} href={project.link} className="project-list__item">
-          <img
-            src={project.image}
-            alt={project.title}
-            className="project-list__image"
+    <div className="work">
+      <p className="work__welcome">
+        Welcome to my tech art portfolio. Some of my work, including my
+        demoreel, is password protected due to copyright restrictions. Please
+        enter the password here:
+      </p>
+      <form onSubmit={handleSubmit} className="password-form">
+        <div className="password-input-container">
+          <input
+            type={showPassword ? 'text' : 'password'}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Enter password"
           />
-          <div className="project-list__content">
-            <h3 className="project-list__title">{project.title}</h3>
-            <p className="project-list__software">{project.software}</p>
-            <p className="project-list__description">{project.description}</p>
+          <button
+            type="button"
+            onClick={togglePasswordVisibility}
+            className="password-toggle"
+          >
+            {showPassword ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            )}
+          </button>
+        </div>
+        <button type="submit">View Projects</button>
+      </form>
+      {error && <p className="error">{error}</p>}
+      {showSuccess && (
+        <p className="success">
+          Congrats! Please scroll down the page to see additional projects and
+          reel.
+        </p>
+      )}
+      {!unlocked && (
+        <p className="contact-text">
+          If you do not have my password, please feel free to reach out to me:
+          <div className="contact-icons">
+            <a
+              href="https://www.linkedin.com/in/anoshkajhaveri/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="contact-link"
+            >
+              <img src={linkedinIcon} alt="LinkedIn" className="contact-icon" />
+            </a>
+            <a href="mailto:anohskaujhaveri@gmail.com" className="contact-link">
+              <img src={emailIcon} alt="Email" className="contact-icon" />
+            </a>
           </div>
-        </a>
-      ))}
+        </p>
+      )}
+      {unlocked && (
+        <div className="video-container">
+          <video controls className="portfolio-video">
+            <source
+              src="/videos/AnoshkaJhaveri_RiggingTDReel_2025.mp4"
+              type="video/mp4"
+            />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      )}
+      <div className="project-list">
+        {visibleProjects.map((project, index) => (
+          <Link key={index} to={project.link} className="project-list__item">
+            <img
+              src={project.image}
+              alt={project.title}
+              className="project-list__image"
+            />
+            <div className="project-list__content">
+              <h3 className="project-list__title">{project.title}</h3>
+              <p className="project-list__software">{project.software}</p>
+              <p className="project-list__description">{project.description}</p>
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 };

@@ -128,3 +128,32 @@
     line-height: $h4-line-height;
   }
 }
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin responsive-video {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  height: 0;
+  padding-bottom: 56.25%; // 16:9 aspect ratio
+}
+
+@mixin hover-transform {
+  transition: transform $transition-speed;
+  &:hover {
+    transform: translateY(-4px);
+  }
+}
+
+@mixin button-base {
+  padding: $spacing-unit * 0.5 $spacing-unit;
+  border: none;
+  border-radius: $border-radius;
+  cursor: pointer;
+  transition: background-color $transition-speed;
+}

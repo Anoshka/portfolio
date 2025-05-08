@@ -1,3 +1,6 @@
+@use '../../styles/partials/variables' as *;
+@use '../../styles/partials/mixins' as *;
+
 .project-list {
   display: flex;
   flex-direction: column;
@@ -34,7 +37,7 @@
 }
 
 .project-list__image {
-  width: 25rem; // Adjusted for better alignment
+  width: 25rem;
   height: 14rem;
   object-fit: cover;
   border-radius: 0.5rem;
@@ -67,6 +70,190 @@
   font-size: 1rem;
   opacity: 0.8;
   line-height: 1.6rem;
-  max-width: 40rem; // Prevents text from stretching too wide
-  white-space: pre-line; // Keeps the bullet points properly formatted
+  max-width: 40rem;
+  white-space: pre-line;
+}
+
+.tech-art {
+  &__welcome {
+    margin-bottom: $spacing-unit * 2;
+    text-align: center;
+  }
+
+  &__title {
+    margin-bottom: $spacing-unit;
+  }
+
+  &__password-form {
+    margin: $spacing-unit * 2 0;
+    @include flex-center;
+    flex-direction: column;
+    gap: $spacing-unit;
+  }
+
+  &__input {
+    padding: $spacing-unit * 0.5;
+    border: 1px solid $color-border;
+    border-radius: $border-radius;
+    margin-right: $spacing-unit;
+  }
+
+  &__button {
+    @include button-base;
+    background-color: $color-primary;
+    color: white;
+
+    &:hover {
+      background-color: $color-primary-hover;
+    }
+  }
+
+  &__error {
+    color: $color-error;
+    margin-top: $spacing-unit;
+  }
+
+  &__contact {
+    margin-top: $spacing-unit * 2;
+    @include flex-center;
+    gap: $spacing-unit;
+  }
+
+  &__icon {
+    width: 24px;
+    height: 24px;
+    transition: transform $transition-speed;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+  &__project-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: $grid-gap;
+    padding: $spacing-unit * 2;
+  }
+
+  &__project-item {
+    text-decoration: none;
+    color: inherit;
+    border-radius: $border-radius;
+    overflow: hidden;
+    @include hover-transform;
+    box-shadow: 0 2px 4px $color-shadow;
+  }
+
+  &__project-image {
+    width: 100%;
+    height: $project-image-height;
+    object-fit: cover;
+  }
+
+  &__project-content {
+    padding: $spacing-unit;
+  }
+
+  &__project-title {
+    margin-bottom: $spacing-unit * 0.5;
+  }
+
+  &__project-software {
+    color: $color-text-secondary;
+    margin-bottom: $spacing-unit * 0.5;
+  }
+
+  &__project-description {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+}
+.grid {
+  width: 100%;
+}
+.work {
+  text-align: left;
+}
+
+.error {
+  color: red;
+}
+
+.password-form {
+  margin: 1rem 0;
+}
+
+.password-input-container {
+  position: relative;
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+
+.password-input-container input {
+  padding: 0.5rem;
+  padding-right: 2rem; // Make room for the eye icon
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #666;
+
+  &:hover {
+    color: #333;
+  }
+}
+
+.error {
+  color: red;
+  margin-top: 0.5rem;
+}
+
+.success {
+  color: #28a745;
+  margin-top: 0.5rem;
+}
+
+.contact-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.contact-icons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.contact-link {
+  display: inline-flex;
+  align-items: center;
+}
+
+.contact-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.video-container {
+  margin: 2rem 0;
+  width: 100%;
+  max-width: 800px; // Adjust based on your needs
+}
+
+.portfolio-video {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }

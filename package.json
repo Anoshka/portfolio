@@ -1,5 +1,5 @@
 {
-  "name": "InStock-client",
+  "name": "portfolio-client",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,12 +10,14 @@
     "prettier": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,scss,json}\"",
     "prettier:write": "prettier --write \"src/**/*.{js,jsx,ts,tsx,scss,css,json}\"",
     "prettier:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,scss,css,json}\"",
-    "test": "jest --passWithNoTests",
-    "test:generate": "node src/services/generated_tests/testRunner.js",
-    "lint": "eslint \"src/**/*.{js,jsx}\" --format stylish --fix"
+    "test": "jest --config jest.config.cjs",
+    "test:generate": "NODE_OPTIONS='--experimental-vm-modules' node src/services/generated_tests/testRunner.js",
+    "lint": "eslint \"src/**/*.{js,jsx}\" --format stylish --fix",
+    "postinstall": "node postinstall.cjs"
   },
   "dependencies": {
-    "axios": "^1.7.7",
+    "axios": "^1.9.0",
+    "dotenv": "^16.5.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
@@ -25,10 +27,13 @@
     "sass": "^1.79.4",
     "three": "^0.174.0",
     "typewriter-effect": "^2.21.0",
-    "validator": "^13.12.0"
+    "validator": "^13.12.0",
+    "glob": "^10.3.10",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
+    "@babel/plugin-transform-runtime": "^7.26.10",
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-react": "^7.26.3",
     "@eslint/create-config": "^1.8.1",
@@ -39,18 +44,19 @@
     "@types/react-modal": "^3.16.3",
     "@vitejs/plugin-react": "^4.3.1",
     "babel-jest": "^29.7.0",
+    "del": "^8.0.0",
     "eslint": "^9.24.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "glob": "^11.0.1",
+    "glob": "^11.0.2",
     "globals": "^15.9.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jsdom": "^26.1.0",
-    "openai": "^4.94.0",
     "prettier": "^3.5.3",
-    "vite": "^5.4.1"
+    "rimraf": "^5.0.5",
+    "vite": "^6.2.6"
   },
   "prettier": {
     "semi": true,
@@ -58,30 +64,18 @@
     "tabWidth": 2,
     "trailingComma": "es5"
   },
-  "jest": {
-    "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": [
-      "<rootDir>/src/setupTests.js"
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      [
+        "@babel/preset-react",
+        {
+          "runtime": "automatic"
+        }
+      ]
     ],
-    "moduleNameMapper": {
-      "\\.(css|scss)$": "identity-obj-proxy",
-      "\\.(jpg|jpeg|png|gif|webp|svg)$": "<rootDir>/__mocks__/fileMock.js"
-    },
-    "transform": {
-      "^.+\\.(js|jsx)$": "babel-jest"
-    },
-    "testMatch": [
-      "<rootDir>/src/**/*.test.{js,jsx}",
-      "<rootDir>/src/services/generated_tests/output/**/*.test.{js,jsx}"
+    "plugins": [
+      "@babel/plugin-transform-runtime"
     ]
-  },
-  "presets": [
-    "@babel/preset-env",
-    [
-      "@babel/preset-react",
-      {
-        "runtime": "automatic"
-      }
-    ]
-  ]
+  }
 }

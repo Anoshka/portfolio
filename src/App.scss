@@ -1,6 +1,12 @@
 @use './styles/partials/variables' as *;
 
 :root {
+  --bg-color: #{$green-bg};
+  --text-color: #{$green-text};
+  --accent-color: #{$green-accent};
+}
+
+[data-theme='light'] {
   --bg-color: #{$light-bg};
   --text-color: #{$light-text};
   --accent-color: #{$light-accent};

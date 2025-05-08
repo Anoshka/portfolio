@@ -2,13 +2,12 @@ import './WebDevGrid.scss';
 import img1 from '../../assets/images/placeholder_01.png';
 import img from '../../assets/images/placeholder.png';
 
-// Project data (update with actual images & links)
 const projects = [
   {
     title: 'WrigglyBun',
     software: 'React | MySQL | Node.JS',
     image: img1,
-    link: '#',
+    link: '/web_dev/wrigglybun',
     description: `
       A powerful automation tool designed to streamline the character rigging process. 
       This tool significantly reduces the manual effort required, providing a fast, 
@@ -24,7 +23,7 @@ const projects = [
     title: 'Pawdl',
     software: 'React | MySQL | Node.JS',
     image: img,
-    link: '#',
+    link: '/web_dev/pawdl',
     description: `
       A collection of custom scripts and tools that enhance the rigging process 
       for animators and technical artists. 
@@ -39,7 +38,7 @@ const projects = [
     title: 'Bell Media Innovation Station',
     software: 'React | MySQL | Node.JS',
     image: img,
-    link: '#',
+    link: '/web_dev/bell_media_innovation_station',
     description: `
       Worked on the technical rigging and pipeline automation for the Fireman Sam 
       animated series. Ensured high-quality character movement and compatibility across 
@@ -54,7 +53,7 @@ const projects = [
     title: 'InStock',
     software: 'React | MySQL | Node.JS',
     image: img,
-    link: '#',
+    link: '/web_dev/instock',
     description: `
       A specialized rigging and animation project for the Lego and Friends franchise. 
       Developed modular rigs that improved the animation pipeline and streamlined character 
@@ -69,7 +68,7 @@ const projects = [
     title: 'Job Tracker',
     software: 'React | MySQL | Node.JS',
     image: img,
-    link: '#',
+    link: '/web_dev/job_tracker',
     description: `
       Developed a robust asset management system that integrates seamlessly with 
       existing production pipelines.
@@ -83,7 +82,7 @@ const projects = [
     title: 'Trivia',
     software: 'React | MySQL | Node.JS',
     image: img,
-    link: '#',
+    link: '/web_dev/trivia',
     description: `
       Technical direction and tool development for the simulation and rigging of 
       a complex train crash sequence.
@@ -97,7 +96,7 @@ const projects = [
     title: 'Brainflix',
     software: 'React | MySQL | Node.JS',
     image: img,
-    link: '#',
+    link: '/web_dev/brainflix',
     description: `
       An automation system that generates procedural crown designs and animations 
       based on user-defined parameters.
@@ -111,7 +110,7 @@ const projects = [
     title: 'Bandsite',
     software: 'React | MySQL | Node.JS',
     image: img,
-    link: '#',
+    link: '/web_dev/bandsite',
     description: `
       An automation system that generates procedural crown designs and animations 
       based on user-defined parameters.
@@ -125,7 +124,7 @@ const projects = [
     title: 'Coffee Shop',
     software: 'React | MySQL | Node.JS',
     image: img,
-    link: '#',
+    link: '/web_dev/coffee_shop',
     description: `
       An automation system that generates procedural crown designs and animations 
       based on user-defined parameters.

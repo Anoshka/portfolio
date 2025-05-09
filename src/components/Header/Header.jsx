@@ -39,9 +39,9 @@ function Header() {
           <NavLink to="/tech_art" className="header__link">
             Tech Art
           </NavLink>
-          <NavLink to="/web_dev" className="header__link">
+          {/* <NavLink to="/web_dev" className="header__link">
             Web Dev
-          </NavLink>
+          </NavLink> */}
 
           <div
             className={`header__theme-selector ${isDropdownOpen ? 'open' : ''}`}

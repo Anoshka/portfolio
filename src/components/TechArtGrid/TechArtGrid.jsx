@@ -1,5 +1,10 @@
 import './TechArtGrid.scss';
 import img from '../../assets/images/placeholder.png';
+import train from '../../assets/images/train_still.png';
+import tools from '../../assets/images/tools_smaller.png';
+import crowd from '../../assets/images/crowd_small.png';
+import autorigger from '../../assets/images/autorigger_edited.png';
+import p4file from '../../assets/images/p4_file.png';
 import linkedinIcon from '../../assets/icons/linkedin_clean.png';
 import emailIcon from '../../assets/icons/email_clean.png';
 import { Link } from 'react-router-dom';
@@ -12,10 +17,10 @@ const projects = [
   {
     title: 'Auto Rigger',
     software: 'Python | PyQT/PySide2 | PyMel  | Maya',
-    image: img,
+    image: autorigger,
     link: '/tech_art/auto_rigger',
     description: `
-      An modular automation tool designed to streamline the character rigging process. 
+      A modular automation tool designed to streamline the character rigging process. 
       This tool significantly reduces the manual effort required, providing a fast, 
       efficient, and consistent rigging workflow.
       
@@ -27,7 +32,7 @@ const projects = [
   {
     title: 'Rigging Toolkit',
     software: 'Python | PyQT/PySide2 | PyMel  | Maya',
-    image: img,
+    image: tools,
     link: '/tech_art/rigging_toolkit',
     description: `
       A collection of custom scripts and tools that enhance the rigging process 
@@ -43,8 +48,8 @@ const projects = [
   {
     title: 'Asset Management',
     software: 'Python | p4v | REST APi | JSON | Jira',
-    image: img,
-    link: '/tech_art/asset_management_tools',
+    image: p4file,
+    link: '/tech_art/asset_management',
     description: `
       Developed an asset management system between Perforce, Jira and Prism, that centralises ticket management, asset updates 
       validation and production status
@@ -57,7 +62,8 @@ const projects = [
   {
     title: 'Crowd Automations and Shotgrid SDK updates',
     software: 'Python | Maya | Houdini | Bash',
-    image: img,
+    image: crowd,
+    imageClassName: 'project-list__image--crowd',
     link: '/tech_art/crowd_automations',
     description: `
       Crowd Automation - A system that inputs motion capture skeleton data and batch applies to multiple photogrammetry models, removing manual rigging process and reducing rig production time from over a month to two days, developed at Versatile Media. 
@@ -70,7 +76,7 @@ const projects = [
   {
     title: 'Train Crash',
     software: 'Houdini | Maya | PyMel',
-    image: img,
+    image: train,
     link: '/tech_art/train_crash',
     description: `
       A passion project developed at Capilano University
@@ -225,10 +231,7 @@ const TechArtGrid = () => {
       {unlocked && (
         <div className="video-container">
           <video controls className="portfolio-video">
-            <source
-              src="/videos/AnoshkaJhaveri_RiggingTDReel_2025.mp4"
-              type="video/mp4"
-            />
+            <source src="/videos/reel_01.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </div>
@@ -239,7 +242,7 @@ const TechArtGrid = () => {
             <img
               src={project.image}
               alt={project.title}
-              className="project-list__image"
+              className={`project-list__image ${project.imageClassName || ''}`}
             />
             <div className="project-list__content">
               <h3 className="project-list__title">{project.title}</h3>

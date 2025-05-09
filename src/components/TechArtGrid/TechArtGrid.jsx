@@ -4,11 +4,14 @@ import train from '../../assets/images/train_still.png';
 import tools from '../../assets/images/tools_smaller.png';
 import crowd from '../../assets/images/crowd_small.png';
 import autorigger from '../../assets/images/autorigger_edited.png';
+import wb from '../../assets/images/wildbrain.png';
 import p4file from '../../assets/images/p4_file.png';
+import pawpatrol from '../../assets/images/pawpatrol.png';
 import linkedinIcon from '../../assets/icons/linkedin_clean.png';
 import emailIcon from '../../assets/icons/email_clean.png';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { useUnlock } from '../../context/UnlockContext';
 
 const VIDEO_PASSWORD = 'anoshkajhaveridemoreel1111!';
 
@@ -89,11 +92,22 @@ const projects = [
   {
     title: 'Work at Wildbrain Studios',
     software: 'Python | Maya',
-    image: img,
+    image: wb,
     link: '/tech_art/fireman_sam',
     description: `
       Worked on Fireman Sam season 13, which was the first season rendered in Unreal Engine, Lego and Friends season 2, and In The Night Garden. 
       `,
+    isProtected: true,
+  },
+
+  {
+    title: 'Paw Patrol Rubble and Crew',
+    software: 'Python | Maya',
+    image: pawpatrol,
+    link: '/tech_art/pawpatrol',
+    description: `
+      Developed Vehicle rigs for Rubble & Crew at Shapeshifters Interactive
+    `,
     isProtected: true,
   },
   {
@@ -106,20 +120,10 @@ const projects = [
     `,
     isProtected: true,
   },
-  {
-    title: 'Paw Patrol Rubble and Crew',
-    software: 'Python | Maya',
-    image: img,
-    link: '/tech_art/spidey',
-    description: `
-      Developed Vehicle rigs for Rubble & Crew at Shapeshifters Interactive
-    `,
-    isProtected: true,
-  },
 ];
 
 const TechArtGrid = () => {
-  const [unlocked, setUnlocked] = useState(false);
+  const { unlocked, unlockContent } = useUnlock();
   const [input, setInput] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -128,7 +132,7 @@ const TechArtGrid = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (input === VIDEO_PASSWORD) {
-      setUnlocked(true);
+      unlockContent();
       setError('');
       setShowSuccess(true);
     } else {

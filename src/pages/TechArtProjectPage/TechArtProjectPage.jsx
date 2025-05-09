@@ -1,6 +1,7 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, Navigate } from 'react-router-dom';
 import './TechArtProjectPage.scss';
 import train from '../../assets/images/train_rig_plan.jpg';
+import { useUnlock } from '../../context/UnlockContext';
 
 // Example data source (customize as needed)
 const projectDetails = {
@@ -332,11 +333,48 @@ const projectDetails = {
       },
     ],
   },
+  spidey: {
+    title: 'Coming Soon!',
+    description:
+      'Due to copyright issues, I am waiting on studio approval to show my work here.',
+    content: [],
+  },
+  pawpatrol: {
+    title: 'Work at Shapeshifters Interactive',
+    description: '',
+    content: [
+      {
+        type: 'paragraph',
+        text: '',
+      },
+      {
+        type: 'paragraph',
+        text: 'In my time at Shapeshifters Interactive, I had the opportunity to work on Paw Patrol Rubble and Crew, rigging tools forCall of Duty: Vanguard and multiple tools for an unnamed metahuman project (you can see some of my tools on my rigging toolkit page)',
+      },
+
+      {
+        type: 'paragraph',
+        text: 'Check out some of my work below:',
+      },
+
+      {
+        type: 'video',
+        src: '/videos/shapeshifters.mp4',
+        caption: 'FMS demonstration',
+      },
+    ],
+  },
 };
 
 function TechArtProjectPage() {
+  const { unlocked } = useUnlock();
   const { projectId } = useParams();
   const project = projectDetails[projectId];
+
+  // If the project is protected and not unlocked, redirect to tech art page
+  if (project?.isProtected && !unlocked) {
+    return <Navigate to="/tech_art" replace />;
+  }
 
   if (!project) {
     return (

@@ -2,14 +2,14 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { TestWrapper } from '../testUtils';
-import Timeline from '../../../components/Timeline/Timeline';
+import TechArtProjectPage from '../../../pages/TechArtProjectPage/TechArtProjectPage';
 
-describe('Timeline', () => {
+describe('TechArtProjectPage', () => {
   
   test('renders without crashing', () => {
     render(
       <TestWrapper>
-        <Timeline />
+        <TechArtProjectPage />
       </TestWrapper>
     );
   });

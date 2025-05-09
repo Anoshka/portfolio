@@ -1,7 +1,7 @@
 import './Header.scss';
 import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import logo from '../../assets/avatar.png';
+import logo from '../../assets/me_pic.png';
 import SunIcon from '../../assets/icons/sunshine_clean.png';
 import DarkIcon from '../../assets/icons/dark.png';
 
@@ -15,7 +15,7 @@ function Header() {
     { name: 'dark', type: 'image', image: DarkIcon },
   ];
 
-  const [selectedTheme, setSelectedTheme] = useState(themes[3]);
+  const [selectedTheme, setSelectedTheme] = useState(themes[2]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {

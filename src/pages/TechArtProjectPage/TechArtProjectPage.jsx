@@ -24,7 +24,7 @@ const projectDetails = {
       },
       {
         type: 'video',
-        src: '/videos/autorigger.mp4',
+        src: '/videos/autorigger_mute.mp4',
         caption: 'Auto Rigger demonstration video',
         className: 'tech-art-project__video--soundless',
       },
@@ -281,7 +281,7 @@ const projectDetails = {
       },
       {
         type: 'video',
-        src: '/videos/train.mp4',
+        src: '/videos/train_mute.mp4',
         caption: 'Train rig demonstration',
         className: 'tech-art-project__video--soundless',
       },
@@ -318,7 +318,7 @@ const projectDetails = {
       },
       {
         type: 'video',
-        src: '/videos/fms_01.mp4',
+        src: '/videos/fms_01_mute.mp4',
         caption: 'FMS demonstration',
         className: 'tech-art-project__video--soundless',
       },
@@ -362,7 +362,7 @@ const projectDetails = {
 
       {
         type: 'video',
-        src: '/videos/shapeshifters.mp4',
+        src: '/videos/shapeshifters_mute.mp4',
         caption: 'FMS demonstration',
         className: 'tech-art-project__video--soundless',
       },

@@ -10,7 +10,7 @@ import pawpatrol from '../../assets/images/pawpatrol.png';
 import linkedinIcon from '../../assets/icons/linkedin_clean.png';
 import emailIcon from '../../assets/icons/email_clean.png';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useUnlock } from '../../context/UnlockContext';
 
 const VIDEO_PASSWORD = 'anoshkajhaveridemoreel1111!';
@@ -126,11 +126,21 @@ const projects = [
 ];
 
 const TechArtGrid = () => {
-  const { unlocked, unlockContent } = useUnlock();
+  const { unlocked, unlockContent, lockContent } = useUnlock();
   const [input, setInput] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+
+  // Check sessionStorage for authentication state on component mount
+  useEffect(() => {
+    const isAuthenticated = sessionStorage.getItem('isAuthenticated');
+    if (isAuthenticated === 'true') {
+      unlockContent();
+    } else {
+      lockContent();
+    }
+  }, [unlockContent, lockContent]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -138,6 +148,8 @@ const TechArtGrid = () => {
       unlockContent();
       setError('');
       setShowSuccess(true);
+      // Store authentication state in sessionStorage
+      sessionStorage.setItem('isAuthenticated', 'true');
     } else {
       setError(
         'The password you entered is incorrect. Please ensure you match cases and special characters.'
@@ -161,7 +173,7 @@ const TechArtGrid = () => {
       {!unlocked && (
         <p>
           Some of my work, including my demoreel, is password protected due to
-          copyright restrictions.Please enter the password here:
+          copyright restrictions. Please enter the password here:
         </p>
       )}
       <form onSubmit={handleSubmit} className="password-form">

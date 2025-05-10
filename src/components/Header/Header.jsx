@@ -1,5 +1,5 @@
 import './Header.scss';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 import logo from '../../assets/me_pic.png';
 import SunIcon from '../../assets/icons/sunshine_clean.png';
@@ -16,11 +16,45 @@ function Header() {
   ];
 
   const [selectedTheme, setSelectedTheme] = useState(themes[2]);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isThemeDropdownOpen, setIsThemeDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef(null);
+  const themeSelectorRef = useRef(null);
 
   useEffect(() => {
     document.body.setAttribute('data-theme', selectedTheme.name);
   }, [selectedTheme]);
+
+  // Handle click outside to close mobile menu and theme dropdown
+  useEffect(() => {
+    function handleClickOutside(event) {
+      // Close mobile menu if clicking outside
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target) &&
+        !event.target.closest('.header__mobile-menu-btn')
+      ) {
+        setIsMobileMenuOpen(false);
+      }
+
+      // Close theme dropdown if clicking outside
+      if (
+        themeSelectorRef.current &&
+        !themeSelectorRef.current.contains(event.target)
+      ) {
+        setIsThemeDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
 
   return (
     <header className="header">
@@ -29,26 +63,14 @@ function Header() {
           <img src={logo} alt="logo" className="header__logo" />
         </NavLink>
 
-        <nav className="header__nav">
-          <NavLink to="/about" className="header__link">
-            About
-          </NavLink>
-          <NavLink to="/resume" className="header__link">
-            Resume
-          </NavLink>
-          <NavLink to="/tech_art" className="header__link">
-            Tech Art
-          </NavLink>
-          {/* <NavLink to="/web_dev" className="header__link">
-            Web Dev
-          </NavLink> */}
-
+        <div className="header__right">
+          {/* Theme Selector */}
           <div
-            className={`header__theme-selector ${isDropdownOpen ? 'open' : ''}`}
-            onMouseEnter={() => setIsDropdownOpen(true)}
-            onMouseLeave={() => setIsDropdownOpen(false)}
+            ref={themeSelectorRef}
+            className={`header__theme-selector ${isThemeDropdownOpen ? 'open' : ''}`}
+            onMouseEnter={() => setIsThemeDropdownOpen(true)}
+            onMouseLeave={() => setIsThemeDropdownOpen(false)}
           >
-            {/* Currently Selected Theme */}
             <div className="header__theme-selected">
               {selectedTheme.type === 'image' ? (
                 <img src={selectedTheme.image} alt={selectedTheme.name} />
@@ -60,7 +82,6 @@ function Header() {
               )}
             </div>
 
-            {/* Dropdown Menu */}
             <div className="header__theme-dropdown">
               {themes
                 .filter((theme) => theme.name !== selectedTheme.name)
@@ -70,7 +91,7 @@ function Header() {
                     className="header__theme-option"
                     onClick={() => {
                       setSelectedTheme(theme);
-                      setIsDropdownOpen(false); // Close dropdown after selection
+                      setIsThemeDropdownOpen(false);
                     }}
                   >
                     {theme.type === 'image' ? (
@@ -85,7 +106,46 @@ function Header() {
                 ))}
             </div>
           </div>
-        </nav>
+
+          {/* Mobile Menu Button */}
+          <button
+            className={`header__mobile-menu-btn ${isMobileMenuOpen ? 'open' : ''}`}
+            onClick={toggleMobileMenu}
+            aria-label="Toggle mobile menu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
+          {/* Navigation */}
+          <nav
+            className={`header__nav ${isMobileMenuOpen ? 'open' : ''}`}
+            ref={mobileMenuRef}
+          >
+            <NavLink
+              to="/about"
+              className="header__link"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              About
+            </NavLink>
+            <NavLink
+              to="/resume"
+              className="header__link"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Resume
+            </NavLink>
+            <NavLink
+              to="/tech_art"
+              className="header__link"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Tech Art
+            </NavLink>
+          </nav>
+        </div>
       </section>
     </header>
   );

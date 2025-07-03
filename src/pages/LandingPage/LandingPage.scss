@@ -21,7 +21,7 @@
       text-align: justify;
     }
     @include desktop {
-      padding: 10rem;
+      padding: 0 10rem 10rem;
     }
     @include monitor {
       font-size: 2.5rem;

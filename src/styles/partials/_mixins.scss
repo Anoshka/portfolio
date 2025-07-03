@@ -18,6 +18,12 @@
   }
 }
 
+@mixin monitor {
+  @media (min-width: $breakpoint-monitor) {
+    @content;
+  }
+}
+
 @mixin flex-container($direction: row, $justify: flex-start, $align: stretch) {
   display: flex;
   flex-direction: $direction;
@@ -107,6 +113,10 @@
 
   @include desktop {
     width: 1020px;
+    max-width: 1440ox;
+  }
+  @include monitor {
+    width: 2500 px;
   }
 }
 

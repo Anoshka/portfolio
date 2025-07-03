@@ -1,6 +1,22 @@
+@use '../../styles/partials/mixins.scss' as *;
+@use '../../styles/partials/variables.scss' as *;
+
 .typed-text {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   color: var(--text-color);
-  text-align: center;
-  padding-top: 2rem;
+  text-align: left;
+  padding: 7rem 0 0 2rem;
+
+  @include tablet {
+    text-align: center;
+    font-size: 1.5rem;
+  }
+  @include desktop {
+    font-size: 2rem;
+    padding-top: 15rem;
+  }
+  @include monitor {
+    font-size: 3rem;
+    padding-top: 15rem;
+  }
 }

@@ -40,17 +40,17 @@ const projects = [
     className: 'project-list__item--protected',
   },
 
-  {
-    title: 'Spidey and His Amazing Friends',
-    software: 'Python | Maya',
-    image: img,
-    link: '/tech_art/spidey',
-    description: `
-      Worked on this Disney production at Atomic Cartoons
-    `,
-    isProtected: true,
-    className: 'project-list__item--protected',
-  },
+  // {
+  //   title: 'Spidey and His Amazing Friends',
+  //   software: 'Python | Maya',
+  //   image: img,
+  //   link: '/tech_art/spidey',
+  //   description: `
+  //     Worked on this Disney production at Atomic Cartoons
+  //   `,
+  //   isProtected: true,
+  //   className: 'project-list__item--protected',
+  // },
   {
     title: 'Auto Rigger',
     software: 'Python | PyQT/PySide2 | PyMel  | Maya',

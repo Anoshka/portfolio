@@ -47,7 +47,7 @@
     }
 
     &--protected {
-      background-color: $purple;
+      background-color: rgba(red($purple), green($purple), blue($purple), 0.6);
     }
   }
 }

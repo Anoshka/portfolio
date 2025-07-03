@@ -18,6 +18,40 @@ const VIDEO_PASSWORD = 'anoshkajhaveridemoreel1111!';
 // Project data (update with actual images & links)
 const projects = [
   {
+    title: 'Paw Patrol Rubble and Crew',
+    software: 'Python | Maya',
+    image: pawpatrol,
+    link: '/tech_art/pawpatrol',
+    description: `
+      Developed Vehicle rigs for Rubble & Crew at Shapeshifters Interactive
+    `,
+    isProtected: true,
+    className: 'project-list__item--protected',
+  },
+  {
+    title: 'Work at Wildbrain Studios',
+    software: 'Python | Maya',
+    image: wb,
+    link: '/tech_art/fireman_sam',
+    description: `
+      Worked on Fireman Sam season 13, which was the first season rendered in Unreal Engine, Lego and Friends season 2, and In The Night Garden. 
+      `,
+    isProtected: true,
+    className: 'project-list__item--protected',
+  },
+
+  // {
+  //   title: 'Spidey and His Amazing Friends',
+  //   software: 'Python | Maya',
+  //   image: img,
+  //   link: '/tech_art/spidey',
+  //   description: `
+  //     Worked on this Disney production at Atomic Cartoons
+  //   `,
+  //   isProtected: true,
+  //   className: 'project-list__item--protected',
+  // },
+  {
     title: 'Auto Rigger',
     software: 'Python | PyQT/PySide2 | PyMel  | Maya',
     image: autorigger,
@@ -88,40 +122,6 @@ const projects = [
       - Train crash into a cabin, animation created in Autodesk Maya, and physics manipulated in Houdini
       - Dust and particle effects created in Houdini, substance painter used for train texturing
     `,
-  },
-  {
-    title: 'Work at Wildbrain Studios',
-    software: 'Python | Maya',
-    image: wb,
-    link: '/tech_art/fireman_sam',
-    description: `
-      Worked on Fireman Sam season 13, which was the first season rendered in Unreal Engine, Lego and Friends season 2, and In The Night Garden. 
-      `,
-    isProtected: true,
-    className: 'project-list__item--protected',
-  },
-
-  {
-    title: 'Paw Patrol Rubble and Crew',
-    software: 'Python | Maya',
-    image: pawpatrol,
-    link: '/tech_art/pawpatrol',
-    description: `
-      Developed Vehicle rigs for Rubble & Crew at Shapeshifters Interactive
-    `,
-    isProtected: true,
-    className: 'project-list__item--protected',
-  },
-  {
-    title: 'Spidey and His Amazing Friends',
-    software: 'Python | Maya',
-    image: img,
-    link: '/tech_art/spidey',
-    description: `
-      Worked on this Disney production at Atomic Cartoons
-    `,
-    isProtected: true,
-    className: 'project-list__item--protected',
   },
 ];
 

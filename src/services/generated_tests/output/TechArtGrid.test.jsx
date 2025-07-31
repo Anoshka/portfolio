@@ -5,7 +5,6 @@ import { TestWrapper } from '../testUtils';
 import TechArtGrid from '../../../components/TechArtGrid/TechArtGrid';
 
 describe('TechArtGrid', () => {
-  
   test('renders without crashing', () => {
     render(
       <TestWrapper>

@@ -5,7 +5,6 @@ import { TestWrapper } from '../testUtils';
 import AutoRiggerPage from '../../../pages/AutoRiggerPage/AutoRiggerPage';
 
 describe('AutoRiggerPage', () => {
-  
   test('renders without crashing', () => {
     render(
       <TestWrapper>

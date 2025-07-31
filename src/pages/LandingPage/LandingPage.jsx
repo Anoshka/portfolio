@@ -9,16 +9,17 @@ function LandingPage() {
         <p className="about__description about__description--mobile">
           Hello! I&apos;m Anoshka!
         </p>
-        {/* <p className="about__description about__description--mobile">
-          I have been a Python programmer in the Animation industry for 4 years.
-          By developing multiple tools for artists and clients, I realised that
-          I am passionate about programming and developing user interfaces. I
-          enjoy debugging and building software based on user requirements, and
-          I believe that my previous experience in the fast paces animation
-          industry, working directly with my clients will enhance my skills as a
-          software developer.
+        <p className="about__description about__description--mobile">
+          Hi, I’m Anoshka, a tech artist and software engineer who’s passionate
+          about animation, math, and building cool things that move. With 4+
+          years of rigging and pipeline experience, I’m now diving into C++
+          plugins in Unreal and building my own game in Unity. When I’m not deep
+          in code, I’m probably working with rescue dogs, reading theological
+          fiction, or losing track of time in Sims 4, Hogwarts Legacy, or
+          Helldivers. I’m all about logic, creativity, and bringing a little
+          magic into interactive storytelling.
         </p>
-        <p className="about__description about__description--tablet">
+        {/*<p className="about__description about__description--tablet">
           Hello! I&apos;m Anoshka! I&apos;m a programmer with over four years of
           experience as a Rigging/Creature Technical Director in the animation
           industry. I started off as an artist and quickly discovered how much I

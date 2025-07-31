@@ -4,14 +4,14 @@
 .project-list {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  //gap: 2rem;
   width: 100%;
 
   padding: 2rem 0;
 
   &__image {
     width: 100%;
-    height: 200px;
+    height: 12.5rem;
     object-fit: cover;
     border-radius: 8px 8px 0 0;
 
@@ -22,6 +22,7 @@
 
   &__item {
     display: flex;
+    flex-direction: column;
     align-items: flex-start;
     gap: 2rem;
     text-decoration: none;
@@ -29,6 +30,10 @@
     padding: 3rem 0;
     position: relative;
     transition: transform 0.3s ease-in-out;
+
+    @include desktop {
+      flex-direction: row;
+    }
 
     &:hover {
       transform: scale(1.02);
@@ -53,13 +58,23 @@
 }
 
 .project-list__image {
-  width: 25rem;
-  height: 14rem;
+  //width: 25rem;
+  height: 9rem;
   object-fit: cover;
   border-radius: 0.5rem;
   transition: filter 0.3s ease-in-out;
   align-self: flex-start;
-  margin: 0 2rem;
+  //margin: 0 2rem;
+
+  @include tablet {
+    height: 24rem;
+  }
+
+  @include desktop {
+    width: 25rem;
+    height: 14rem;
+    margin: 0 2rem;
+  }
 
   filter: grayscale(100%);
 
@@ -72,6 +87,8 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  align-items: flex-start;
+  text-align: left;
   flex: 1;
 }
 
@@ -286,4 +303,7 @@
   height: auto;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+@include mobile {
 }

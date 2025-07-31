@@ -170,6 +170,19 @@ const TechArtGrid = () => {
   return (
     <div className="work">
       <p className="work__welcome">Welcome to my tech art portfolio!</p>
+      <div className="resume-download-section">
+        <button
+          className="work__resume"
+          onClick={() => {
+            const link = document.createElement('a');
+            link.href = '/pdfs/AnoshkaJhaveri_TechArt_CV.pdf';
+            link.download = 'AnoshkaJhaveri_TechArt_Resume.pdf';
+            link.click();
+          }}
+        >
+          📄 Download Tech Art Resume
+        </button>
+      </div>
       {!unlocked && (
         <p>
           Some of my work, including my demoreel, is password protected due to

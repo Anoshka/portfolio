@@ -15,7 +15,7 @@ function LandingPage() {
           years of rigging and pipeline experience, I’m now diving into C++
           plugins in Unreal and building my own game in Unity. When I’m not deep
           in code, I’m probably working with rescue dogs, reading theological
-          fiction, or losing track of time in Sims 4, Hogwarts Legacy, or
+          fiction, or losing track of time in Diablo IV, Hogwarts Legacy, or
           Helldivers. I’m all about logic, creativity, and bringing a little
           magic into interactive storytelling.
         </p>
@@ -48,12 +48,13 @@ function LandingPage() {
           start playing. Outside work, I hang out with rescue dogs and get lost
           in my local library, usually hunting for stories steeped in mythology
           or ancient civilisations. I’m not a hardcore gamer, but I love getting
-          pulled into worlds like Diablo, Helldivers, or Hogwarts Legacy - the
-          kind you can sink into for a while and forget what time it is. Whether
-          I’m working on pipelines or prototyping new tools, I’m happiest when
-          I’m solving problems, writing clean code, and helping build
-          experiences that make people feel something. If you have a project in
-          mind, feel free to get in touch, and lets make something cool!
+          pulled into worlds like Diablo IV, Helldivers, or Hogwarts Legacy -
+          the kind you can sink into for a while and forget what time it is.
+          Whether I’m working on pipelines or prototyping new tools, I’m
+          happiest when I’m solving problems, writing clean code, and helping
+          build experiences that make people feel something. If you have a
+          project in mind, feel free to get in touch, and lets make something
+          cool!
         </p>
       </div>
     </div>

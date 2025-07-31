@@ -149,7 +149,7 @@ const WebDevGrid = () => {
             link.click();
           }}
         >
-          📄 Download Tech Art Resume
+          📄 Download Web Dev Resume
         </button>
       </div>
       {projects.map((project, index) => (

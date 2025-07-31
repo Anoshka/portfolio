@@ -25,10 +25,8 @@ function Header() {
     document.body.setAttribute('data-theme', selectedTheme.name);
   }, [selectedTheme]);
 
-  // Handle click outside to close mobile menu and theme dropdown
   useEffect(() => {
     function handleClickOutside(event) {
-      // Close mobile menu if clicking outside
       if (
         mobileMenuRef.current &&
         !mobileMenuRef.current.contains(event.target) &&
@@ -37,7 +35,6 @@ function Header() {
         setIsMobileMenuOpen(false);
       }
 
-      // Close theme dropdown if clicking outside
       if (
         themeSelectorRef.current &&
         !themeSelectorRef.current.contains(event.target)
@@ -130,19 +127,20 @@ function Header() {
             >
               About
             </NavLink>
-            <NavLink
-              to="/resume"
-              className="header__link"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Resume
-            </NavLink>
+
             <NavLink
               to="/tech_art"
               className="header__link"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Tech Art
+            </NavLink>
+            <NavLink
+              to="/web_dev"
+              className="header__link"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Web Dev
             </NavLink>
           </nav>
         </div>

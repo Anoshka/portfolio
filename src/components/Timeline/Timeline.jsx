@@ -2,12 +2,16 @@ import './Timeline.scss';
 
 const timelineData = [
   {
-    title: 'Freelance Web Developer | WrigglyBun Photography',
+    title: 'The Glyph Lab | Freelance Technical Artist and Tools Developer',
     date: 'NOV 2024 – PRESENT',
     location: 'Vancouver, BC',
     details: [
-      'Developed a responsive website using the MERN stack',
-      'Integrated AWS for image storage, boosting performance by 50%',
+      'Contributed to online multiplayer game features, UI systems, and interactive minigames in Unity',
+      ' Created tools using C++ and Python for shader plugins, asset optimization, and real-time production workflows',
+      'Deployed CI/CD pipeline with GitHub Actions and Netlify, integrating GPT-3.5–powered automated unit testing',
+      'Prototyped mobile-friendly Unity games with animation systems, scoring logic, and multi-platform deployment',
+      'Developed and deployed full-stack websites with React, Node.js, and secure OAuth-based media handling for small businesses',
+      'Built custom browser automation tools with Selenium, streamlining job data parsing and automating submission workflows',
     ],
   },
   {

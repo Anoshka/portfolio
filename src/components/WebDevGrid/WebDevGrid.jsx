@@ -1,7 +1,6 @@
 import './WebDevGrid.scss';
 import img1 from '../../assets/images/placeholder_01.png';
-import img from '../../assets/images/placeholder.png';
-import portfolio_img from '../../assets/images/portfolio_img.png';
+import portfolio_img from '../../assets/images/portfolio_img_01.png';
 import scrapply_img from '../../assets/images/scrapply_img.png';
 import pawdl_img from '../../assets/images/pawdl_img_01.png';
 import bell_img from '../../assets/images/bell_img_02.png';
@@ -44,7 +43,7 @@ const projects = [
   },
 
   {
-    title: 'Portfolio',
+    title: 'Portfolio DevOps',
     software: 'React | MySQL | Node.JS | GPT-3.5 | SASS',
     image: portfolio_img,
     link: '/web_dev/portfolio',

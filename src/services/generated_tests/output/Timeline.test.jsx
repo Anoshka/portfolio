@@ -5,6 +5,7 @@ import { TestWrapper } from '../testUtils';
 import Timeline from '../../../components/Timeline/Timeline';
 
 describe('Timeline', () => {
+  
   test('renders without crashing', () => {
     render(
       <TestWrapper>

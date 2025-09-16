@@ -27,3 +27,5 @@ dist-ssr
 # Ignore generated test output
 #src/services/generated_tests/output/
 
+public/downloads/EverythingMustGhost v0.4.2.zip
+src/assets/links/Intermediate/CachedAssetRegistry_0.bin

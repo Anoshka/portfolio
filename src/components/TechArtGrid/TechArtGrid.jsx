@@ -12,11 +12,28 @@ import emailIcon from '../../assets/icons/email_clean.png';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useUnlock } from '../../context/UnlockContext';
+import gamejam from '../../assets/images/everything_must_ghost.png';
 
 const VIDEO_PASSWORD = 'anoshkajhaveridemoreel1111!';
 
 // Project data (update with actual images & links)
 const projects = [
+  {
+    title: 'Everything Must Ghost',
+    software: 'Unreal Engine | Maya',
+    image: gamejam,
+    imageClassName: 'project-list__image--gamejam',
+    link: '/tech_art/everything_must_ghost',
+    description: `
+      A 3D first-person comedy horror game developed during a weeklong game jam, demonstrating comprehensive technical artistry and programming expertise.
+      
+      - Programming: Developed core gameplay mechanics, backend systems, and interactive UI components in Unreal Engine
+      - Rigging: Created custom character rigs with advanced control systems for smooth animation workflows
+      - Animation: Implemented character animations and procedural systems for dynamic gameplay experiences
+      - Technical Integration: Seamlessly integrated all systems for a polished, playable game experience
+    `,
+    className: 'project-list__item',
+  },
   {
     title: 'Paw Patrol Rubble and Crew',
     software: 'Python | Maya',

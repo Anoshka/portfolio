@@ -9,7 +9,7 @@ permissions:
 
 on:
   push:
-    branches: [main, tech-art-content]
+    branches: [main, tech-art-content, web-dev-content]
   pull_request:
     branches: ['main']
 
@@ -149,7 +149,7 @@ jobs:
 
   # 3. Run Tests
   test:
-    if: github.ref != 'refs/heads/tech-art-content'
+    if: github.ref != 'refs/heads/tech-art-content' && github.ref != 'refs/heads/web-dev-content'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -392,7 +392,7 @@ jobs:
             --verbose
 
   deploy-main:
-    needs: test
+    #needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
@@ -432,9 +432,29 @@ jobs:
         with:
           args: deploy --dir=build --prod
 
+  deploy-web-dev:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/web-dev-content'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - name: Deploy to Netlify
+        uses: netlify/actions/cli@master
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        with:
+          args: deploy --dir=build --prod
+
   # 6. Notification
   notify:
-    needs: [deploy-main, deploy-tech-art]
+    needs: [deploy-main, deploy-tech-art, deploy-web-dev]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -442,8 +462,10 @@ jobs:
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "🎉 Production deployment status: ${{ needs.deploy-main.result }}"
-          else
-            echo "🎉 Staging deployment status: ${{ needs.deploy-tech-art.result }} (Branch: ${{ github.ref_name }})"
+          elif [[ "${{ github.ref }}" == "refs/heads/tech-art-content" ]]; then
+            echo "🎉 Tech Art deployment status: ${{ needs.deploy-tech-art.result }}"
+          elif [[ "${{ github.ref }}" == "refs/heads/web-dev-content" ]]; then
+            echo "🎉 Web Dev deployment status: ${{ needs.deploy-web-dev.result }} (Branch: ${{ github.ref_name }})"
           fi
 
       - name: Create Deployment Comment

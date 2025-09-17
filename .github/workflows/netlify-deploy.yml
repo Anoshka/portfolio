@@ -1,5 +1,6 @@
 name: Netlify Deploy
 
+# Add permissions at the top level
 permissions:
   contents: write
   pull-requests: write
@@ -18,85 +19,495 @@ env:
   NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 
 jobs:
-  # Format Code
+  # 1. Format Code
   format:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - run: npm ci
-      - run: npx prettier --write "src/**/*.{js,jsx,ts,tsx,css,scss,json}"
-      - uses: stefanzweifel/git-auto-commit-action@v5
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Prettier
+        run: npx prettier --write "src/**/*.{js,jsx,ts,tsx,css,scss,json}"
+
+      - name: Commit Prettier changes
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: 'style: format code with prettier'
+          branch: ${{ github.head_ref }}
 
-  # Deploy Main
+  # 2. Generate Tests
+  generate-tests:
+    needs: format
+    runs-on: ubuntu-latest
+    outputs:
+      test_files_generated: ${{ steps.check_tests.outputs.files_exist }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install AI dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install transformers sentencepiece
+
+      - name: Cache Hugging Face model
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/huggingface
+          key: ${{ runner.os }}-huggingface-starcoderbase-1b
+          restore-keys: |
+            ${{ runner.os }}-huggingface-
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install --save-dev glob@10.3.10
+
+      - name: Create test output directory
+        run: mkdir -p src/services/generated_tests/output
+
+      - name: Generate Tests
+        run: |
+          # Clean and create output directory
+          rm -rf src/services/generated_tests/output
+          mkdir -p src/services/generated_tests/output
+
+          # Generate new tests
+          NODE_OPTIONS="--experimental-vm-modules" node src/services/generated_tests/templateGenerator.js
+
+          # Show generated files
+          echo "Generated test files:"
+          ls -la src/services/generated_tests/output/
+
+      # Add new step to commit and push generated tests
+      - name: Commit Generated Tests
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+          # Add and commit the generated tests
+          git add src/services/generated_tests/output/
+
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to generated tests"
+          else
+            git commit -m "test: update generated tests [skip ci]"
+            git push
+          fi
+
+      - name: Verify Generated Tests
+        run: |
+          NODE_OPTIONS="--experimental-vm-modules" node src/services/generated_tests/verify-tests.js
+
+      - name: Check if tests were generated
+        id: check_tests
+        run: |
+          if [ -n "$(find src/services/generated_tests/output -type f -name '*.test.jsx')" ]; then
+            echo "files_exist=true" >> $GITHUB_OUTPUT
+            echo "✅ Tests were generated successfully"
+          else
+            echo "files_exist=false" >> $GITHUB_OUTPUT
+            echo "❌ No test files were generated"
+            exit 1
+          fi
+
+      - name: Upload Generated Tests
+        if: steps.check_tests.outputs.files_exist == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-tests
+          path: src/services/generated_tests/output
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Upload Error Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: error-logs
+          path: |
+            src/services/generated_tests/output/
+            ./*.log
+          retention-days: 1
+
+  # 3. Run Tests
+  test:
+    if: github.ref != 'refs/heads/tech-art-content' && github.ref != 'refs/heads/web-dev-content'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install --save-dev \
+            jest@29.7.0 \
+            jest-environment-jsdom@29.7.0 \
+            @testing-library/react@14.1.2 \
+            @testing-library/jest-dom@6.1.5 \
+            @babel/core@7.23.7 \
+            @babel/preset-env@7.23.8 \
+            @babel/preset-react@7.23.3 \
+            babel-jest@29.7.0 \
+            identity-obj-proxy@3.0.0
+
+      - name: Create test directories
+        run: |
+          mkdir -p src/services/generated_tests/output
+          mkdir -p __mocks__
+
+      - name: Download Generated Tests
+        uses: actions/download-artifact@v4
+        with:
+          name: generated-tests
+          path: src/services/generated_tests/output
+
+      - name: Verify downloaded tests
+        run: |
+          echo "Contents of test directory:"
+          ls -la src/services/generated_tests/output/
+          if [ -z "$(ls -A src/services/generated_tests/output/)" ]; then
+            echo "Error: No test files were downloaded"
+            exit 1
+          fi
+
+      - name: Create test utilities
+        run: |
+          mkdir -p src/services/generated_tests
+          echo 'import React from "react";
+          import { MemoryRouter } from "react-router-dom";
+
+          // Configure all React Router v6/v7 future flags
+          const routerConfig = {
+            future: {
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+              // Add any other future flags here
+            },
+            basename: "/"
+          };
+
+          export const TestWrapper = ({ children }) => {
+            return (
+              <MemoryRouter {...routerConfig}>
+                {children}
+              </MemoryRouter>
+            );
+          };
+
+          export const mockCanvas = () => {
+            const mockContext = {
+              getImageData: jest.fn(),
+              putImageData: jest.fn(),
+              drawImage: jest.fn(),
+              scale: jest.fn(),
+              measureText: jest.fn(() => ({ width: 0 })),
+              createShader: jest.fn(),
+              createProgram: jest.fn(),
+              createBuffer: jest.fn(),
+              bindBuffer: jest.fn(),
+              bufferData: jest.fn(),
+              enable: jest.fn(),
+              disable: jest.fn(),
+              clear: jest.fn(),
+              viewport: jest.fn()
+            };
+            HTMLCanvasElement.prototype.getContext = jest.fn(() => mockContext);
+          };' > src/services/generated_tests/testUtils.jsx
+
+      - name: Fix test files
+        run: |
+          for file in src/services/generated_tests/output/*.test.jsx; do
+            if [ -f "$file" ]; then
+              component_name=$(basename "$file" .test.jsx)
+              
+              # Determine if it's a page or component
+              if [[ "$component_name" == *"Page" ]]; then
+                import_path="../../../pages/${component_name}/${component_name}"
+              else
+                import_path="../../../components/${component_name}/${component_name}"
+              fi
+
+              echo "import React from 'react';
+          import { render, screen } from '@testing-library/react';
+          import '@testing-library/jest-dom';
+          import { TestWrapper, mockCanvas } from '../testUtils';
+          import ${component_name} from '${import_path}';
+
+          // Silence specific React Router warnings
+          beforeAll(() => {
+            jest.spyOn(console, 'warn').mockImplementation((msg) => {
+              if (!msg.includes('React Router')) {
+                console.warn(msg);
+              }
+            });
+          });
+
+          afterAll(() => {
+            jest.restoreAllMocks();
+          });
+
+          describe('${component_name}', () => {
+            beforeAll(() => {
+              if ('${component_name}' === 'Animation') {
+                mockCanvas();
+              }
+            });
+
+            const defaultProps = {
+              ...(('${component_name}' === 'Card') && {
+                title: 'Test Card',
+                image: 'test-image.jpg',
+                link: 'https://test.com'
+              }),
+              ...(('${component_name}' === 'Header') && {
+                isOpen: false,
+                toggleMenu: jest.fn()
+              })
+            };
+
+            it('renders without crashing', () => {
+              render(
+                <TestWrapper>
+                  <${component_name} {...defaultProps} />
+                </TestWrapper>
+              );
+            });
+          });" > "$file"
+            fi
+          done
+
+      # Add verification step
+      - name: List generated test files
+        run: |
+          echo "Generated test files:"
+          cat src/services/generated_tests/output/Footer.test.jsx
+          echo "Component location check:"
+          ls -l src/components/Footer/
+
+      # Create test setup files
+      - name: Create test setup files
+        run: |
+          # Create setupTests.js
+          echo 'import React from "react";
+          import "@testing-library/jest-dom";
+          import { configure } from "@testing-library/react";
+
+          // Override act to use React.act
+          configure({ 
+            asyncUtilTimeout: 5000,
+            defaultHidden: true,
+            eventWrapper: (cb) => {
+              return React.act(cb);
+            }
+          });
+
+          // Suppress specific console warnings we cant fix
+          const originalError = console.error;
+          console.error = (...args) => {
+            if (args[0]?.includes("ReactDOMTestUtils.act")) return;
+            if (args[0]?.includes("React Router Future Flag Warning")) return;
+            originalError.call(console, ...args);
+          };' > src/setupTests.js
+
+      # Update Jest config
+      - name: Update Jest config
+        run: |
+          echo 'module.exports = {
+            testEnvironment: "jsdom",
+            moduleNameMapper: {
+              "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+              "\\.(jpg|jpeg|png|gif|webp|svg)$": "<rootDir>/__mocks__/fileMock.js"
+            },
+            transform: {
+              "^.+\\.(js|jsx|cjs)$": "babel-jest"
+            },
+            setupFilesAfterEnv: ["<rootDir>/src/setupTests.js"],
+            testMatch: ["**/generated_tests/output/**/*.test.jsx"],
+            moduleDirectories: ["node_modules", "src"],
+            extensionsToTreatAsEsm: [".jsx"],
+            transformIgnorePatterns: [
+              "/node_modules/(?!(@testing-library|react-router-dom|three)/)"
+            ],
+            rootDir: "."
+          }' > jest.config.cjs
+
+      # Create Jest config
+      - name: Create Jest config
+        run: |
+          echo '{
+            "testEnvironment": "jsdom",
+            "moduleNameMapper": {
+              "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+              "\\.(jpg|jpeg|png|gif|webp|svg)$": "<rootDir>/__mocks__/fileMock.js"
+            },
+            "transform": {
+              "^.+\\.(js|jsx|cjs)$": "babel-jest"
+            },
+            "setupFilesAfterEnv": ["<rootDir>/src/setupTests.js"],
+            "testMatch": ["**/generated_tests/output/**/*.test.jsx"],
+            "moduleDirectories": ["node_modules", "src"],
+            "extensionsToTreatAsEsm": [".jsx"],
+            "transformIgnorePatterns": [
+              "/node_modules/(?!(@testing-library|react-router-dom)/)"
+            ],
+            "testTimeout": 15000,
+            "verbose": true,
+            "globals": {
+              "React": "react"
+            }
+          }' > jest.config.json
+
+      # Run tests
+      - name: Run tests
+        run: |
+          node --expose-gc --max-old-space-size=4096 node_modules/jest/bin/jest.js \
+            --config=jest.config.cjs \
+            --runInBand \
+            --detectOpenHandles \
+            --forceExit \
+            --verbose
+
   deploy-main:
+    needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: '18.x'
+          cache: 'npm'
       - run: npm ci
       - run: npm run build
       - name: Deploy to Netlify
         uses: netlify/actions/cli@master
-        with:
-          args: deploy --dir=build --prod
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        with:
+          args: deploy --dir=build --prod
 
-  # Deploy Tech Art
   deploy-tech-art:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/tech-art-content'
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: '18.x'
+          cache: 'npm'
       - run: npm ci
       - run: npm run build
       - name: Deploy to Netlify
         uses: netlify/actions/cli@master
-        with:
-          args: deploy --dir=build --prod
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        with:
+          args: deploy --dir=build --prod
 
-  # Deploy Web Dev
   deploy-web-dev:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/web-dev-content'
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: '18.x'
+          cache: 'npm'
       - run: npm ci
       - run: npm run build
       - name: Deploy to Netlify
         uses: netlify/actions/cli@master
-        with:
-          args: deploy --dir=build --prod
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        with:
+          args: deploy --dir=build --prod
 
-  # Notification (runs regardless of which deploy ran)
+  # 6. Notification
   notify:
-    runs-on: ubuntu-latest
     needs: [deploy-main, deploy-tech-art, deploy-web-dev]
     if: always()
+    runs-on: ubuntu-latest
     steps:
-      - name: Show Deployment Status
+      - name: Deployment Status
         run: |
-          echo "Deploy Main: ${{ needs.deploy-main.result || 'skipped' }}"
-          echo "Deploy Tech Art: ${{ needs.deploy-tech-art.result || 'skipped' }}"
-          echo "Deploy Web Dev: ${{ needs.deploy-web-dev.result || 'skipped' }}"
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "🎉 Production deployment status: ${{ needs.deploy-main.result }}"
+          elif [[ "${{ github.ref }}" == "refs/heads/tech-art-content" ]]; then
+            echo "🎉 Tech Art deployment status: ${{ needs.deploy-tech-art.result }}"
+          elif [[ "${{ github.ref }}" == "refs/heads/web-dev-content" ]]; then
+            echo "🎉 Web Dev deployment status: ${{ needs.deploy-web-dev.result }} (Branch: ${{ github.ref_name }})"
+          fi
+
+      - name: Create Deployment Comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const message = `
+            ## Deployment Status: ${{ needs.deploy-tech-art.result }}
+
+            ${process.env.DEPLOY_URL ? `🔗 Preview URL: ${process.env.DEPLOY_URL}` : ''}
+
+            ### Build Details
+            - Branch: ${context.payload.pull_request.head.ref}
+            - Commit: ${context.sha}
+            - Environment: ${context.ref === 'refs/heads/main' ? 'Production' : 'Staging'}
+            - Triggered by: ${context.actor}
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install AI dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install transformers sentencepiece
+          mkdir -p ~/.cache/huggingface/
+
+      - name: Cache Hugging Face model
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/huggingface
+          key: ${{ runner.os }}-huggingface-starcoderbase-1b
+          restore-keys: |
+            ${{ runner.os }}-huggingface-

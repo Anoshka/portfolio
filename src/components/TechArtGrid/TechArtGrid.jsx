@@ -25,7 +25,7 @@ const projects = [
     imageClassName: 'project-list__image--gamejam',
     link: '/tech_art/everything_must_ghost',
     description: `
-      A 3D first-person comedy horror game developed during a 48-hour game jam, demonstrating comprehensive technical artistry and programming expertise.
+      A 3D first-person comedy horror game developed during a weeklong game jam, demonstrating comprehensive technical artistry and programming expertise.
       
       - Programming: Developed core gameplay mechanics, backend systems, and interactive UI components in Unreal Engine
       - Rigging: Created custom character rigs with advanced control systems for smooth animation workflows

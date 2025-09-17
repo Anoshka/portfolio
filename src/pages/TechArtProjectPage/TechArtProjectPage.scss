@@ -143,3 +143,68 @@
     }
   }
 }
+
+.tech-art-project__paragraph {
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.tech-art-project__image-container {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.tech-art-project__image-link {
+  display: inline-block;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+}
+
+.tech-art-project__image {
+  max-width: 100%;
+  width: 600px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.tech-art-project__image-caption {
+  margin-top: 0.5rem;
+  font-style: italic;
+  color: $grey;
+}
+
+.tech-art-project__download-section {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.tech-art-project__download-btn {
+  background: linear-gradient(135deg, $dark-accent, $dark-accent);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, $grey, $grey);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}

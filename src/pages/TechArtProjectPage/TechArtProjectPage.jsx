@@ -2,6 +2,7 @@ import { useParams, Link, Navigate } from 'react-router-dom';
 import './TechArtProjectPage.scss';
 import train from '../../assets/images/train_rig_plan.jpg';
 import { useUnlock } from '../../context/UnlockContext';
+import game from '../../assets/images/everything_must_ghost.png';
 
 // Example data source (customize as needed)
 const projectDetails = {
@@ -368,6 +369,52 @@ const projectDetails = {
       },
     ],
   },
+  everything_must_ghost: {
+    title: 'Everything Must Ghost',
+    description:
+      'A 3D first-person comedy horror game developed during a 1 week long game jam, showcasing comprehensive Unreal Engine technical artistry.',
+    content: [
+      {
+        type: 'paragraph',
+        text: 'Everything Must Ghost was developed during the "Out of Office" game jam, a weeklong intensive development challenge. As a programmer and technical artist, I was responsible for implementing core backend systems, character rigging, animation pipelines, and UI functionality using Unreal Engine and Maya.',
+      },
+      {
+        type: 'paragraph',
+        text: 'The game combines comedy and horror elements in a first-person experience where players must navigate a haunted environment while competing against an intelligent AI ghost.',
+      },
+      {
+        type: 'bulletPoints',
+        points: [
+          'Backend Programming: Implemented randomized item weight system for dynamic item generation',
+          'Value Calculation Systems: Developed algorithms to calculate randomized item values based on weight properties and game balance',
+          'Character Rigging: Created complete character rigs with custom control systems optimized for real-time gameplay in Unreal Engine',
+          'Animation Pipeline: Built comprehensive animation systems including state machines, animation triggers, and individual character animations',
+          'UI Development: Implemented main menu system with settings, credits, story sections, and sound trigger connections',
+          'Technical Integration: Seamlessly integrated systems for a polished, playable game experience within tight time constraints',
+        ],
+      },
+      {
+        type: 'paragraph',
+        text: 'This project was valuable for developing my skills in Unreal Engine backend programming, technical art, and rapid prototyping. Working within the constraints of a game jam environment taught me to prioritize core functionality while maintaining code quality and performance standards.',
+      },
+      {
+        type: 'paragraph',
+        text: 'The experience challenged my skills as a technical artist and game programmer, solidifying my ability to wear multiple hats in a development team while delivering results under pressure.',
+      },
+      {
+        type: 'image',
+        src: game,
+        alt: 'Everything Must Ghost Game Screenshot',
+        link: 'https://neillondon.itch.io/everything-must-ghost',
+        caption: 'Click to view on Itch.io',
+      },
+      {
+        type: 'download',
+        text: 'Download Game (ZIP)',
+        link: 'https://github.com/Anoshka/portfolio/releases/download/v0.4.2/EverythingMustGhost.v0.4.2.zip',
+      },
+    ],
+  },
 };
 
 function TechArtProjectPage() {
@@ -400,11 +447,18 @@ function TechArtProjectPage() {
       case 'image':
         return (
           <figure className="tech-art-project__image-container">
-            <img
-              src={content.src}
-              alt={content.alt}
-              className="tech-art-project__image"
-            />
+            <a
+              href={content.link || '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="tech-art-project__image-link"
+            >
+              <img
+                src={content.src}
+                alt={content.alt}
+                className="tech-art-project__image"
+              />
+            </a>
             {content.caption && (
               <figcaption className="tech-art-project__image-caption">
                 {content.caption}
@@ -437,6 +491,18 @@ function TechArtProjectPage() {
               <li key={idx}>{point}</li>
             ))}
           </ul>
+        );
+      case 'download':
+        return (
+          <div className="tech-art-project__download-section">
+            <a
+              href={content.link}
+              download
+              className="tech-art-project__download-btn"
+            >
+              📥 {content.text}
+            </a>
+          </div>
         );
       default:
         return null;

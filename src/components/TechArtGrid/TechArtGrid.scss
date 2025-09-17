@@ -18,6 +18,11 @@
     &--crowd {
       object-fit: contain;
     }
+
+    &--gamejam {
+      object-fit: contain;
+      background-color: $light-accent;
+    }
   }
 
   &__item {

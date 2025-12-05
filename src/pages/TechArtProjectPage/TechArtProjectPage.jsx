@@ -1,7 +1,5 @@
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import './TechArtProjectPage.scss';
-import train from '../../assets/images/train_rig_plan.jpg';
-import { useUnlock } from '../../context/UnlockContext';
 import game from '../../assets/images/everything_must_ghost.png';
 
 // Example data source (customize as needed)
@@ -143,7 +141,7 @@ const projectDetails = {
     content: [
       {
         type: 'paragraph',
-        text: 'A simple parser built at Shapeshifters Interactive, to access data from a bash shell, and any display on any user interface.',
+        text: 'A simple parser built to access data from a bash shell, and any display on any user interface.',
       },
       {
         type: 'paragraph',
@@ -243,6 +241,53 @@ const projectDetails = {
       },
     ],
   },
+  perforce_integration: {
+    title: 'Perforce Integration & ShotGrid Pipeline Improvements',
+    description: '',
+    content: [
+      {
+        type: 'paragraph',
+        text: 'At Versatile Media, I built a series of Perforce and ShotGrid pipeline tools that significantly improved artist workflow, reduced publish errors, and cut down the volume of support tickets across departments.',
+      },
+      {
+        type: 'boldHeader',
+        text: 'Key Contributions',
+      },
+      {
+        type: 'bulletPointsWithHeaders',
+        items: [
+          {
+            header: 'Fast Perforce Pull Shelf Tool',
+            description:
+              'Created a one-click Maya shelf tool that subprocesses p4 commands to quickly pull the latest assets. Layout and animation teams used this heavily for fast staging and scene prep.',
+          },
+          {
+            header: 'ShotGrid Integration',
+            description:
+              'Integrated Perforce operations directly into ShotGrid so artists could update and check out files without switching applications.',
+          },
+          {
+            header: 'Updated ShotGrid SDK for Performance & Stability',
+            description:
+              'Streamlined the ShotGrid bootstrap process so only the necessary plugins loaded per department, reducing load times and eliminating cross-department conflicts. Added department-specific validation checks and automatic Perforce connections to catch issues earlier and keep publishes consistent.',
+          },
+          {
+            header: 'Cross-Department Validation Pass',
+            description:
+              'Met with leads from each department to identify their major publish pain points. Built a shared validation checklist and added targeted fixes within the pipeline. Delivered quick-fix shelf tools for common issues, reducing friction and helping artists resolve problems independently.',
+          },
+        ],
+      },
+      {
+        type: 'boldHeader',
+        text: 'Impact',
+      },
+      {
+        type: 'paragraph',
+        text: 'These improvements made the overall pipeline faster, more stable, and far more intuitive for artists. Departments experienced fewer publish failures, and my incoming ticket count dropped substantially as a result.',
+      },
+    ],
+  },
   train_crash: {
     title: 'Train model, rig and crash',
     description: '',
@@ -296,78 +341,11 @@ const projectDetails = {
       },
     ],
   },
-  fireman_sam: {
-    title: 'Fireman Sam, Lego & Friends and In The Night Garden',
-    description: '',
-    content: [
-      {
-        type: 'paragraph',
-        text: '',
-      },
-      {
-        type: 'paragraph',
-        text: 'In my time at Wildbrain, I had the opportunity to work on three animated shows.',
-      },
-
-      {
-        type: 'paragraph',
-        text: 'Fireman Sam season 13 was teh first season that used Unreal Engine to render, and because of that, we had fun and unprecedented challenges in our rigging pipeline.',
-      },
-      {
-        type: 'paragraph',
-        text: 'I learnt the complexities of rigging for a game engine. I was also able to build rigging tools for our growing pipeline.',
-      },
-      {
-        type: 'video',
-        src: '/videos/fms_01_mute.mp4',
-        caption: 'FMS demonstration',
-        className: 'tech-art-project__video--soundless',
-      },
-      {
-        type: 'paragraph',
-        text: 'Here are some of the things I did:',
-      },
-      {
-        type: 'bulletPoints',
-        points: [
-          'Developed a vehicle auto-rigger, that allows you to position the template and builds the whole rig for you. This was later adopted by other shows.',
-          'Developed cloth rigs using nCloth and follicles for attaching objects to rigs',
-          'Developed multiple rigging tools, like joint heirarchy and auto-naming, for my teammates and my rigging shelf',
-        ],
-      },
-    ],
-  },
   spidey: {
     title: 'Coming Soon!',
     description:
       'Due to copyright issues, I am waiting on studio approval to show my work here.',
     content: [],
-  },
-  pawpatrol: {
-    title: 'Work at Shapeshifters Interactive',
-    description: '',
-    content: [
-      {
-        type: 'paragraph',
-        text: '',
-      },
-      {
-        type: 'paragraph',
-        text: 'In my time at Shapeshifters Interactive, I had the opportunity to work on Paw Patrol Rubble and Crew, rigging tools forCall of Duty: Vanguard and multiple tools for an unnamed metahuman project (you can see some of my tools on my rigging toolkit page)',
-      },
-
-      {
-        type: 'paragraph',
-        text: 'Check out some of my work below:',
-      },
-
-      {
-        type: 'video',
-        src: '/videos/shapeshifters_mute.mp4',
-        caption: 'FMS demonstration',
-        className: 'tech-art-project__video--soundless',
-      },
-    ],
   },
   everything_must_ghost: {
     title: 'Everything Must Ghost',
@@ -418,14 +396,8 @@ const projectDetails = {
 };
 
 function TechArtProjectPage() {
-  const { unlocked } = useUnlock();
   const { projectId } = useParams();
   const project = projectDetails[projectId];
-
-  // If the project is protected and not unlocked, redirect to tech art page
-  if (project?.isProtected && !unlocked) {
-    return <Navigate to="/tech_art" replace />;
-  }
 
   if (!project) {
     return (
@@ -491,6 +463,27 @@ function TechArtProjectPage() {
               <li key={idx}>{point}</li>
             ))}
           </ul>
+        );
+      case 'bulletPointsWithHeaders':
+        return (
+          <ul className="tech-art-project__bullet-points tech-art-project__bullet-points--with-headers">
+            {content.items.map((item, idx) => (
+              <li key={idx}>
+                <strong className="tech-art-project__bullet-header">
+                  {item.header}
+                </strong>
+                <span className="tech-art-project__bullet-description">
+                  {item.description}
+                </span>
+              </li>
+            ))}
+          </ul>
+        );
+      case 'boldHeader':
+        return (
+          <p className="tech-art-project__paragraph tech-art-project__bold-header">
+            <strong>{content.text}</strong>
+          </p>
         );
       case 'download':
         return (

@@ -33,7 +33,9 @@ function WebDevProjectPage() {
     return (
       <div>
         <h2>Project not found</h2>
-        <Link to="/web_dev">Back to Web Dev</Link>
+        <Link to="/tech_art" className="tech-art-project__back-link">
+          Back to Tech Art
+        </Link>
       </div>
     );
   }
@@ -49,8 +51,7 @@ function WebDevProjectPage() {
           ))}
         </ul>
       )}
-      {/* Add more custom fields/media as needed */}
-      <Link to="/web_dev">← Back to Web Dev</Link>
+      <Link to="/tech_art">← Back to Tech Art</Link>
     </div>
   );
 }

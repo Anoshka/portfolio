@@ -1,73 +1,53 @@
 import './TechArtGrid.scss';
-import img from '../../assets/images/placeholder.png';
 import train from '../../assets/images/train_still.png';
 import tools from '../../assets/images/tools_smaller.png';
 import crowd from '../../assets/images/crowd_small.png';
 import autorigger from '../../assets/images/autorigger_edited.png';
-import wb from '../../assets/images/wildbrain.png';
 import p4file from '../../assets/images/p4_file.png';
-import pawpatrol from '../../assets/images/pawpatrol.png';
-import linkedinIcon from '../../assets/icons/linkedin_clean.png';
-import emailIcon from '../../assets/icons/email_clean.png';
 import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { useUnlock } from '../../context/UnlockContext';
 import gamejam from '../../assets/images/everything_must_ghost.png';
-
-const VIDEO_PASSWORD = 'anoshkajhaveridemoreel1111!';
+import img1 from '../../assets/images/placeholder_01.png';
+import portfolio_img_01 from '../../assets/images/portfolio_img_01.png';
+import scrapply_img from '../../assets/images/scrapply_img.png';
+import pawdl_img from '../../assets/images/pawdl_img_01.png';
+import bell_img from '../../assets/images/bell_img_02.png';
+import instock_img from '../../assets/images/instock_img.png';
+import brainflix_img from '../../assets/images/brainflix_img.png';
+import perforce_img from '../../assets/images/perforce.png';
 
 // Project data (update with actual images & links)
 const projects = [
   {
-    title: 'Everything Must Ghost',
-    software: 'Unreal Engine | Maya',
-    image: gamejam,
-    imageClassName: 'project-list__image--gamejam',
-    link: '/tech_art/everything_must_ghost',
+    title: 'Asset Management',
+    software: 'Python | p4v | REST APi | JSON | Jira',
+    image: p4file,
+    link: '/tech_art/asset_management',
     description: `
-      A 3D first-person comedy horror game developed during a weeklong game jam, demonstrating comprehensive technical artistry and programming expertise.
-      
-      - Programming: Developed core gameplay mechanics, backend systems, and interactive UI components in Unreal Engine
-      - Rigging: Created custom character rigs with advanced control systems for smooth animation workflows
-      - Animation: Implemented character animations and procedural systems for dynamic gameplay experiences
-      - Technical Integration: Seamlessly integrated all systems for a polished, playable game experience
-    `,
-    className: 'project-list__item',
-  },
-  {
-    title: 'Paw Patrol Rubble and Crew',
-    software: 'Python | Maya',
-    image: pawpatrol,
-    link: '/tech_art/pawpatrol',
-    description: `
-      Developed Vehicle rigs for Rubble & Crew at Shapeshifters Interactive
-    `,
-    isProtected: true,
-    className: 'project-list__item--protected',
-  },
-  {
-    title: 'Work at Wildbrain Studios',
-    software: 'Python | Maya',
-    image: wb,
-    link: '/tech_art/fireman_sam',
-    description: `
-      Worked on Fireman Sam season 13, which was the first season rendered in Unreal Engine, Lego and Friends season 2, and In The Night Garden. 
-      `,
-    isProtected: true,
-    className: 'project-list__item--protected',
-  },
+      Developed an asset management system between Perforce, Jira and Prism, that centralises ticket management, asset updates 
+      validation and production status
 
-  // {
-  //   title: 'Spidey and His Amazing Friends',
-  //   software: 'Python | Maya',
-  //   image: img,
-  //   link: '/tech_art/spidey',
-  //   description: `
-  //     Worked on this Disney production at Atomic Cartoons
-  //   `,
-  //   isProtected: true,
-  //   className: 'project-list__item--protected',
-  // },
+      - Subprocess bash shell for user interaction
+      - Automates asset management within one platform 
+      - Auto updates perforce check-ins and Jira ticket status, and provides production information for management
+    `,
+  },
+  {
+    title: 'Portfolio DevOps',
+    software: 'React | MySQL | Node.JS | GPT-3.5 | SASS',
+    image: portfolio_img_01,
+    link: 'https://github.com/Anoshka/portfolio',
+    github: 'https://github.com/Anoshka/portfolio',
+    site: 'https://anoshkajhaveri.com',
+    description: `
+      A self-hosted portfolio site built to showcase projects, and experiment with AI-integrated DevOps. 
+      - Built with React, SCSS, and a responsive, theme-adjustable UI
+      - Designed and deployed with a full GitHub Actions CI/CD pipeline 
+      - Integrated OpenAI (GPT-3.5) into the testing phase to auto-generate Jest test cases from JSON prompts
+      - Pipeline includes code formatting, test validation, and automated PR creation + Netlify deployment
+      - Includes AI fallback system to ensure build continuity during token/prompt limitations
+      - Modular pipeline configured by YAML and limited to select branches for clean feature workflows
+    `,
+  },
   {
     title: 'Auto Rigger',
     software: 'Python | PyQT/PySide2 | PyMel  | Maya',
@@ -98,21 +78,6 @@ const projects = [
       - QOL tools for quick scene updates and visualisation
     `,
   },
-
-  {
-    title: 'Asset Management',
-    software: 'Python | p4v | REST APi | JSON | Jira',
-    image: p4file,
-    link: '/tech_art/asset_management',
-    description: `
-      Developed an asset management system between Perforce, Jira and Prism, that centralises ticket management, asset updates 
-      validation and production status
-
-      - Subprocess bash shell for user interaction
-      - Automates asset management within one platform 
-      - Auto updates perforce check-ins and Jira ticket status, and provides production information for management
-    `,
-  },
   {
     title: 'Crowd Automations and Shotgrid SDK updates',
     software: 'Python | Maya | Houdini | Bash',
@@ -128,6 +93,21 @@ const projects = [
     // ,
   },
   {
+    title: 'Perforce Integration & ShotGrid SDK Updates',
+    software: 'Python | Maya | Houdini | ShotGrid | Perforce',
+    image: perforce_img,
+    imageClassName: 'project-list__image--p4',
+    link: '/tech_art/perforce_integration',
+    description: `
+    A suite of tools and pipeline updates developed at Shapeshifters Interactive to streamline department workflows. Includes a one-click Perforce pull shelf tool for rapid scene staging, full Perforce integration within ShotGrid, and an updated ShotGrid SDK that loads only department-specific plugins, performs targeted validation, and automates Perforce setup. These improvements significantly reduced publish errors, simplified artist workflows, and lowered support ticket volume across departments.
+      `,
+    //   - Developed and scripted an HDA that takes file input and output paths and generates rig
+    //   - subprocesses maya to generate auto-rig process through customised Vetala code
+    //   - seamlessly transfers motion capture data from Motion Builder to Unreal engine, allowing a crowd to be built in under 24 hours
+    // ,
+  },
+
+  {
     title: 'Train Crash',
     software: 'Houdini | Maya | PyMel',
     image: train,
@@ -140,50 +120,128 @@ const projects = [
       - Dust and particle effects created in Houdini, substance painter used for train texturing
     `,
   },
+  {
+    title: 'Everything Must Ghost',
+    software: 'Unreal Engine | Maya',
+    image: gamejam,
+    imageClassName: 'project-list__image--gamejam',
+    link: '/tech_art/everything_must_ghost',
+    description: `
+      A 3D first-person comedy horror game developed during a weeklong game jam, demonstrating comprehensive technical artistry and programming expertise.
+      
+      - Programming: Developed core gameplay mechanics, backend systems, and interactive UI components in Unreal Engine
+      - Rigging: Created custom character rigs with advanced control systems for smooth animation workflows
+      - Animation: Implemented character animations and procedural systems for dynamic gameplay experiences
+      - Technical Integration: Seamlessly integrated all systems for a polished, playable game experience
+    `,
+    className: 'project-list__item',
+  },
+  {
+    title: 'Scrapply Backend',
+    software: 'Python | Selenium | JSON',
+    image: scrapply_img,
+    link: '/tech_art',
+    github: 'private',
+    site: '',
+    description: `
+     A Python-based backend tool designed to automate low-priority job searches and free up time for meaningful applications and project work.
+      - Built with Python and Selenium to scrape job listings from Indeed, ZipRecruiter, and Job Bank
+      - Uses a JSON config to filter by location, keywords, and posting date
+      - Returns structured job data sorted by recency for fast review or automated handling
+      - Currently developing resume/cover letter integration and auto-application logic
+      - Designed as a personal system to reduce time spent on bulk applications while maintaining focus on high-priority roles
+    `,
+  },
+  {
+    title: 'WrigglyBun Photography',
+    software: 'React | MySQL | Node.JS | Express.js | Cloudinary',
+    image: img1,
+    link: 'https://github.com/Anoshka/WrigglyBun_Client',
+    github: 'https://github.com/Anoshka/WrigglyBun_Client',
+    site: 'https://www.wrigglybunphotography.com/',
+    description: `
+      End-to-end web solution for a small business client in the maternity photography space.
+      - Designed and developed a full-stack application using React, Node.js, Express, MySQL, and SCSS
+      - Translated client directives into a responsive, custom-branded UI with a defined color system 
+      - Integrated Google Analytics and SEO best practices to improve visibility and traffic
+      - Managed deployment, hosting (Netlify), and budget constraints as part of an efficient system design
+      - Currently integrating Cloudinary for scalable, performant image delivery
+    `,
+  },
+
+  {
+    title: 'Pawdl',
+    software: 'React | MySQL | Node.JS | Express.js | Socket.io',
+    image: pawdl_img,
+    link: 'https://github.com/Anoshka/pawdl_client',
+    github: 'https://github.com/Anoshka/pawdl_client',
+    site: 'https://pawdl.netlify.app',
+    description: `
+        A full-stack social media app built to help pet lovers connect, chat, and set up puppy playdates.
+      - Built with React, Node.js, Express.js, MySQL, and SCSS
+      - Implemented secure authentication with JWT tokens and real-time chat via Socket.io
+      - Designed and deployed a RESTful API for full user CRUD: profile creation, edits, deletion, and chat history
+      - Supports social features like posting, commenting, liking, and adding friends
+      - Users can discover new friends or browse existing ones through dynamic filters and pages
+      - (In progress) Map-based friend discovery with Leaflet.js for location-aware connections
+      - A playful, responsive experience that blends real-time messaging with social discovery, hosted on Netlify and Heroku
+    `,
+  },
+  {
+    title: 'Bell Media Innovation Station',
+    software: 'React | MySQL | Node.JS | Express.js',
+    image: bell_img,
+    link: 'https://github.com/Anoshka/group-innovation-station-bell-industrial-hackthon',
+    github:
+      'https://github.com/Anoshka/group-innovation-station-bell-industrial-hackthon',
+    site: '',
+    description: `
+      A 24-hour hackathon to build internal portal prototype for Bell employees to access and engage with mental health resources, built at Brainstation.
+      - Designed and implemented the backend system: SQL schema, seeded data, API routes, and controller logic using MySQL and Express
+      - Built and tested endpoints in Postman, and created service files for clean frontend integration
+      - Contributed to responsive frontend features, including form templates and registration workflows
+      - Acted as a server-side integration engineer: managed the GitHub backend repo, performed code reviews, tested pull requests, and maintained a stable main branch
+      - Co-led planning discussions and presented the final solution to stakeholders
+    `,
+  },
+  {
+    title: 'InStock',
+    software: 'React | MySQL | Node.JS | Express.js',
+    image: instock_img,
+    link: '/tech_art',
+    github: 'private',
+    site: '',
+    description: `
+      Built during a one-week sprint at BrainStation, simulating real-world client work in a five-developer team.
+      - Led backend development: designed SQL schema, authored seed data, created routes and controller logic using Node.js and Express
+      - Managed the backend GitHub repository: reviewed pull requests, tested integrations, and maintained a clean main branch
+      - Built RESTful APIs for core features including inventory filtering, search, sorting, and user actions
+      - Developed frontend service files to connect client-side logic to the backend APIs
+      - Contributed to frontend features including form handling, dynamic tables, and responsive design
+      - Acted as a cross-functional resource: supported teammates with backend questions and helped debug integration issues
+ 
+    `,
+  },
+  {
+    title: 'Brainflix',
+    software: 'React | MySQL | Node.JS | Express.js',
+    image: brainflix_img,
+    link: '/tech_art',
+    github: 'private',
+    site: '',
+    description: `
+     Built as part of BrainStation's full-stack curriculum, BrainFlix replicates core features of platforms like YouTube or Vimeo.
+    - Developed a full-stack video hosting platform using React, Node.js, Express, SCSS, and MySQL
+    - Created a structured RESTful API to support video upload, playback, editing, deletion, and metadata management
+    - Implemented dynamic video routing, comment threads, and like counters
+    - Designed and built responsive UI components for the video player, sidebar suggestions, and user interactions
+    - Integrated backend data flow with client-side rendering using clean API service architecture
+    - Focused on intuitive UX, mobile responsiveness, and real-world feature parity
+    `,
+  },
 ];
 
 const TechArtGrid = () => {
-  const { unlocked, unlockContent, lockContent } = useUnlock();
-  const [input, setInput] = useState('');
-  const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-
-  // Check sessionStorage for authentication state on component mount
-  useEffect(() => {
-    const isAuthenticated = sessionStorage.getItem('isAuthenticated');
-    if (isAuthenticated === 'true') {
-      unlockContent();
-    } else {
-      lockContent();
-    }
-  }, [unlockContent, lockContent]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (input === VIDEO_PASSWORD) {
-      unlockContent();
-      setError('');
-      setShowSuccess(true);
-      // Store authentication state in sessionStorage
-      sessionStorage.setItem('isAuthenticated', 'true');
-    } else {
-      setError(
-        'The password you entered is incorrect. Please ensure you match cases and special characters.'
-      );
-      setShowSuccess(false);
-    }
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  // Filter projects based on protection status
-  const visibleProjects = projects.filter(
-    (project) => !project.isProtected || unlocked
-  );
-
   return (
     <div className="work">
       <p className="work__welcome">Welcome to my tech art portfolio!</p>
@@ -197,104 +255,14 @@ const TechArtGrid = () => {
             link.click();
           }}
         >
-          📄 Download Tech Art Resume
+          📄 Download resume
         </button>
       </div>
-      {!unlocked && (
-        <p>
-          Some of my work, including my demoreel, is password protected due to
-          copyright restrictions. Please enter the password here:
-        </p>
-      )}
-      <form onSubmit={handleSubmit} className="password-form">
-        <div className="password-input-container">
-          {!unlocked && (
-            <>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Enter password"
-              />
-              <button
-                type="button"
-                onClick={togglePasswordVisibility}
-                className="password-toggle"
-              >
-                {showPassword ? (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                    <line x1="1" y1="1" x2="23" y2="23"></line>
-                  </svg>
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                    <circle cx="12" cy="12" r="3"></circle>
-                  </svg>
-                )}
-              </button>
-            </>
-          )}
-        </div>
-        {!unlocked && <button type="submit">Unlock Content</button>}
-      </form>
-      {error && <p className="error">{error}</p>}
-      {showSuccess && (
-        <p className="success">
-          Congrats! Please scroll down the page to see additional projects and
-          reel.
-        </p>
-      )}
-      {!unlocked && (
-        <p className="contact-text">
-          If you do not have my password, please feel free to reach out to me:
-          <div className="contact-icons">
-            <a
-              href="https://www.linkedin.com/in/anoshkajhaveri/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="contact-link"
-            >
-              <img src={linkedinIcon} alt="LinkedIn" className="contact-icon" />
-            </a>
-            <a href="mailto:anohskaujhaveri@gmail.com" className="contact-link">
-              <img src={emailIcon} alt="Email" className="contact-icon" />
-            </a>
-          </div>
-        </p>
-      )}
-      {unlocked && (
-        <div className="video-container">
-          <video controls className="portfolio-video">
-            <source src="/videos/reel_01.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-        </div>
-      )}
+
       <div className="project-list">
-        {visibleProjects.map((project, index) => (
+        {projects.map((project) => (
           <Link
-            key={index}
+            key={project.title}
             to={project.link}
             className={`project-list__item ${project.className || ''}`}
           >
@@ -304,7 +272,53 @@ const TechArtGrid = () => {
               className={`project-list__image ${project.imageClassName || ''}`}
             />
             <div className="project-list__content">
-              <h3 className="project-list__title">{project.title}</h3>
+              <h3 className="project-list__title">
+                {project.title}
+                {(project.github || project.site) && (
+                  <span className="project-list__links">
+                    {project.github === 'private' ? (
+                      <span className="project-list__link project-list__link--non-link">
+                        {' '}
+                        Private Repo
+                      </span>
+                    ) : project.github ? (
+                      <a
+                        href={project.github}
+                        className="project-list__link project-list__link--link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        GitHub
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 16 16"
+                          data-supported-dps="16x16"
+                          fill="currentColor"
+                          className="project-list__redirect"
+                          width="16"
+                          height="16"
+                          focusable="false"
+                          style={{ marginLeft: '4px', display: 'inline-block' }}
+                        >
+                          <path d="M15 1v6h-2V4.41L7.41 10 6 8.59 11.59 3H9V1zm-4 10a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1h2V3H5a3 3 0 00-3 3v5a3 3 0 003 3h5a3 3 0 003-3V9h-2z"></path>
+                        </svg>
+                      </a>
+                    ) : null}
+                    {project.site && (
+                      <a
+                        href={project.site}
+                        className="project-list__link project-list__link--link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        See Site
+                      </a>
+                    )}
+                  </span>
+                )}
+              </h3>
               <p className="project-list__software">{project.software}</p>
               <p className="project-list__description">{project.description}</p>
             </div>

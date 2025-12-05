@@ -133,15 +133,22 @@ function Header() {
               className="header__link"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Tech Art
+              Dev
             </NavLink>
             <NavLink
+              to="/rigging"
+              className="header__link"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Rigging
+            </NavLink>
+            {/* <NavLink
               to="/web_dev"
               className="header__link"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Web Dev
-            </NavLink>
+            </NavLink> */}
           </nav>
         </div>
       </section>

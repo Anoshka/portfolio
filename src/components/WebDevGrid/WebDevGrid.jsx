@@ -6,13 +6,14 @@ import pawdl_img from '../../assets/images/pawdl_img_01.png';
 import bell_img from '../../assets/images/bell_img_02.png';
 import instock_img from '../../assets/images/instock_img.png';
 import brainflix_img from '../../assets/images/brainflix_img.png';
+import { Link } from 'react-router-dom';
 
 const projects = [
   {
     title: 'WrigglyBun Photography',
     software: 'React | MySQL | Node.JS | Express.js | Cloudinary',
     image: img1,
-    link: '/web_dev/wrigglybun',
+    link: '/tech_art/wrigglybun',
     github: 'https://github.com/Anoshka/WrigglyBun_Client',
     site: 'https://www.wrigglybunphotography.com/',
     description: `
@@ -29,7 +30,7 @@ const projects = [
     title: 'Scrapply Backend',
     software: 'Python | Selenium | JSON',
     image: scrapply_img,
-    link: '/web_dev/scrapply',
+    link: '/tech_art/scrapply',
     github: 'private',
     site: '',
     description: `
@@ -46,7 +47,7 @@ const projects = [
     title: 'Portfolio DevOps',
     software: 'React | MySQL | Node.JS | GPT-3.5 | SASS',
     image: portfolio_img_01,
-    link: '/web_dev/portfolio',
+    link: '/tech_art/portfolio',
     github: 'https://github.com/Anoshka/portfolio',
     site: 'https://anoshkajhaveri.com',
     description: `
@@ -64,7 +65,7 @@ const projects = [
     title: 'Pawdl',
     software: 'React | MySQL | Node.JS | Express.js | Socket.io',
     image: pawdl_img,
-    link: '/web_dev/pawdl',
+    link: '/tech_art/pawdl',
     github: 'https://github.com/Anoshka/pawdl_client',
     site: 'https://pawdl.netlify.app',
     description: `
@@ -83,7 +84,7 @@ const projects = [
     title: 'Bell Media Innovation Station',
     software: 'React | MySQL | Node.JS | Express.js',
     image: bell_img,
-    link: '/web_dev/bell_media_innovation_station',
+    link: '/tech_art/bell_media_innovation_station',
     github:
       'https://github.com/Anoshka/group-innovation-station-bell-industrial-hackthon',
     site: '',
@@ -101,7 +102,7 @@ const projects = [
     title: 'InStock',
     software: 'React | MySQL | Node.JS | Express.js',
     image: instock_img,
-    link: '/web_dev/instock',
+    link: '/tech_art/instock',
     github: 'private',
     site: '',
     description: `
@@ -120,7 +121,7 @@ const projects = [
     title: 'Brainflix',
     software: 'React | MySQL | Node.JS | Express.js',
     image: brainflix_img,
-    link: '/web_dev/brainflix',
+    link: '/tech_art/brainflix',
     github: 'private',
     site: '',
     description: `
@@ -152,64 +153,73 @@ const WebDevGrid = () => {
           📄 Download Web Dev Resume
         </button>
       </div>
-      {projects.map((project, index) => (
-        <div key={index} className="web-project-list__item">
-          <img
-            src={project.image}
-            alt={project.title}
-            className="web-project-list__image"
-          />
-          <div className="web-project-list__content">
-            <h3 className="web-project-list__title">
-              {project.title}
-              <span className="web-project-list__links">
-                {project.github === 'private' ? (
-                  <span className="web-project-list__link web-project-list__link--non-link">
-                    {' '}
-                    Private Repo
-                  </span>
-                ) : project.github ? (
-                  <a
-                    href={project.github}
-                    className="web-project-list__link web-project-list__link--link"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    GitHub
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 16 16"
-                      data-supported-dps="16x16"
-                      fill="currentColor"
-                      className="web-project-list__redirect"
-                      width="16"
-                      height="16"
-                      focusable="false"
-                      style={{ marginLeft: '4px', display: 'inline-block' }}
+      {projects.map((project, index) => {
+        const ProjectWrapper = project.link ? Link : 'div';
+        const wrapperProps = project.link
+          ? { to: project.link, className: 'web-project-list__item' }
+          : { className: 'web-project-list__item' };
+
+        return (
+          <ProjectWrapper key={index} {...wrapperProps}>
+            <img
+              src={project.image}
+              alt={project.title}
+              className={`web-project-list__image ${project.imageClassName || ''}`}
+            />
+            <div className="web-project-list__content">
+              <h3 className="web-project-list__title">
+                {project.title}
+                <span className="web-project-list__links">
+                  {project.github === 'private' ? (
+                    <span className="web-project-list__link web-project-list__link--non-link">
+                      {' '}
+                      Private Repo
+                    </span>
+                  ) : project.github ? (
+                    <a
+                      href={project.github}
+                      className="web-project-list__link web-project-list__link--link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <path d="M15 1v6h-2V4.41L7.41 10 6 8.59 11.59 3H9V1zm-4 10a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1h2V3H5a3 3 0 00-3 3v5a3 3 0 003 3h5a3 3 0 003-3V9h-2z"></path>
-                    </svg>
-                  </a>
-                ) : null}
-                {project.site && (
-                  <a
-                    href={project.site}
-                    className="web-project-list__link web-project-list__link--link"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    See Site
-                  </a>
-                )}
-              </span>
-            </h3>
-            <p className="web-project-list__software">{project.software}</p>
-            <p className="web-project-list__description">
-              {project.description}
-            </p>
-          </div>
-        </div>
-      ))}
+                      GitHub
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 16 16"
+                        data-supported-dps="16x16"
+                        fill="currentColor"
+                        className="web-project-list__redirect"
+                        width="16"
+                        height="16"
+                        focusable="false"
+                        style={{ marginLeft: '4px', display: 'inline-block' }}
+                      >
+                        <path d="M15 1v6h-2V4.41L7.41 10 6 8.59 11.59 3H9V1zm-4 10a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1h2V3H5a3 3 0 00-3 3v5a3 3 0 003 3h5a3 3 0 003-3V9h-2z"></path>
+                      </svg>
+                    </a>
+                  ) : null}
+                  {project.site && (
+                    <a
+                      href={project.site}
+                      className="web-project-list__link web-project-list__link--link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      See Site
+                    </a>
+                  )}
+                </span>
+              </h3>
+              <p className="web-project-list__software">{project.software}</p>
+              <p className="web-project-list__description">
+                {project.description}
+              </p>
+            </div>
+          </ProjectWrapper>
+        );
+      })}
     </div>
   );
 };

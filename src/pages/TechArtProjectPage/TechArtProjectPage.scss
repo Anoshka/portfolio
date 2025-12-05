@@ -1,4 +1,5 @@
 @use '../../styles/partials/variables' as *;
+@use '../../styles/partials/mixins' as *;
 // src/pages/TechArtProjectPage/TechArtProjectPage.scss
 
 .tech-art-project {
@@ -114,8 +115,40 @@
     font-style: italic;
   }
   &__bullet-points {
-    line-height: 2rem;
-    padding-right: 20rem;
+    list-style-type: disc;
+    line-height: 1.3rem;
+    padding-inline-start: 1.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    @include tablet {
+      line-height: 1.5rem;
+      padding-inline-start: 2rem;
+    }
+
+    @include desktop {
+      line-height: 2rem;
+      padding-inline-start: 2.5rem;
+    }
+
+    &--with-headers {
+      li {
+        margin-bottom: 1rem;
+      }
+    }
+  }
+
+  &__bullet-header {
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  &__bullet-description {
+    display: block;
   }
 
   &__image-container {
@@ -147,6 +180,19 @@
 .tech-art-project__paragraph {
   margin-bottom: 1.5rem;
   line-height: 1.6;
+}
+
+.tech-art-project__bold-header {
+  margin-bottom: 0.5rem !important;
+  margin-top: 1rem;
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  strong {
+    display: block;
+  }
 }
 
 .tech-art-project__image-container {

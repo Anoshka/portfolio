@@ -7,8 +7,10 @@ import Footer from './components/Footer/Footer.jsx';
 import LandingPage from './pages/LandingPage/LandingPage.jsx';
 import NotFoundPage from './pages/NotFoundPage/NotFoundPage.jsx';
 import TechArtPage from './pages/TechArtPage/TechArtPage.jsx';
+import RiggingPage from './pages/RiggingPage/RiggingPage.jsx';
 import WebDevPage from './pages/WebDevPage/WebDevPage.jsx';
 import TechArtProjectPage from './pages/TechArtProjectPage/TechArtProjectPage.jsx';
+import RiggingProjectPage from './pages/RiggingProjectPage/RiggingProjectPage.jsx';
 import WebDevProjectPage from './pages/WebDevProjectPage/WebDevProjectPage.jsx';
 import { UnlockProvider } from './context/UnlockContext';
 
@@ -21,8 +23,10 @@ const App = () => {
           <Route path="/" element={<LandingPage />} />
           <Route path="/about" element={<LandingPage />} />
           <Route path="/tech_art" element={<TechArtPage />} />
+          <Route path="/rigging" element={<RiggingPage />} />
           <Route path="/web_dev" element={<WebDevPage />} />
           <Route path="/tech_art/:projectId" element={<TechArtProjectPage />} />
+          <Route path="/rigging/:projectId" element={<RiggingProjectPage />} />
           <Route path="/web_dev/:projectId" element={<WebDevProjectPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

@@ -1,0 +1,15 @@
+@use '../../styles/partials/variables' as *;
+@use '../../styles/partials/mixins' as *;
+@use '../../components/TechArtGrid/TechArtGrid.scss' as *;
+
+.rigging-page {
+  .work__welcome {
+    margin-bottom: $spacing-unit * 1.5;
+  }
+
+  .video-container {
+    margin-top: $spacing-unit * 2;
+  }
+}
+
+

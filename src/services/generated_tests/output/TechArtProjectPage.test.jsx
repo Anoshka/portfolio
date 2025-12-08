@@ -5,6 +5,7 @@ import { TestWrapper } from '../testUtils';
 import TechArtProjectPage from '../../../pages/TechArtProjectPage/TechArtProjectPage';
 
 describe('TechArtProjectPage', () => {
+  
   test('renders without crashing', () => {
     render(
       <TestWrapper>

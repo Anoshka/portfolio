@@ -5,6 +5,7 @@ import { TestWrapper } from '../testUtils';
 import ResumePage from '../../../pages/ResumePage/ResumePage';
 
 describe('ResumePage', () => {
+  
   test('renders without crashing', () => {
     render(
       <TestWrapper>

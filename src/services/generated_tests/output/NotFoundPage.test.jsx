@@ -5,6 +5,7 @@ import { TestWrapper } from '../testUtils';
 import NotFoundPage from '../../../pages/NotFoundPage/NotFoundPage';
 
 describe('NotFoundPage', () => {
+  
   test('renders without crashing', () => {
     render(
       <TestWrapper>

@@ -5,6 +5,7 @@ import { TestWrapper } from '../testUtils';
 import WebDevProjectPage from '../../../pages/WebDevProjectPage/WebDevProjectPage';
 
 describe('WebDevProjectPage', () => {
+  
   test('renders without crashing', () => {
     render(
       <TestWrapper>

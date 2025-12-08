@@ -10,5 +10,3 @@ const RiggingPage = () => {
 };
 
 export default RiggingPage;
-
-

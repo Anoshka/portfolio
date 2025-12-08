@@ -5,7 +5,6 @@ import { TestWrapper } from '../testUtils';
 import WebDevGrid from '../../../components/WebDevGrid/WebDevGrid';
 
 describe('WebDevGrid', () => {
-  
   test('renders without crashing', () => {
     render(
       <TestWrapper>

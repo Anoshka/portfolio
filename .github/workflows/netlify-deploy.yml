@@ -452,7 +452,7 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         with:
-          args: deploy --dir=build --prod
+          args: deploy --dir=build --prod --branch=web-dev-content --message="Deploy from web-dev-content branch"
 
   # 6. Notification
   notify:

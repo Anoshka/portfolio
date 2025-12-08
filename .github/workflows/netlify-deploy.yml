@@ -21,6 +21,7 @@ env:
 jobs:
   # 1. Format Code
   format:
+    if: github.ref != 'refs/heads/web-dev-content'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -47,6 +48,7 @@ jobs:
 
   # 2. Generate Tests
   generate-tests:
+    if: github.ref != 'refs/heads/web-dev-content'
     needs: format
     runs-on: ubuntu-latest
     outputs:
@@ -455,7 +457,7 @@ jobs:
   # 6. Notification
   notify:
     needs: [deploy-main, deploy-tech-art, deploy-web-dev]
-    if: always()
+    if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/tech-art-content' || github.ref == 'refs/heads/web-dev-content')
     runs-on: ubuntu-latest
     steps:
       - name: Deployment Status

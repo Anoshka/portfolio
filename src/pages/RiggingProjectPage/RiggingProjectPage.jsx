@@ -131,7 +131,10 @@ const RiggingProjectPage = () => {
       <p className="tech-art-project__description">{project.description}</p>
       <div className="tech-art-project__content">
         {project.content.map((item, index) => (
-          <div key={`content-${index}`} className="tech-art-project__content-item">
+          <div
+            key={`content-${index}`}
+            className="tech-art-project__content-item"
+          >
             {renderContent(item)}
           </div>
         ))}
@@ -144,5 +147,3 @@ const RiggingProjectPage = () => {
 };
 
 export default RiggingProjectPage;
-
-
